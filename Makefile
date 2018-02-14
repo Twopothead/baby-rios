@@ -5,6 +5,7 @@
 CC = gcc
 LD = ld 
 CFLAGS = -fno-stack-protector -m32 \
+	 -c \
 	 -fno-builtin -fno-omit-frame-pointer
 
 # Platform i386
@@ -29,7 +30,7 @@ objs := asm_obj c_obj
 .PHONY: clean run iso help
 
 run : $(iso)
-	qemu-system-x86_64 -cdrom $(iso)
+	qemu-system-x86_64 -cdrom $(iso) -monitor stdio
 
 iso : $(iso)
 
@@ -42,12 +43,21 @@ $(iso): $(kernel) $(grub_cfg)
 
 
 
-$(kernel): $(asm_obj) $(linker_script)
-	$(LD) -n -m elf_i386 -T $(linker_script) -o $(kernel) $(asm_obj)
+$(kernel): $(asm_obj) $(c_obj) $(linker_script)
+	$(LD) -n -m elf_i386 -T $(linker_script) -o $(kernel) $(c_obj) $(asm_obj)
 
+
+# Compile .asm files
 build/arch/$(arch)/%.o : src/%.asm
 	mkdir -p $(shell dirname $@)
 	nasm -f elf32 $< -o $@  
+	
+# Compile .c files
+build/arch/$(arch)/%.o: src/%.c
+	mkdir -p $(shell dirname $@)
+	$(CC) $(CFLAGS) $< -o $@
+
+
 
 c_obj : 
 	#mkdir -p $(shell dirname $@)
@@ -78,6 +88,11 @@ help :
 #	,otherwise GRUB2 may fail to find Multiboot
 # Our kernel is for i386,which is x86-32. However,thanks to x86's backward
 # compatibility , RiOS will be OK with x86-64 architecture.
+# for more about $<,$@ ,please refer to
+#    https://www.gnu.org/software/make/manual/html_node/Pattern-Rules.html#Pattern-Rules
+# gcc with -c OPTION,otherwise "undefined reference to 'main' " :(
+#
 # target: ***build/RiOS-i386.iso*** => write to U disk
 # 	qemu-system-x86_64 -kernel kernel-i386.bin
 # 	qemu-system-x86_64 RiOS-i386.iso
+#

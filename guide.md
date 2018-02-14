@@ -1,6 +1,6 @@
 ## Guide for RiOS
 ------------------------------------
-### Copyright (C) 2017 qiuri
+### Copyright (C) 2018 qiuri
 
 
 install to your Udisk
@@ -47,11 +47,28 @@ build/
 	|    |__grub.cfg
 	|____kernel.bin
 ```
-- 
 --------------------------
+You may run into such case:
+```
+gcc -fno-stack-protector -m32 -fno-builtin -fno-omit-frame-pointer src/kmain.c -o build/arch/i386/kmain.o
+/usr/lib/gcc/x86_64-linux-gnu/7/../../../i386-linux-gnu/Scrt1.o: In function `_start':
+(.text+0x28): undefined reference to `main'
+```
+Therefore,gcc Compile with -c OPTION is necessary.
+
+--------------------------
+Difference between NASM and GAS
+https://www.ibm.com/developerworks/linux/library/l-gas-nasm/index.html
+--------------------------
+
+helpful resources :
+https://wiki.osdev.org/What_order_should_I_make_things_in
+--------------------------
+```bash
 $ cd RiOS/ 
 $ make run
-then you'll see "[ ok ] RiOS " in qemu 
+## then you'll see "[ ok ] RiOS " in qemu 
 $ make clean 
-remove build files
- 
+## remove build files
+``` 
+
