@@ -61,6 +61,11 @@ Difference between NASM and GAS
 https://www.ibm.com/developerworks/linux/library/l-gas-nasm/index.html
 --------------------------
 
+- C and C++ code can call each other by taking advantage of **extern "C"**,etc.
+- C++ file extension is  ".CC",and  "CC" can be recognized by GNU compiler.
+
+--------------------------
+
 helpful resources :
 https://wiki.osdev.org/What_order_should_I_make_things_in
 --------------------------

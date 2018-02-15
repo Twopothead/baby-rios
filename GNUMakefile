@@ -2,12 +2,20 @@
 # Copyright (C) 2018 Frank Curie (邱日)
 # Here are some OBJ files from all moudules
 
-console_objs :=$(patsubst src/console/%.c,\
-	build/arch/$(arch)/console/%.o, $(wildcard src/console/*.c))
+#####    console moudule    ###################################
+console_objs :=$(patsubst src/console/%.cc,\
+	build/arch/$(arch)/console/%.o, $(wildcard src/console/*.cc))
 
-build/arch/$(arch)/console/%.o: src/console/%.c 
+build/arch/$(arch)/console/%.o: src/console/%.cc 
 	mkdir -p $(shell dirname $@)
 	$(CC) $(CFLAGS)  $< -o $@
 
+####     mm moudule   #########################################
 
+mm_objs :=$(patsubst src/mm/%.cc,\
+	build/arch/$(arch)/mm/%.o, $(wildcard src/mm/*.cc))
+
+build/arch/$(arch)/mm/%.o: src/mm/%.cc 
+	mkdir -p $(shell dirname $@)
+	$(CC) $(CFLAGS)  $< -o $@
 

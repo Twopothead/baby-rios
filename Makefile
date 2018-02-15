@@ -9,7 +9,12 @@ LD = ld
 CFLAGS = -fno-stack-protector -m32 \
 	 -c \
 	 -fno-builtin -fno-omit-frame-pointer \
-	 -Wall 
+	 -fno-pic  -fno-exceptions \
+	 -ffreestanding \
+	 -I./src/include \
+	 -Wall \
+	 -fno-rtti 
+	#-nostdinc 
 
 # Platform i386
 arch ?= i386
@@ -28,9 +33,10 @@ include GNUMakefile
 
 asm_obj := $(patsubst src/%.asm,\
 	build/arch/$(arch)/%.o, $(wildcard src/*.asm))
-c_obj := $(patsubst src/%.c,\
-	build/arch/$(arch)/%.o, $(wildcard src/*.c)) $(console_objs)
-objs := asm_obj c_obj
+cc_obj := $(patsubst src/%.cc,\
+	build/arch/$(arch)/%.o, $(wildcard src/*.cc)) $(console_objs) \
+	$(mm_objs)
+objs := asm_obj cc_obj
 
 	
 .PHONY: clean run iso help
@@ -47,11 +53,8 @@ $(iso): $(kernel) $(grub_cfg)
 	grub-mkrescue -o $(iso) build/iso/
 	
 
-
-
-
-$(kernel):  $(asm_obj) $(c_obj) $(linker_script) 
-	$(LD) -n -m elf_i386 -T $(linker_script) -o $(kernel) $(c_obj) $(asm_obj) 
+$(kernel):  $(asm_obj) $(cc_obj) $(linker_script) 
+	$(LD) -n -m elf_i386 -T $(linker_script) -o $(kernel) $(cc_obj) $(asm_obj) 
 
 
 # Compile .asm files
@@ -60,16 +63,11 @@ build/arch/$(arch)/%.o : src/%.asm
 	nasm -f elf32 $< -o $@  
 	
 # Compile .c files
-build/arch/$(arch)/%.o: src/%.c 
+build/arch/$(arch)/%.o: src/%.cc
 	mkdir -p $(shell dirname $@)
 	$(CC) $(CFLAGS)  $< -o $@
 
 
-
-
-c_obj : 
-	#mkdir -p $(shell dirname $@)
-	#$(CC) $(CFLAGS) $< -o $@
 	
 clean :
 	rm -r build
@@ -100,8 +98,12 @@ help :
 #    https://www.gnu.org/software/make/manual/html_node/Pattern-Rules.html#Pattern-Rules
 # gcc with -c OPTION,otherwise "undefined reference to 'main' " :(
 #
+# -I./src/include \ :add search PATH,this depends on the location of Makefile
+# #include <blabla.h>
+# The option -ffreestanding directs the compiler to not assume that standard 
+#    functions have their usual definition.
 # target: ***build/RiOS-i386.iso*** => write to U disk
 # 	qemu-system-x86_64 -kernel kernel-i386.bin
 # 	qemu-system-x86_64 RiOS-i386.iso
-#
+# 
 #-nostdinc -Iinclude 不从系统中的库去找，而从自己的地方去找 
