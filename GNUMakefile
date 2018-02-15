@@ -1,0 +1,13 @@
+# RiOS/GNUmakefile
+# Copyright (C) 2018 Frank Curie (邱日)
+# Here are some OBJ files from all moudules
+
+console_objs :=$(patsubst src/console/%.c,\
+	build/arch/$(arch)/console/%.o, $(wildcard src/console/*.c))
+
+build/arch/$(arch)/console/%.o: src/console/%.c 
+	mkdir -p $(shell dirname $@)
+	$(CC) $(CFLAGS)  $< -o $@
+
+
+

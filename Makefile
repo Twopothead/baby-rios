@@ -1,4 +1,6 @@
 #  "RiOS" -- a Naive kernel  
+# 
+# RiOS/makefile
 # Copyright (C) 2018 qiuri
 
 # Compiler settings and options
@@ -6,7 +8,8 @@ CC = gcc
 LD = ld 
 CFLAGS = -fno-stack-protector -m32 \
 	 -c \
-	 -fno-builtin -fno-omit-frame-pointer
+	 -fno-builtin -fno-omit-frame-pointer \
+	 -Wall 
 
 # Platform i386
 arch ?= i386
@@ -17,16 +20,19 @@ kernel :=build/kernel-$(arch).bin
 linker_script := src/linker.ld
 grub_cfg :=src/grub.cfg
 
-c_source :=$(wildcard src/*.c)  
+# c_source :=$(wildcard src/*.c)  
 # Alternatively, c_source =$(shell find src/ -name "*.c")
-asm_source := $(wildcard src/*.asm)
+# asm_source := $(wildcard src/*.asm)
+include GNUMakefile 
+# add another file here
 
 asm_obj := $(patsubst src/%.asm,\
-	build/arch/$(arch)/%.o, $(asm_source))
+	build/arch/$(arch)/%.o, $(wildcard src/*.asm))
 c_obj := $(patsubst src/%.c,\
-	build/arch/$(arch)/%.o, $(c_source)) 
+	build/arch/$(arch)/%.o, $(wildcard src/*.c)) $(console_objs)
 objs := asm_obj c_obj
 
+	
 .PHONY: clean run iso help
 
 run : $(iso)
@@ -43,8 +49,9 @@ $(iso): $(kernel) $(grub_cfg)
 
 
 
-$(kernel): $(asm_obj) $(c_obj) $(linker_script)
-	$(LD) -n -m elf_i386 -T $(linker_script) -o $(kernel) $(c_obj) $(asm_obj)
+
+$(kernel):  $(asm_obj) $(c_obj) $(linker_script) 
+	$(LD) -n -m elf_i386 -T $(linker_script) -o $(kernel) $(c_obj) $(asm_obj) 
 
 
 # Compile .asm files
@@ -53,9 +60,10 @@ build/arch/$(arch)/%.o : src/%.asm
 	nasm -f elf32 $< -o $@  
 	
 # Compile .c files
-build/arch/$(arch)/%.o: src/%.c
+build/arch/$(arch)/%.o: src/%.c 
 	mkdir -p $(shell dirname $@)
-	$(CC) $(CFLAGS) $< -o $@
+	$(CC) $(CFLAGS)  $< -o $@
+
 
 
 
@@ -96,3 +104,4 @@ help :
 # 	qemu-system-x86_64 -kernel kernel-i386.bin
 # 	qemu-system-x86_64 RiOS-i386.iso
 #
+#-nostdinc -Iinclude 不从系统中的库去找，而从自己的地方去找 
