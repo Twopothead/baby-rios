@@ -35,8 +35,13 @@ asm_obj := $(patsubst src/%.asm,\
 	build/arch/$(arch)/%.o, $(wildcard src/*.asm))
 cc_obj := $(patsubst src/%.cc,\
 	build/arch/$(arch)/%.o, $(wildcard src/*.cc)) $(console_objs) \
-	$(mm_objs)
-objs := asm_obj cc_obj
+	$(mm_objs) \
+	$(kernel_objs)
+
+gas_obj := $(patsubst src/kernel/gas/%.S,\
+	build/arch/$(arch)/kernel/gas/%.o, $(wildcard src/kernel/gas/*.S))
+
+objs := asm_obj cc_obj gas_obj
 
 	
 .PHONY: clean run iso help
@@ -53,19 +58,25 @@ $(iso): $(kernel) $(grub_cfg)
 	grub-mkrescue -o $(iso) build/iso/
 	
 
-$(kernel):  $(asm_obj) $(cc_obj) $(linker_script) 
-	$(LD) -n -m elf_i386 -T $(linker_script) -o $(kernel) $(cc_obj) $(asm_obj) 
+$(kernel):  $(asm_obj) $(gas_obj) $(cc_obj) $(linker_script) 
+	$(LD) -n -m elf_i386 -T $(linker_script) -o $(kernel)  $(asm_obj) $(gas_obj) $(cc_obj)
 
 
-# Compile .asm files
+# Compile .asm files with nasm
 build/arch/$(arch)/%.o : src/%.asm
 	mkdir -p $(shell dirname $@)
 	nasm -f elf32 $< -o $@  
 	
-# Compile .c files
+# Compile .cc files (cplusplus)
 build/arch/$(arch)/%.o: src/%.cc
 	mkdir -p $(shell dirname $@)
 	$(CC) $(CFLAGS)  $< -o $@
+
+
+# Compile .S files with gcc
+build/arch/$(arch)/kernel/gas/%.o :src/kernel/gas/%.S
+	mkdir -p $(shell dirname $@)
+	$(CC) -c -m32 $< -o $@
 
 
 	

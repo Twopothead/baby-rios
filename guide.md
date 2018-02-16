@@ -67,7 +67,9 @@ https://www.ibm.com/developerworks/linux/library/l-gas-nasm/index.html
 --------------------------
 
 helpful resources :
-https://wiki.osdev.org/What_order_should_I_make_things_in
+- OSdev: https://wiki.osdev.org/What_order_should_I_make_things_in
+- About the configuration of grub.cfg : http://www.jinbuguo.com/linux/grub.cfg.html
+
 --------------------------
 ```bash
 $ cd RiOS/ 

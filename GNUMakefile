@@ -19,3 +19,11 @@ build/arch/$(arch)/mm/%.o: src/mm/%.cc
 	mkdir -p $(shell dirname $@)
 	$(CC) $(CFLAGS)  $< -o $@
 
+####     kernel moudule   ######################################
+
+kernel_objs :=$(patsubst src/kernel/%.cc,\
+	build/arch/$(arch)/kernel/%.o, $(wildcard src/kernel/*.cc))
+
+build/arch/$(arch)/kernel/%.o: src/kernel/%.cc 
+	mkdir -p $(shell dirname $@)
+	$(CC) $(CFLAGS)  $< -o $@

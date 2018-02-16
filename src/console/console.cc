@@ -10,9 +10,14 @@
  *  This module implements the console io functions
  */ 
 #include <rios/type.h>
+#include <rios/gas.h>
+extern void write_port(int value,int port);
 char *pVGA= (char *)0xb8000;
 static const int SCREEN_WIDTH = 80;
 static const int SCREEN_HEIGHT =25;
+static unsigned long x,y;
+static unsigned long top,bottom;
+static unsigned long pos;
 enum Color{
 	Black	       	= 0,
 	Blue	        = 1,
@@ -54,6 +59,7 @@ void clear_screen(void)
 
 	foo foo1;
 	foo1.func();
+	write_port(0x21,0x20);
 }
 #ifdef __cplusplus
 }
