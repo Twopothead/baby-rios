@@ -12,8 +12,8 @@ CFLAGS = -fno-stack-protector -m32 \
 	 -fno-pic  -fno-exceptions \
 	 -ffreestanding \
 	 -I./src/include \
-	 -Wall \
-	 -fno-rtti 
+	 -Wall 
+	# -fno-rtti 
 	#-nostdinc 
 
 # Platform i386

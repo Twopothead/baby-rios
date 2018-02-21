@@ -1,69 +1,84 @@
 /*
- *  RiOS/kernel/console.c
- *
- *   (C) 2018 Frank Curie (邱日) 
- */   
-
-/*
- *  console.c
- *
- *  This module implements the console io functions
- */ 
-#include <rios/type.h>
-#include <rios/gas.h>
-extern void write_port(int value,int port);
+ * RiOS/src/console/console.cc
+ * 
+ * Copyright (C) 2018 Frank Curie (邱日)
+ */
+#include <rios/console.h>
 char *pVGA= (char *)0xb8000;
 static const int SCREEN_WIDTH = 80;
 static const int SCREEN_HEIGHT =25;
-static unsigned long x,y;
-static unsigned long top,bottom;
-static unsigned long pos;
-enum Color{
-	Black	       	= 0,
-	Blue	        = 1,
-	Green           = 2,
-	Cyam            = 3,
-	Red             = 4,
-	Magenta         = 5,
-	Brown           = 6,
-	LightGray       = 7,
-	DarkGray        = 8,
-	LightBlue       = 9,
-	LightGreen      = 10,
-	LightCyan 	= 11,
-	LightRed 	= 12,
-	Pink		= 13,
-	Yellow 		= 14,
-	White		= 15,
-};
-static inline u8 VGA_color_code(enum Color foreground,enum Color background )
+static const int Bytes_each_box = 2; /*attr , text*/
+static u32 Vx,Vy;
+static u32 top,bottom;
+static u32 pos;
+static unsigned char attr = 0x07; /*white text,black background*/
+
+
+/*static inline u8 VGA_color_code(enum Color foreground,enum Color background );*/
+class foo{public :void func(){};};
+
+int strlen(const char * str)
 {
-	return (background<<4 | foreground);
+	int length = 0;
+	while(str[length]) length++;
+	return length;
 }
 
-class foo{
-	public :void func(){};
-};
+void putch(u8 ch)
+{
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
+	__asm__ ("movb %1,%%ah\n\t"
+		 "movw %%ax,%2\n\t"
+		 ::"a"(ch),"m"(attr),"m"(*(short *)pos)
+		);
+	pos += Bytes_each_box;
+}
+
+void puts(char *str)
+{
+
+
+}
+void print(const char *str)
+{
+	/*set_text_attr(LightGray,Black);*/
+	for(int i = 0; i< strlen(str); i++)
+		putch(str[i]);
+
+}
+void outtextxy(int x,int y,u8 *textstring)
+{
+
+}
+
+void set_text_attr(enum Color foreground,enum Color background)
+{
+	 attr = VGA_color_code(foreground,background);
+}
+
+void outtext(char* textstring)
+{
+
+}
+
+void init_console(void)
+{
+	pos = 0xb8000;
+	pos+=2 * (SCREEN_WIDTH * Bytes_each_box);
+	set_text_attr(LightGray,Black);
+	msg_gdt_ok();
+}
 
 void clear_screen(void)
 {
 	unsigned int i=0;
 	while(i<SCREEN_WIDTH*SCREEN_HEIGHT*2){
-		pVGA[i++] = 'R';
-		pVGA[i++] = 0b01000000;
+		pVGA[i++] = ' ';
+		pVGA[i++] = VGA_color_code(LightGray,Black);
 	}
 
-	foo foo1;
-	foo1.func();
-	write_port(0x21,0x20);
 }
-#ifdef __cplusplus
-}
-#endif /* __cplusplus */
+
 
 /*
  *Bit(s)	Value
