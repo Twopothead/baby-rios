@@ -79,7 +79,11 @@ void clear_screen(void)
 
 }
 
-
+void nextline(void)
+{
+	double i=double((pos - 0xb8000))/double(SCREEN_WIDTH * Bytes_each_box);
+	if(i>0)pos=0xb8000+(int)(i+1)*SCREEN_WIDTH * Bytes_each_box;
+}
 /*
  *Bit(s)	Value
  *0-7		ASCII code point

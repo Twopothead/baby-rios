@@ -13,6 +13,7 @@
 extern "C" {
 #endif /* __cplusplus */
 
+
 enum Color{
 	Black	       	= 0,
 	Blue	        = 1,
@@ -39,16 +40,16 @@ void init_console(void);
 void putch(u8 ch);
 int strlen(const char * str);
 void print(const char *str);
-
-
-void msg_ok();
-void msg_gdt_ok();
-
 static inline u8 VGA_color_code(enum Color foreground,enum Color background ){
 	return (background<<4 | foreground);
 }
-
 void clear_screen(void);
+void nextline();
+
+void msg_ok();
+void msg_gdt_ok();
+void msg_idt_ok();
+void msg_keyboard_ok();
 
 
 #ifdef __cplusplus

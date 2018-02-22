@@ -8,7 +8,7 @@
 #include <rios/type.h>
 #include <rios/gdt_idt.h>
 #include <rios/console.h>
-
+#include <rios/irq.h>
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -23,6 +23,8 @@ void RiOS_main(void)
 		);/* [ OK ]*/
 	init_gdt();
 	init_console();
+	init_idt();
+	
 	//clear_screen();
 	while(1);
 }

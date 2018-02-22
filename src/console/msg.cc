@@ -20,3 +20,17 @@ void msg_gdt_ok()
 	msg_ok();
 	print("  Updated Global Descriptor Table.");
 }
+
+void msg_idt_ok()
+{ 
+	nextline();
+	msg_ok();
+	print("  Updated Interrupt Descriptor Table.");
+}
+
+void msg_keyboard_ok()
+{
+	nextline();
+	msg_ok();
+	print("  Enabled keyboard.");
+}
