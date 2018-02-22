@@ -17,9 +17,14 @@ extern "C" {
 void set_gdt_entry(u8 num, u32 base, u32 limit, u8 access, u8 granularity);
 extern void update_gdt();
 void init_gdt();
-/*IDT*/
+
 #define INDEX_KERNEL_CODE 1
 #define INDEX_KERNEL_DATA 2
+
+
+/*global descriptor number*/
+#define GLOBAL_DES_KERNEL_CODE ((INDEX_KERNEL_CODE) << 3)
+#define GLOBAL_DES_KERNEL_DATA ((INDEX_KERNEL_DATA) << 3)
 
 #define RING0 0
 #define RING3 3
@@ -29,6 +34,7 @@ void init_gdt();
 #define Gate_TRAP_TYPE 0b1111
 /*赵炯《Linux内核完全剖析》P95中断门和陷阱门TYPE字段分别为14和15*/
 
+/*IDT*/
 extern void update_idt();
 
 #pragma pack(1)
@@ -66,17 +72,6 @@ extern u32 keyboard_handler();
 void init_idt();
 void enable_keyboad();
 void disable_all_interrupts();
-
-
-
-
-
-
-
-
-
-
-
 
 
 /*irq*/

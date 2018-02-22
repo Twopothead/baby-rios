@@ -12,6 +12,8 @@ update_gdt:
 	mov %ax,%gs
 	mov %ax,%ss	/*flush registers*/
 	ljmp $0x08,$gdt_ok /*$0x08 :code seg offset*/
+	/* $0x08=> INDEX_KERNEL_CODE << 3
+	 *	=> GLOBAL_DES_KERNEL_CODE  = 1<<3 = 8
 	/* 0 (selector = 0x0000): null descriptor */
 	/* 1 (selector = 0x0008): code descriptor */
 	/* 2 (selector = 0x0010): data descriptor */

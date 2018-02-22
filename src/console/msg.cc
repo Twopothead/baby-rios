@@ -34,3 +34,10 @@ void msg_keyboard_ok()
 	msg_ok();
 	print("  Enabled keyboard.");
 }
+
+void msg_trapframe_ok()
+{
+	nextline();
+	msg_ok();
+	print("  Started TrapFrame.");
+}

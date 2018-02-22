@@ -50,7 +50,7 @@ void msg_ok();
 void msg_gdt_ok();
 void msg_idt_ok();
 void msg_keyboard_ok();
-
+void msg_trapframe_ok();
 
 #ifdef __cplusplus
 }

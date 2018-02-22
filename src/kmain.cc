@@ -9,6 +9,7 @@
 #include <rios/gdt_idt.h>
 #include <rios/console.h>
 #include <rios/irq.h>
+#include <rios/trap.h>
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */

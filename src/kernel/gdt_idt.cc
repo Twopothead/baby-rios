@@ -148,6 +148,7 @@ void init_idt()
 	msg_idt_ok();
 	enable_keyboad();
 	msg_keyboard_ok();
+	msg_trapframe_ok();
 }
 
 
