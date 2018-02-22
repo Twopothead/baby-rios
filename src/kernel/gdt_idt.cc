@@ -100,7 +100,7 @@ void set_trap_gate(struct GATE_DESCRPTER *descr,u16 index,u32 offset,u8 dpl)
 }
 
 void enable_keyboad()
-{
+{	/* enable ONLY IRQ1 (keyboard) */
 	outb(PIC0_IMR, 0xfd);/*bin(0xfd)=0b11111101*/
 	/*the keyboad uses IRQ1 */
 }
@@ -146,7 +146,7 @@ void init_idt()
 	update_idt(); 
 	sti();
 	msg_idt_ok();
-	enable_keyboad();
+	enable_keyboad();/* ONLY enable keyboard interrupt!*/
 	msg_keyboard_ok();
 	msg_trapframe_ok();
 }

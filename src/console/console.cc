@@ -34,6 +34,11 @@ void putch(u8 ch)
 	pos += Bytes_each_box;
 }
 
+void con_putch(u8 ch)
+{ /* put a char in console */
+
+}
+
 void puts(char *str)
 {
 
@@ -83,6 +88,34 @@ void nextline(void)
 {
 	double i=double((pos - 0xb8000))/double(SCREEN_WIDTH * Bytes_each_box);
 	if(i>0)pos=0xb8000+(int)(i+1)*SCREEN_WIDTH * Bytes_each_box;
+}
+
+void print_cpqr(const char *str)
+{
+	/*set_text_attr(LightGray,Black);*/
+	for(int i = 0; i< strlen(str); i++){
+		if(str[i]=='@'){
+			set_text_attr(Yellow,Black);
+			putch(str[i]);
+		}else if(str[i]=='x'){
+			set_text_attr(Magenta,Black);
+			putch(str[i]);
+		}else if(str[i]=='.'){
+			set_text_attr(Brown,Black);
+			putch(str[i]);
+		}else{
+			set_text_attr(LightGray,Black);
+			putch(str[i]);
+		}
+	}
+
+}
+void print_njau_logo()
+{
+	nextline();
+	#include <rios/cpqr.txt>
+	set_text_attr(LightGray,Black);
+	pos=0xb8000;
 }
 /*
  *Bit(s)	Value

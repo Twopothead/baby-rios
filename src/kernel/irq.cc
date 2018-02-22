@@ -5,8 +5,10 @@
  */
 #include <rios/irq.h>
 #include <rios/console.h>
+#include <rios/keyboard.h>
 
 void keyboard_handler_main()
 {
-	clear_screen();
+	do_keyboard();
+	//clear_screen();
 }

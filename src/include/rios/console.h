@@ -45,12 +45,16 @@ static inline u8 VGA_color_code(enum Color foreground,enum Color background ){
 }
 void clear_screen(void);
 void nextline();
+void con_putch(u8 ch);
 
+
+void print_cpqr(const char *str);
 void msg_ok();
 void msg_gdt_ok();
 void msg_idt_ok();
 void msg_keyboard_ok();
 void msg_trapframe_ok();
+void print_njau_logo();
 
 #ifdef __cplusplus
 }
