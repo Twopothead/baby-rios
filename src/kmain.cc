@@ -25,7 +25,7 @@ void RiOS_main(void)
 	init_gdt();
 	init_console();
 	init_idt();
-	print_njau_logo();
+	init_Rishell();
 
 	
 	//clear_screen();

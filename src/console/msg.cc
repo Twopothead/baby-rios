@@ -41,3 +41,11 @@ void msg_trapframe_ok()
 	msg_ok();
 	print("  Started TrapFrame.");
 }
+
+void msg_Rishell_ok()
+{
+	nextline();
+	msg_ok();
+	print("  Started Shell.");
+
+}

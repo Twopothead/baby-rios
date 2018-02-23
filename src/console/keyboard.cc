@@ -1,4 +1,5 @@
 #include <rios/keyboard.h>
+#include <rios/console.h>
 u8 keymap[128]=
 {
 	0,27,
@@ -19,13 +20,12 @@ void do_keyboard()
 	if(kbscancode & 0x80)/*if the top bit of the scan code is set => a key has just been released*/
 	{
 		/*keys like shift,alt .etc are released*/
-	}else {
-		if(kbscancode == ENTER_KEYCODE){
-			print("hello ");
-		}
-		else{
-			con_putch(keymap[kbscancode]);
-		}
+	}else if(kbscancode == ENTER_KEYCODE){
+		con_putch(kbscancode);
+			// scroll();
+			// print("++++++++++++++++++++++++++++++++++++++>>>");
+	}else{
+		con_putch(keymap[kbscancode]);
 	}
 
 }

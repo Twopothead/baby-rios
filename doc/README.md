@@ -77,3 +77,7 @@ Gate Descriptors　＝>
 -  2.Trap-gate descriptor
 -  3.Task-gate descriptor 
 -  4.Call-gate descriptor
+
+http://blog.csdn.net/gemini_star/article/details/4438280
+
+VGA显卡内部有一系列寄存器可以用来控制显卡的状态。在标准的PC机上。 0x3d4和0x3d5两个端口可以用来读写显卡的内部寄存器。方法是先向0x3d4端口写入要访问的寄存器编号，再通过0x3d5端口来读写寄存器数据。存放光标位置的寄存器编号为14和15。两个寄存器合起来组成一个16位整数，这个整数就是光标的位置。比如0表示光标在第0行第0列，81表示第1行第1列（屏幕总共80列）。
