@@ -10,6 +10,7 @@
 #include <rios/console.h>
 #include <rios/irq.h>
 #include <rios/trap.h>
+#include <rios/memory.h>
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -25,10 +26,8 @@ void RiOS_main(void)
 	init_gdt();
 	init_console();
 	init_idt();
+	init_mm();
 	init_Rishell();
-
-	
-	//clear_screen();
 	while(1);
 }
 

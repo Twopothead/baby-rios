@@ -47,7 +47,7 @@ objs := asm_obj cc_obj gas_obj
 .PHONY: clean run iso help
 
 run : $(iso)
-	qemu-system-x86_64 -cdrom $(iso) -monitor stdio
+	qemu-system-x86_64 -m 666 -cdrom $(iso) -monitor stdio
 
 iso : $(iso)
 

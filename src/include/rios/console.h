@@ -55,12 +55,16 @@ void msg_idt_ok();
 void msg_keyboard_ok();
 void msg_trapframe_ok();
 void print_njau_logo();
+void msg_mm_ok1();
+void msg_mm_ok2(int mm_value);
 void set_cursor();
 void scroll();
 void cmd_start();
 int cmd_matching(char *str1,char *str2);
 void init_Rishell();
 void putnum(int value);
+void clear_cmd_buffer();
+void del();
 
 #ifdef __cplusplus
 }

@@ -16,6 +16,7 @@ static u32 pos;/*the most important*/
 static unsigned char attr = 0x07; /*white text,black background*/
 static u32 index;/*about cursor pos*/
 static u8 cmd_running = 0;
+static u8 cmd_input =0;
 #define value2ascii(n) (n+48)
 u8 cmd_buffer[80*25];/*keyboard data buffer*/
 int cmd_buffer_index = 0;
@@ -45,15 +46,29 @@ void putch(u8 ch)
 	
 }
 
+void del()
+{
+	set_cursor();
+	if(Vx > 18){/*[root@localhost]# */
+		pos -= 1<<1;
+		*(char *)pos = ' ';
+		set_cursor();
+	}
+}
+
 void con_putch(u8 ch)
 { /* put a char in console */
 	scroll();
-	if(ch == '\b'){/*Backspace*/
-		print("backspace");
+	if(ch == BACKSPACE_KEYCODE){/*Backspace*/
+		del();
 	}else if(ch == ENTER_KEYCODE){
-		cmd_start();
+			nextline();
+			cmd_start();
+			cmd_input = 0;
+			clear_cmd_buffer();
 	}
 	else{
+		cmd_input = 1;
 		putch(ch);
 	}
 }
@@ -127,8 +142,6 @@ int cmd_matching(char *str1,char *str2)
 		}
 		return 1;
 	}
-
-
 }
 
 void print_cpqr(const char *str)
@@ -229,6 +242,7 @@ void init_Rishell()
 	print_njau_logo();
 	clear_cmd_buffer();
 	cmd_buffer_index = 0;
+	cmd_input = 0;
 	set_cursor();
 	sti();
 	void msg_Rishell_ok();

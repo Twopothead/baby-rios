@@ -22,9 +22,10 @@ void do_keyboard()
 		/*keys like shift,alt .etc are released*/
 	}else if(kbscancode == ENTER_KEYCODE){
 		con_putch(kbscancode);
-			// scroll();
-			// print("++++++++++++++++++++++++++++++++++++++>>>");
-	}else{
+	}else if(kbscancode == BACKSPACE_KEYCODE){
+		con_putch(kbscancode);
+	}
+	else{
 		con_putch(keymap[kbscancode]);
 	}
 

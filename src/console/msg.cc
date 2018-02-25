@@ -49,3 +49,19 @@ void msg_Rishell_ok()
 	print("  Started Shell.");
 
 }
+
+void msg_mm_ok1()
+{
+	nextline();
+	msg_ok();
+	print("  Starting memory detecting.");
+}
+
+void msg_mm_ok2(int mm_value)
+{
+	nextline();
+	msg_ok();
+	print("  There are ");
+	putnum(mm_value);
+	print(" MB memory available.");
+}

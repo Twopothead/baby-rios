@@ -16,6 +16,7 @@ extern "C" {
 #define KEYBOARD_DATA_PORT 0x60
 #define KEYBOARD_STATUS_PORT 0x64
 #define ENTER_KEYCODE	0x1c
+#define BACKSPACE_KEYCODE 0x0e
 
 
 /*handle keyboard interrupt*/
