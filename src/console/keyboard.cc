@@ -24,8 +24,9 @@ void do_keyboard()
 		con_putch(kbscancode);
 	}else if(kbscancode == BACKSPACE_KEYCODE){
 		con_putch(kbscancode);
-	}
-	else{
+	}else if(kbscancode == RIGHT_CTRL_KEYCODE){
+		con_putch(kbscancode);
+	}else{
 		con_putch(keymap[kbscancode]);
 	}
 

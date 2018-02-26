@@ -54,6 +54,8 @@ void del()
 		*(char *)pos = ' ';
 		set_cursor();
 	}
+	cmd_buffer[cmd_buffer_index]=' ';
+	cmd_buffer_index --;/*delete a char in buffer*/
 }
 
 void con_putch(u8 ch)
@@ -62,16 +64,39 @@ void con_putch(u8 ch)
 	if(ch == BACKSPACE_KEYCODE){/*Backspace*/
 		del();
 	}else if(ch == ENTER_KEYCODE){
+			if(cmd_matching((char*)cmd_buffer,"clear")){
+				clear_screen();
+				clear_cmd_buffer();
+				pos = 0xb8000;
+			}else if(cmd_matching((char*)cmd_buffer,"help")){
+				msg_cmd_help();
+			}
+
 			nextline();
 			cmd_start();
-			cmd_input = 0;
+			cmd_input = 0;	
 			clear_cmd_buffer();
 	}
-	else{
+	else if (ch == RIGHT_CTRL_KEYCODE){
+	/*@debug
+	 *press right ctrl key for debug,print used buffer size
+	 */
+		putnum(cmd_buffer_index);
+		
+	}else{
 		cmd_input = 1;
 		putch(ch);
+		ch2cmd_buffer(ch);
 	}
 }
+
+void ch2cmd_buffer(u8 ch)
+{
+	if(cmd_input==1)
+	cmd_buffer[cmd_buffer_index] = ch;
+	cmd_buffer_index++;
+}
+
 
 void puts(char *str)
 {
@@ -83,7 +108,7 @@ void print(const char *str)
 	/*set_text_attr(LightGray,Black);*/
 	for(int i = 0; i< strlen(str); i++){
 		scroll();
-		putch(str[i]);
+		con_putch(str[i]);
 	}
 
 }
@@ -151,16 +176,16 @@ void print_cpqr(const char *str)
 	for(int i = 0; i< strlen(str); i++){
 		if(str[i]=='@'){
 			set_text_attr(Yellow,Black);
-			putch(str[i]);
+			con_putch(str[i]);
 		}else if(str[i]=='x'){
 			set_text_attr(Magenta,Black);
-			putch(str[i]);
+			con_putch(str[i]);
 		}else if(str[i]=='.'){
 			set_text_attr(Brown,Black);
-			putch(str[i]);
+			con_putch(str[i]);
 		}else{
 			set_text_attr(LightGray,Black);
-			putch(str[i]);
+			con_putch(str[i]);
 		}
 	}
 
@@ -171,6 +196,8 @@ void print_njau_logo()
 	#include <rios/cpqr.txt>
 	set_text_attr(LightGray,Black);
 	//pos=0xb8000;
+	clear_cmd_buffer();
+	cmd_buffer_index = 0;
 
 }
 
@@ -231,7 +258,9 @@ void clear_cmd_buffer()
 	int i=0;
 	while(i < 80*25){
 		cmd_buffer[i] = '\0';
+		i++;
 	}
+	cmd_buffer_index = 0;
 
 
 }
