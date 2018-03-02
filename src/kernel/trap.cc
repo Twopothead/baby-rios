@@ -6,7 +6,7 @@
 #include <rios/type.h>
 #include <rios/trap.h>
 #include <rios/irq.h>
-
+#include <rios/timer.h>
 
 void irq_handle(TrapFrame *trapframe)
 {
@@ -14,4 +14,8 @@ void irq_handle(TrapFrame *trapframe)
 	if(trapframe->err==888)
 		keyboard_handler_main();
 	/*DONNOT forget to unmask other interrupts*/
+	if(trapframe->err==777)
+		hd_handler_main();
+	if(trapframe->err==666)
+		timer_8253_handler_main();
 }

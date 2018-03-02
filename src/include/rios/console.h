@@ -62,11 +62,15 @@ void scroll();
 void cmd_start();
 int cmd_matching(char *str1,char *str2);
 void init_Rishell();
+void msg_Rishell_ok();
 void putnum(int value);
 void clear_cmd_buffer();
 void del();
 void ch2cmd_buffer(u8 ch);
 void msg_cmd_help();
+void msg_8253_ok();
+void msg_hd1_exist(int  havedisk1);
+
 
 #define println(sth) print(sth);nextline()
 

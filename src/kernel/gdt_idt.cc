@@ -8,6 +8,7 @@
 #include <asm/x86.h>
 #include <rios/console.h>
 
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -34,7 +35,7 @@ struct GDT_pointer gdt_pointer;
 
 /*Interrupt Descriptor Table*/
 
-#define MAX_IDT 256
+
 struct IDT_pointer
 {
 	u16 limit;
@@ -101,7 +102,7 @@ void set_trap_gate(struct GATE_DESCRPTER *descr,u16 index,u32 offset,u8 dpl)
 
 void enable_keyboad()
 {	/* enable ONLY IRQ1 (keyboard) */
-	outb(PIC0_IMR, 0xfd);/*bin(0xfd)=0b11111101*/
+	outb(PIC0_IMR,  inb_wait(PIC0_IMR)&0xfd);/*bin(0xfd)=0b11111101*/
 	/*the keyboad uses IRQ1 */
 }
 void disable_all_interrupts()
@@ -119,7 +120,10 @@ void init_idt()
 	}
 
 	set_interrupt_gate(idt_descr+0x21,INDEX_KERNEL_CODE,\
-		(u32)keyboard_handler,RING0);
+		(u32)keyboard_handler,RING0);/*irq1 keyboard*/
+	set_interrupt_gate(idt_descr+0x20,INDEX_KERNEL_CODE,\
+		(u32)timer_8253_handler,RING0);/*irq0 timer*/
+/*ok,we have set 8253 interrupt gate,but have not enabled it*/	
 	idt_pointer.limit = (sizeof (struct GATE_DESCRPTER) * 256 ) - 1;
 	idt_pointer.base = (unsigned long)&idt_descr ;
 
@@ -136,12 +140,15 @@ void init_idt()
 	outb(PIC1_ICW2_PORT,0x28);/*outb(0xA1 , 0x28);*/
 	/*ICW3: setup 8259 cascading method*/
 	/*PIC1 connect to PIC0 by IRQ2*/
-	outb(PIC0_ICW3_PORT,1<<2);/*outb(0x21 , 0x00);*/
-	outb(PIC1_ICW1_PORT,2);/*outb(0xA1 , 0x00);*/
+	outb(PIC0_ICW3_PORT,1<<2);/*outb(0x21 , 1<<2);*/
+/*here, we enable irq2 for slave 8259A.The way that set ICW3 of master PIC 
+ *and slave PIC is different. PIC0:1<<num,PIC1:num 
+ */	
+	outb(PIC1_ICW3_PORT,2);/*outb(0xA1 , 2);*/
 	/*ICW4*/
 	/*0x01 => no buffer*/
 	outb(PIC0_ICW4_PORT,0x01);/*outb(0x21 , 0x01);*/
-	outb(PIC1_ICW1_PORT,0x01);/*outb(0xA1 , 0x01);*/
+	outb(PIC1_ICW4_PORT,0x01);/*outb(0xA1 , 0x01);*/
 
 	update_idt(); 
 	sti();
@@ -151,6 +158,27 @@ void init_idt()
 	msg_trapframe_ok();
 }
 
+void enable_8253()
+{
+	outb(0x21,inb_wait(0x21)&0xf8);
+/* bin(0xf8)='0b11111000',enable irq0(timer),irq1(keyboard),irq2(slave 8259)
+ */	
+}
+void init_8253()
+{
+	outb(PIT_COMMAND_REG,0x34);
+/*bin(0x34)='0b110100'= 00   11    010   0
+ *Channel 0 ,Access mode: lobyte/hibyte , Mode 2 (rate generator),16-bit binary 
+ */	
+	outb(PIT_CHANNEL0_DATA_PORT,0x9c);/*loyte*/
+	outb(PIT_CHANNEL0_DATA_PORT,0x2e);/*hibyte*/
+/* 1193180/100 = 11930 ,100HZ => a irq every 10ms
+ * 11930 = 0b 0010 1110 1001 1010,first write lower bits,then the higher
+ * see my guide.md and https://wiki.osdev.org/Programmable_Interval_Timer
+ */	
+	enable_8253();
+	msg_8253_ok();
+}
 
 
 

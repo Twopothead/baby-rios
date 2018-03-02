@@ -60,7 +60,9 @@ void del()
 
 void con_putch(u8 ch)
 { /* put a char in console */
-	scroll();
+	
+	//scroll();
+	cli();
 	if(ch == BACKSPACE_KEYCODE){/*Backspace*/
 		del();
 	}else if(ch == ENTER_KEYCODE){
@@ -88,6 +90,7 @@ void con_putch(u8 ch)
 		putch(ch);
 		ch2cmd_buffer(ch);
 	}
+	sti();
 }
 
 void ch2cmd_buffer(u8 ch)
@@ -268,13 +271,13 @@ void clear_cmd_buffer()
 void init_Rishell()
 {
 	cli();
-	print_njau_logo();
+	//print_njau_logo();
 	clear_cmd_buffer();
 	cmd_buffer_index = 0;
 	cmd_input = 0;
 	set_cursor();
 	sti();
-	void msg_Rishell_ok();
+	msg_Rishell_ok();
 }
 
 void putnum(int value)

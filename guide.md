@@ -77,5 +77,55 @@ $ make run
 ## then you'll see "[ ok ] RiOS " in qemu 
 $ make clean 
 ## remove build files
-``` 
+```
 
+------------------------------
+
+### about Programmable Interrupt Timer(8253/8254)
+
+The PIT chip uses the following I/O ports:
+
+```
+I/O port     Usage
+0x40         Channel 0 data port (read/write)
+0x41         Channel 1 data port (read/write)
+0x42         Channel 2 data port (read/write)
+0x43         Mode/Command register (write only, a read is ignored)
+```
+
+The Mode/Command register at I/O address 0x43 contains the following:
+
+```
+Bits         Usage
+ 6 and 7      Select channel :
+                 0 0 = Channel 0
+                 0 1 = Channel 1
+                 1 0 = Channel 2
+                 1 1 = Read-back command (8254 only)
+ 4 and 5      Access mode :
+                 0 0 = Latch count value command
+                 0 1 = Access mode: lobyte only
+                 1 0 = Access mode: hibyte only
+                 1 1 = Access mode: lobyte/hibyte
+ 1 to 3       Operating mode :
+                 0 0 0 = Mode 0 (interrupt on terminal count)
+                 0 0 1 = Mode 1 (hardware re-triggerable one-shot)
+                 0 1 0 = Mode 2 (rate generator)
+                 0 1 1 = Mode 3 (square wave generator)
+                 1 0 0 = Mode 4 (software triggered strobe)
+                 1 0 1 = Mode 5 (hardware triggered strobe)
+                 1 1 0 = Mode 2 (rate generator, same as 010b)
+                 1 1 1 = Mode 3 (square wave generator, same as 011b)
+ 0            BCD/Binary mode: 0 = 16-bit binary, 1 = four-digit BCD
+```
+
+https://wiki.osdev.org/Programmable_Interval_Timer
+
+bin(0x34)='0b110100'= 00   11    0 10   0
+
+outb(0x43,0x34) =>
+
+- Channel 0 	(00)  bits 6 and 7 
+- Access mode: lobyte/hibyte    (11)  bits 4 and 5
+-  0 1 0 = Mode 2 (rate generator)   (010) bits  1 to 3
+- 16-bit binary  (0) bit 0

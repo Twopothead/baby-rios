@@ -27,3 +27,19 @@ kernel_objs :=$(patsubst src/kernel/%.cc,\
 build/arch/$(arch)/kernel/%.o: src/kernel/%.cc 
 	mkdir -p $(shell dirname $@)
 	$(CC) $(CFLAGS)  $< -o $@
+
+####    blk_dev moudule   ######################################
+blk_dev_objs :=$(patsubst src/blk_dev/%.cc,\
+	build/arch/$(arch)/blk_dev/%.o, $(wildcard src/blk_dev/*.cc))
+
+build/arch/$(arch)/blk_dev/%.o: src/blk_dev/%.cc 
+	mkdir -p $(shell dirname $@)
+	$(CC) $(CFLAGS)  $< -o $@
+
+####    fs moudule   ######################################
+fs_objs :=$(patsubst src/fs/%.cc,\
+	build/arch/$(arch)/fs/%.o, $(wildcard src/fs/*.cc))
+
+build/arch/$(arch)/fs/%.o: src/fs/%.cc 
+	mkdir -p $(shell dirname $@)
+	$(CC) $(CFLAGS)  $< -o $@

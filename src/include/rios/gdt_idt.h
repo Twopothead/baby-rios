@@ -35,6 +35,8 @@ void init_gdt();
 /*赵炯《Linux内核完全剖析》P95中断门和陷阱门TYPE字段分别为14和15*/
 
 /*IDT*/
+#define MAX_IDT 256
+
 extern void update_idt();
 
 #pragma pack(1)
@@ -66,7 +68,7 @@ static inline void _lidt(struct GATE_DESCRPTER *p,u16 size){
 extern void write_port(int value,int port);
 extern u32 irq_empty();
 extern u32 keyboard_handler();
-
+extern u32 timer_8253_handler();
 #include <rios/i8259.h>
 #include <rios/i8253.h>
 void init_idt();

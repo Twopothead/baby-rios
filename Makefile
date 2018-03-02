@@ -36,7 +36,9 @@ asm_obj := $(patsubst src/%.asm,\
 cc_obj := $(patsubst src/%.cc,\
 	build/arch/$(arch)/%.o, $(wildcard src/*.cc)) $(console_objs) \
 	$(mm_objs) \
-	$(kernel_objs)
+	$(kernel_objs) \
+	$(blk_dev_objs) \
+	$(fs_objs)
 
 gas_obj := $(patsubst src/kernel/gas/%.S,\
 	build/arch/$(arch)/kernel/gas/%.o, $(wildcard src/kernel/gas/*.S))
@@ -44,11 +46,14 @@ gas_obj := $(patsubst src/kernel/gas/%.S,\
 objs := asm_obj cc_obj gas_obj
 
 	
+Harddisk := build/hd.img
+
+
 .PHONY: clean run iso help
 
-run : $(iso)
-	qemu-system-x86_64 -m 666 -cdrom $(iso) -monitor stdio
-
+run : $(iso) $(Harddisk)                                                           
+	@#qemu-system-x86_64 -m 666 -cdrom $(iso) -monitor stdio 
+	qemu-system-x86_64 -m 666 -hdb $(Harddisk) -cdrom $(iso) -monitor stdio 
 iso : $(iso)
 
 $(iso): $(kernel) $(grub_cfg)
@@ -61,6 +66,8 @@ $(iso): $(kernel) $(grub_cfg)
 $(kernel):  $(asm_obj) $(gas_obj) $(cc_obj) $(linker_script) 
 	$(LD) -n -m elf_i386 -T $(linker_script) -o $(kernel)  $(asm_obj) $(gas_obj) $(cc_obj)
 
+$(Harddisk):
+	cp hd/rios_hd.img build/hd.img 	
 
 # Compile .asm files with nasm
 build/arch/$(arch)/%.o : src/%.asm

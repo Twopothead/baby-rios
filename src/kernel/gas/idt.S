@@ -19,8 +19,15 @@ keyboard_handler:
 	push $888;/*push unique signal 888 */
 	jmp asm_all_trap /*call keyboard_handler_main*/
 
-
-
+.global hd_handler
+hd_handler:
+	push $777;/*push unique signal 777 */
+	jmp asm_all_trap /*call hd_handler_main*/
+ 
+.global timer_8253_handler
+timer_8253_handler:
+	push $666;/*push unique signal 666 */
+	jmp asm_all_trap /*call timer_8253_handler_main*/
 
 /* all traps go here */
 .global asm_all_trap

@@ -71,8 +71,25 @@ void msg_cmd_help()
 	nextline();
 	println("GNU ri_shell,version 0.0.1-debug(x86_i386,x86_64-pc-rios)");
 	println("These shell commands are defined internally.  Type `help' to see this list.");
-	println("   help :: print this help manual.");
-	println("   clear :: clear the screen.");
-	println("   ls :: list directory contents.");
-	println("       'ls' Usage:  ls [OPTION]... [FILE]...");
+	println(" - help :: print this help manual.");
+	println(" - clear :: clear the screen.");
+	println(" - ls :: list directory contents.");
+	println("      'ls' Usage:  ls [OPTION]... [FILE]...");
+}
+
+void msg_8253_ok()
+{
+	nextline();
+	msg_ok();
+	print("  Started Programmable Interrupt Timer 8253/8254.");
+}
+
+void msg_hd1_exist(int  havedisk1)
+{
+	nextline();
+	msg_ok();
+	print("  Kernel is located at disk0, and ");
+	if(havedisk1){
+  		print("disk1 exists.");
+ 	}else print("disk1 does not exist!");
 }

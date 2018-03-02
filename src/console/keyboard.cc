@@ -13,21 +13,28 @@ u8 keymap[128]=
 };
 void do_keyboard()
 {
-	u8 kbscancode;
 	outb(0x20,0x20);/*EOI signal (End of interrupt acknowlegment)*/
 	/*by writing EOI to PIC, PIC will allow further interrupt requests,otherwise not.*/
-	kbscancode = inb(KEYBOARD_DATA_PORT);/*inb(0x60)*/
-	if(kbscancode & 0x80)/*if the top bit of the scan code is set => a key has just been released*/
-	{
-		/*keys like shift,alt .etc are released*/
-	}else if(kbscancode == ENTER_KEYCODE){
-		con_putch(kbscancode);
-	}else if(kbscancode == BACKSPACE_KEYCODE){
-		con_putch(kbscancode);
-	}else if(kbscancode == RIGHT_CTRL_KEYCODE){
-		con_putch(kbscancode);
-	}else{
-		con_putch(keymap[kbscancode]);
+	u8 kb_status;
+	u8 kbscancode;
+	kb_status = inb(KEYBOARD_STATUS_PORT);
+	if (kb_status & 0x01){
+		kbscancode = inb(KEYBOARD_DATA_PORT);/*inb(0x60)*/
+		if(kbscancode & 0x80)/*if the top bit of the scan code is set => a key has just been released*/
+		{
+			/*break code*/
+			/*keys like shift,alt .etc are released*/
+		}else{ 
+			// putch(keymap[kbscancode]);
+			if(kbscancode == ENTER_KEYCODE){
+			con_putch(kbscancode);
+			}else if(kbscancode == BACKSPACE_KEYCODE){
+				con_putch(kbscancode);
+			}else if(kbscancode == RIGHT_CTRL_KEYCODE){
+				con_putch(kbscancode);
+			}else{
+				con_putch(keymap[kbscancode]);
+			}
+		}
 	}
-
 }

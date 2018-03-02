@@ -11,6 +11,7 @@
 #include <rios/irq.h>
 #include <rios/trap.h>
 #include <rios/memory.h>
+#include <rios/hd.h>
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -26,8 +27,10 @@ void RiOS_main(void)
 	init_gdt();
 	init_console();
 	init_idt();
+	init_8253();
 	init_mm();
 	init_Rishell();
+	init_hd();
 	while(1);
 }
 

@@ -15,6 +15,8 @@
 #define PIC0_ICW3_PORT 0x21
 #define PIC0_ICW4_PORT 0x21
 
+#define PIC0_OCW2	0x0020
+ 
 /*slave PIC*/
 #define PIC1_ICW1_PORT 0xa0
 #define PIC1_ICW2_PORT 0xa1
