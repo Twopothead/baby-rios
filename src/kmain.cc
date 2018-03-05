@@ -12,6 +12,8 @@
 #include <rios/trap.h>
 #include <rios/memory.h>
 #include <rios/hd.h>
+#include <rios/ext2.h>
+#include <rios/dpt.h>
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -31,6 +33,14 @@ void RiOS_main(void)
 	init_mm();
 	init_Rishell();
 	init_hd();
+	nextline();println("Oh.");
+	sys_setup();
+	init_Exception();
+	print("haha,Thank god!I do no die.");
+	//init_fs();
+	/*Divide by zero :int a=6;int b=0;a/=b;*/
+	print("?");
+
 	while(1);
 }
 

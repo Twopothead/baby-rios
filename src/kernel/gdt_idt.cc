@@ -116,7 +116,7 @@ void init_idt()
 	int i=0;
 	for( i = 0; i < MAX_IDT; i++){
 		set_trap_gate(idt_descr + i, INDEX_KERNEL_CODE,\
-			(u32)keyboard_handler, RING0);
+			(u32)irq_empty, RING0);
 	}
 
 	set_interrupt_gate(idt_descr+0x21,INDEX_KERNEL_CODE,\
@@ -181,6 +181,11 @@ void init_8253()
 }
 
 
+void init_Exception(){
+	set_trap_gate(idt_descr + 0, INDEX_KERNEL_CODE,\
+			(u32)_isr0_hander, RING0);
+
+}
 
 
 

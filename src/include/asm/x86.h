@@ -31,7 +31,13 @@ __asm__ ("outb %%al,%%dx\n" \
 	"1:\tjmp 1f\n" \
 	"1:"::"a" (value),"d" (port))
 
-
+/*
+ * write_port(value,port)
+ *    out 21h,al |  out %al,$0x21
+ * read_port(port)
+ *    in al,21h  |  in $0x21,%al
+ */
+/* outb_wait is almost the same as outb,but wait for a little while*/
 #define inb_wait(port)({ \
 	unsigned char _v; \
 	__asm__ volatile ("inb %%dx,%%al\n" \
@@ -41,11 +47,33 @@ __asm__ ("outb %%al,%%dx\n" \
 _v; \
 })
 
+/*for hd.cc*/
+#define port_read(port,buffer,num) \
+ __asm__ ("cld; rep; insw"::"d"(port),"D"(buffer),"c"(num))
+
+#define port_write(port,buffer,num) \
+ __asm__ ("cld; rep; outsw"::"d"(port),"S"(buffer),"c"(num))
+
 /*
- * write_port(value,port)
- *    out 21h,al |  out %al,$0x21
- * read_port(port)
- *    in al,21h  |  in $0x21,%al
+ * S => Si ,D => Di
+ *Here is a mannual online of Inline assembly for x86 
+ *	https://www.ibm.com/developerworks/library/l-ia/index.html
+ *and here is a comparision of GAS and NASM
+ * 	https://www.ibm.com/developerworks/library/l-gas-nasm/index.html
  */
-/* outb_wait is almost the same as outb,but wait for a while*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #endif

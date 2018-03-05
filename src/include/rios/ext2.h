@@ -4,8 +4,9 @@
 extern "C" {
 #endif /* __cplusplus */
 
-	
 
+	
+void init_fs();
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

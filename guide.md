@@ -1,6 +1,6 @@
 ## Guide for RiOS
 ------------------------------------
-### Copyright (C) 2018 qiuri
+### Copyright (C) 2018 qiuri(邱日)
 
 
 install to your Udisk
@@ -126,6 +126,66 @@ bin(0x34)='0b110100'= 00   11    0 10   0
 outb(0x43,0x34) =>
 
 - Channel 0 	(00)  bits 6 and 7 
+
 - Access mode: lobyte/hibyte    (11)  bits 4 and 5
+
 -  0 1 0 = Mode 2 (rate generator)   (010) bits  1 to 3
+
 - 16-bit binary  (0) bit 0
+
+  ​
+
+------------------------
+
+### File System
+
+This might be a joke, but our RiOS kernel is plan to be POSIX compatible, for this reason, system calls should be carefully designed. Here are some system calls that I'm going to implement. You can see them in Andre S. Tanenbaum's book 《Operating Systems Design and Implementation,3rd Edition》P19 System calls of Minix.
+
+---------------------------------------
+
+#### file management
+
+```c
+fd = creat(name, mode);
+fd = mknod(name, mode ,addr);
+fd = open(file, how,...);
+s = close(fd);
+n = read(fd, buffer, nbytes);
+n = write(fd, buffer, nbytes);
+pos = lseek(fd, offset, whence);
+s = stat(name, &buf);
+s = fstat(name, &buf);
+fd = dup(fd);
+s = pipe(&fd[0])
+s = ioctl(fd, request, argp);
+s = access(name, amode);
+s = rename(old, new);
+s = fcntl(fd, cmd,...);
+
+```
+
+ 
+
+-------------------
+
+#### directory and file system management
+
+```c++
+s = mkdir(name, mode);
+s = rmdir(name);
+s = link(name1,name2);
+s = unlink(name);
+s = mount(special, name, flag);
+s = unmount(special);
+s = sync();
+s = chdir(dirname);
+s = chroot(dirname);
+s = chmod(name,mod);
+uid = getuid();
+gid = getgid();
+s = setgid(uid);
+s = setgid(gid);
+s = chown(name, owner, group);
+oldmask  = umask(complmode);  
+```
+

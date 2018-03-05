@@ -61,7 +61,7 @@ void del()
 void con_putch(u8 ch)
 { /* put a char in console */
 	
-	//scroll();
+	scroll();
 	cli();
 	if(ch == BACKSPACE_KEYCODE){/*Backspace*/
 		del();
@@ -72,6 +72,8 @@ void con_putch(u8 ch)
 				pos = 0xb8000;
 			}else if(cmd_matching((char*)cmd_buffer,"help")){
 				msg_cmd_help();
+			}else if(cmd_matching((char*)cmd_buffer,"logo")){
+				print_njau_logo();
 			}
 
 			nextline();

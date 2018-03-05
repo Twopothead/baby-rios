@@ -49,10 +49,13 @@ objs := asm_obj cc_obj gas_obj
 Harddisk := build/hd.img
 
 
-.PHONY: clean run iso help
+.PHONY: clean run iso help virtualbox qemu
 
 run : $(iso) $(Harddisk)                                                           
 	@#qemu-system-x86_64 -m 666 -cdrom $(iso) -monitor stdio 
+	qemu-system-x86_64 -m 666 -hdb $(Harddisk) -cdrom $(iso) -monitor stdio 
+	@#qemu-system-x86_64 -m 666 -hda $(Harddisk) -cdrom $(iso) -monitor stdio
+qemu: $(iso) $(Harddisk)
 	qemu-system-x86_64 -m 666 -hdb $(Harddisk) -cdrom $(iso) -monitor stdio 
 iso : $(iso)
 
@@ -97,6 +100,14 @@ help :
 	@echo "Please make sure that xorriso,qemu have be correctly installed."
 	@echo "Report bugs to 3103204417@qq.com"
 	
+virtualbox: $(iso) 
+	@echo "	First, you should comfirm that you have created a \
+	virtual machine named 'RiOS' with Virtualbox."
+	@echo "	THEN set CDROM with build/RiOS-i386.iso."
+	@echo "	DONNOT forget to allocate enough HD space in your VM!"
+	virtualbox --startvm 'RiOS'
+
+
 # 1.wildcard :扩展通配符
 # 2.patsubst :替换通配符
 # eg. wildcard *.c => get all c files
@@ -123,5 +134,6 @@ help :
 # target: ***build/RiOS-i386.iso*** => write to U disk
 # 	qemu-system-x86_64 -kernel kernel-i386.bin
 # 	qemu-system-x86_64 RiOS-i386.iso
-# 
+#
 #-nostdinc -Iinclude 不从系统中的库去找，而从自己的地方去找 
+# -hda means IDE disk0, and -hdb means IDE disk1. 

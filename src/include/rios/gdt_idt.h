@@ -74,9 +74,30 @@ extern u32 timer_8253_handler();
 void init_idt();
 void enable_keyboad();
 void disable_all_interrupts();
-
+void init_Exception();
 
 /*irq*/
+
+extern u32 _isr0_hander();
+extern u32 _isr1_hander();
+extern u32 _isr2_hander();
+extern u32 _isr3_hander();
+extern u32 _isr4_hander();
+extern u32 _isr5_hander();
+extern u32 _isr6_hander();
+extern u32 _isr7_hander();
+extern u32 _isr8_hander();
+extern u32 _isr9_hander();
+extern u32 _isr10_hander();
+extern u32 _isr11_hander();
+extern u32 _isr12_hander();
+extern u32 _isr13_hander();
+extern u32 _isr14_hander();
+extern u32 _isr15_hander();
+extern u32 _isr16_hander();
+extern u32 _isr17_hander();
+extern u32 _isr18_hander();
+extern u32 _isr19to31_hander();
 
 #ifdef __cplusplus
 }

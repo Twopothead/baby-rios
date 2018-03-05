@@ -6,6 +6,14 @@
 
 ##### Here are some notes in my kernel development.
 
+### inline assembly usage in kernel development
+Here is a mannual online of Inline assembly for x86 
+ 	https://www.ibm.com/developerworks/library/l-ia/index.html
+and here is a comparision of GAS and NASM
+  	https://www.ibm.com/developerworks/library/l-gas-nasm/index.html
+
+- outsw :output word string to port 
+
 ### GDT:
 
 ![](gdt.png)
@@ -81,3 +89,54 @@ Gate Descriptors　＝>
 http://blog.csdn.net/gemini_star/article/details/4438280
 
 VGA显卡内部有一系列寄存器可以用来控制显卡的状态。在标准的PC机上。 0x3d4和0x3d5两个端口可以用来读写显卡的内部寄存器。方法是先向0x3d4端口写入要访问的寄存器编号，再通过0x3d5端口来读写寄存器数据。存放光标位置的寄存器编号为14和15。两个寄存器合起来组成一个16位整数，这个整数就是光标的位置。比如0表示光标在第0行第0列，81表示第1行第1列（屏幕总共80列）。
+
+-----------
+
+### File System
+
+This might be a joke, but Our RiOS kernel is plan to be POSIX compatible, for this reason, system calls should be carefully designed. Here are some system calls that I'm going to implement. You can see them in Andre S. Tanenbaum's book 《Operating Systems Design and Implementation,3rd Edition》P19 System calls of Minix.
+
+```c++
+s = mkdir(name, mode);
+s = rmdir(name);
+s = link(name1,name2);
+s = unlink(name);
+s = mount(special, name, flag);
+s = unmount(special);
+s = sync();
+s = chdir(dirname);
+s = chroot(dirname);
+s = chmod(name,mod);
+uid = getuid();
+gid = getgid();
+s = setgid(uid);
+s = setgid(gid);
+s = chown(name, owner, group);
+oldmask  = umask(complmode);  
+```
+
+#### Exception
+
+| Exception # | Description                            | Error Code? |
+| ----------- | -------------------------------------- | ----------- |
+| 0           | Division By Zero Exception             | No          |
+| 1           | Debug Exception                        | No          |
+| 2           | Non Maskable Interrupt Exception       | No          |
+| 3           | Breakpoint Exception                   | No          |
+| 4           | Into Detected Overflow Exception       | No          |
+| 5           | Out of Bounds Exception                | No          |
+| 6           | Invalid Opcode Exception               | No          |
+| 7           | No Coprocessor Exception               | No          |
+| 8           | Double Fault Exception                 | Yes         |
+| 9           | Coprocessor Segment Overrun Exception  | No          |
+| 10          | Bad TSS Exception                      | Yes         |
+| 11          | Segment Not Present Exception          | Yes         |
+| 12          | Stack Fault Exception                  | Yes         |
+| 13          | General Protection Fault Exception     | Yes         |
+| 14          | Page Fault Exception                   | Yes         |
+| 15          | Unknown Interrupt Exception            | No          |
+| 16          | Coprocessor Fault Exception            | No          |
+| 17          | Alignment Check Exception (486+)       | No          |
+| 18          | Machine Check Exception (Pentium/586+) | No          |
+| 19 to 31    | Reserved Exceptions                    |             |
+
