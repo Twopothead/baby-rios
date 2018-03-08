@@ -145,11 +145,16 @@ void init_idt()
  *and slave PIC is different. PIC0:1<<num,PIC1:num 
  */	
 	outb(PIC1_ICW3_PORT,2);/*outb(0xA1 , 2);*/
+	
+	outb_wait(0x20 + 1, 0x3); // Auto EOI in 8086/88 mode
+	outb_wait(0xa0 + 1, 0x3); // Auto EOI in 8086/88 mode
+	
 	/*ICW4*/
 	/*0x01 => no buffer*/
 	outb(PIC0_ICW4_PORT,0x01);/*outb(0x21 , 0x01);*/
 	outb(PIC1_ICW4_PORT,0x01);/*outb(0xA1 , 0x01);*/
 
+	
 	update_idt(); 
 	sti();
 	msg_idt_ok();
@@ -181,12 +186,18 @@ void init_8253()
 }
 
 
-void init_Exception(){
+void init_Exception()
+{
 	set_trap_gate(idt_descr + 0, INDEX_KERNEL_CODE,\
-			(u32)_isr0_hander, RING0);
-
+			(u32)_isr0_handler, RING0);
 }
 
+void init_syscall()
+{
+	set_trap_gate(idt_descr + 0x80, INDEX_KERNEL_CODE,\
+			(u32)_syscall_handler, RING0);/*!!!should be RING3*/
+
+}
 
 
 

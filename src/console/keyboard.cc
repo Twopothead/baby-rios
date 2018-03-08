@@ -13,8 +13,11 @@ u8 keymap[128]=
 };
 void do_keyboard()
 {
-	outb(0x20,0x20);/*EOI signal (End of interrupt acknowlegment)*/
-	/*by writing EOI to PIC, PIC will allow further interrupt requests,otherwise not.*/
+/*
+ *outb(0x20,0x20); necessary! EOI signal (End of interrupt acknowlegment)
+ *by writing EOI to PIC, PIC will allow further interrupt requests,otherwise not.
+ *but if we enabled Auto EOI in 8086/88 mode in 8259A ,we wont bother to do this.
+ */
 	u8 kb_status;
 	u8 kbscancode;
 	kb_status = inb(KEYBOARD_STATUS_PORT);

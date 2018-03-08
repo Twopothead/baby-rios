@@ -119,6 +119,31 @@ void print(const char *str)
 }
 void outtextxy(int x,int y,u8 *textstring)
 {
+	int tmp = pos;
+	pos = x*80+y;
+	print((const char *)textstring);
+	pos=tmp;
+	
+}
+
+void outnumxy(int x,int y,int value)
+{
+	int tmp = (x*80+y)*2;
+	if(value==0){pVGA[tmp]='0';return;}
+  	        int raw = value;
+  	        int a[32];
+  	        int l=0;
+  	        while(value){
+  	                      a[l++] = value%10;
+  	                      value/=10;
+  	        }
+ /*just like a stack*/
+                 if(raw != 0){
+  	                      while(--l >= 0)
+  	                      pVGA[tmp+=2]=value2ascii(a[l]);
+                 }
+  		return;
+	set_cursor();
 
 }
 
@@ -299,7 +324,31 @@ void putnum(int value)
                  }
   		return;
  }
+void puthex(int value)
+{
+                if(value==0){con_putch('0');return;}
+  	        int raw = value;
+  	        int a[32];
+  	        int l=0;
+  	        while(value){
+  	                      a[l++] = value%16;
+  	                      value/=16;
+  	        }
+ /*just like a stack*/
+                 if(raw != 0){
+  	                      while(--l >= 0){
+  	                      	 if(a[l]<10)
+  	                      		con_putch(value2ascii(a[l]));else if(a[l]==10)con_putch(0x61);
+  	                      	  else if(a[l]==11)con_putch(0x62);
+  	                      	  else if(a[l]==12)con_putch(0x63);
+  	                      	  else if(a[l]==13)con_putch(0x64);
+  	                      	  else if(a[l]==14)con_putch(0x65);
+  	                      	   else if(a[l]==15)con_putch(0x64);
 
+  	              		}
+                 }
+  		return;
+ }
 /*
  *Bit(s)	Value
  *0-7		ASCII code point

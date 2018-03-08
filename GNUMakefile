@@ -43,3 +43,11 @@ fs_objs :=$(patsubst src/fs/%.cc,\
 build/arch/$(arch)/fs/%.o: src/fs/%.cc 
 	mkdir -p $(shell dirname $@)
 	$(CC) $(CFLAGS)  $< -o $@
+
+####    task moudule   ######################################
+task_objs :=$(patsubst src/task/%.cc,\
+	build/arch/$(arch)/task/%.o, $(wildcard src/task/*.cc))
+
+build/arch/$(arch)/task/%.o: src/task/%.cc 
+	mkdir -p $(shell dirname $@)
+	$(CC) $(CFLAGS)  $< -o $@	

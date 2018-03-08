@@ -69,35 +69,40 @@ extern void write_port(int value,int port);
 extern u32 irq_empty();
 extern u32 keyboard_handler();
 extern u32 timer_8253_handler();
+extern u32 _syscall_handler();
 #include <rios/i8259.h>
 #include <rios/i8253.h>
 void init_idt();
 void enable_keyboad();
 void disable_all_interrupts();
 void init_Exception();
+void init_syscall();
 
 /*irq*/
 
-extern u32 _isr0_hander();
-extern u32 _isr1_hander();
-extern u32 _isr2_hander();
-extern u32 _isr3_hander();
-extern u32 _isr4_hander();
-extern u32 _isr5_hander();
-extern u32 _isr6_hander();
-extern u32 _isr7_hander();
-extern u32 _isr8_hander();
-extern u32 _isr9_hander();
-extern u32 _isr10_hander();
-extern u32 _isr11_hander();
-extern u32 _isr12_hander();
-extern u32 _isr13_hander();
-extern u32 _isr14_hander();
-extern u32 _isr15_hander();
-extern u32 _isr16_hander();
-extern u32 _isr17_hander();
-extern u32 _isr18_hander();
-extern u32 _isr19to31_hander();
+extern u32 _isr0_handler();
+extern u32 _isr1_handler();
+extern u32 _isr2_handler();
+extern u32 _isr3_handler();
+extern u32 _isr4_handler();
+extern u32 _isr5_handler();
+extern u32 _isr6_handler();
+extern u32 _isr7_handler();
+extern u32 _isr8_handler();
+extern u32 _isr9_handler();
+extern u32 _isr10_handler();
+extern u32 _isr11_handler();
+extern u32 _isr12_handler();
+extern u32 _isr13_handler();
+extern u32 _isr14_handler();
+extern u32 _isr15_handler();
+extern u32 _isr16_handler();
+extern u32 _isr17_handler();
+extern u32 _isr18_handler();
+extern u32 _isr19to31_handler();
+
+/*syscall*/
+extern u32 _syscall_handler();
 
 #ifdef __cplusplus
 }

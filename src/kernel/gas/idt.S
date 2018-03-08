@@ -19,6 +19,11 @@ keyboard_handler:
 	push $888;/*push unique signal 888 */
 	jmp asm_all_trap /*call keyboard_handler_main*/
 
+.global timer_8253_handler
+timer_8253_handler:
+	push $666;/*push unique signal 666 */
+	jmp asm_all_trap /*call timer_8253_handler_main*/
+	
 .global hd0_handler
 hd0_handler:
 	push $111;/*push unique signal 111 */
@@ -29,10 +34,7 @@ hd1_handler:
 	push $222;/*push unique signal 222 */
 	jmp asm_all_trap /*call hd1_handler_main*/	
  
-.global timer_8253_handler
-timer_8253_handler:
-	push $666;/*push unique signal 666 */
-	jmp asm_all_trap /*call timer_8253_handler_main*/
+
 
 /* all traps go here */
 .global asm_all_trap
@@ -47,107 +49,112 @@ asm_all_trap:
 	iret
 
 
-
+/*system call*/
+.global _syscall_handler
+_syscall_handler:
+	push $0x80 /*push unique signal 0x80 128 */
+	jmp asm_all_trap /*call hd1_handler_main*/
+	
 /*Internel Exceptions
  *Here are some stupid codes,but necessary. :)
  */
 
-.global  _isr0_hander
-_isr0_hander:
+.global  _isr0_handler
+_isr0_handler:
 	push $0;/*push unique signal 0 */
 	jmp asm_all_trap /*call hd1_handler_main*/
 
-.global  _isr1_hander
-_isr1_hander:
+.global  _isr1_handler
+_isr1_handler:
 	push $1;/*push unique signal 1 */
 	jmp asm_all_trap /*call hd1_handler_main*/
 
-.global  _isr2_hander
-_isr2_hander:
+.global  _isr2_handler
+_isr2_handler:
 	push $2;/*push unique signal 2 */
 	jmp asm_all_trap /*call hd1_handler_main*/
 		
-.global  _isr3_hander
-_isr3_hander:
+.global  _isr3_handler
+_isr3_handler:
 	push $3;/*push unique signal 3 */
 	jmp asm_all_trap /*call hd1_handler_main*/
 
-.global  _isr4_hander
-_isr4_hander:
+.global  _isr4_handler
+_isr4_handler:
 	push $4;/*push unique signal 4 */
 	jmp asm_all_trap /*call hd1_handler_main*/
 		
-.global  _isr5_hander
-_isr5_hander:
+.global  _isr5_handler
+_isr5_handler:
 	push $5;/*push unique signal 5 */
 	jmp asm_all_trap /*call hd1_handler_main*/
 
-.global  _isr6_hander
-_isr6_hander:
+.global  _isr6_handler
+_isr6_handler:
 	push $6;/*push unique signal 6 */
 	jmp asm_all_trap /*call hd1_handler_main*/
 
-.global  _isr7_hander
+.global  _isr7_handler
 _isr7_hander:
 	push $7;/*push unique signal 7 */
 	jmp asm_all_trap /*call hd1_handler_main*/
 
-.global  _isr8_hander
-_isr8_hander:
+.global  _isr8_handler
+_isr8_handler:
 	push $8;/*push unique signal 8 */
 	jmp asm_all_trap /*call hd1_handler_main*/
 		
-.global  _isr9_hander
-_isr9_hander:
+.global  _isr9_handler
+_isr9_handler:
 	push $9;/*push unique signal 9 */
 	jmp asm_all_trap /*call hd1_handler_main*/
 
 .global  _isr10_hander
-_isr10_hander:
+_isr10_handler:
 	push $10;/*push unique signal 10 */
 	jmp asm_all_trap /*call hd1_handler_main*/
 		
-.global  _isr11_hander
-_isr11_hander:
+.global  _isr11_handler
+_isr11_handler:
 	push $11;/*push unique signal 11 */
 	jmp asm_all_trap /*call hd1_handler_main*/		
 
-.global  _isr12_hander
-_isr12_hander:
+.global  _isr12_handler
+_isr12_handler:
 	push $12;/*push unique signal 12 */
 	jmp asm_all_trap /*call hd1_handler_main*/	
 
-.global  _isr13_hander
-_isr13_hander:
+.global  _isr13_handler
+_isr13_handler:
 	push $13;/*push unique signal 13 */
 	jmp asm_all_trap /*call hd1_handler_main*/	
 
-.global  _isr14_hander
-_isr14_hander:
+.global  _isr14_handler
+_isr14_handler:
 	push $14;/*push unique signal 14 */
 	jmp asm_all_trap /*call hd1_handler_main*/				
 
-.global  _isr15_hander
-_isr15_hander:
+.global  _isr15_handler
+_isr15_handler:
 	push $15;/*push unique signal 15 */
 	jmp asm_all_trap /*call hd1_handler_main*/	
 
-.global  _isr16_hander
-_isr16_hander:
+.global  _isr16_handler
+_isr16_handler:
 	push $16;/*push unique signal 16 */
 	jmp asm_all_trap /*call hd1_handler_main*/	
 
-.global  _isr17_hander
-_isr17_hander:
+.global  _isr17_handler
+_isr17_handler:
 	push $17;/*push unique signal 17 */
 	jmp asm_all_trap /*call hd1_handler_main*/	
 
 .global  _isr18_hander
-_isr18_hander:
+_isr18_handler:
 	push $18;/*push unique signal 18 */
 	jmp asm_all_trap /*call hd1_handler_main*/	
 
-.global  _isr19to31_hander
-_isr19to31_hander:
+.global  _isr19to31_handler
+_isr19to31_handler:
 	push $19;/*push unique signal 19 */
 	jmp asm_all_trap /*call hd1_handler_main*/						

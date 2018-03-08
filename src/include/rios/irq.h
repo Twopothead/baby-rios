@@ -3,16 +3,19 @@
 
 #include <rios/type.h>
 
-
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 #include <rios/timer.h>
+#include <rios/syscall.h>
+#include <rios/trap.h>
 	
 void keyboard_handler_main();
 void hd0_handler_main();
 void hd1_handler_main();
 void timer_8253_handler_main();
+void _syscall_handler_main(TrapFrame *trapframe);
+
 
 
 void _irq0handler_main();

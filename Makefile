@@ -38,7 +38,8 @@ cc_obj := $(patsubst src/%.cc,\
 	$(mm_objs) \
 	$(kernel_objs) \
 	$(blk_dev_objs) \
-	$(fs_objs)
+	$(fs_objs) \
+	$(task_objs)
 
 gas_obj := $(patsubst src/kernel/gas/%.S,\
 	build/arch/$(arch)/kernel/gas/%.o, $(wildcard src/kernel/gas/*.S))
@@ -52,11 +53,12 @@ Harddisk := build/hd.img
 .PHONY: clean run iso help virtualbox qemu
 
 run : $(iso) $(Harddisk)                                                           
-	@#qemu-system-x86_64 -m 666 -cdrom $(iso) -monitor stdio 
-	qemu-system-x86_64 -m 666 -hdb $(Harddisk) -cdrom $(iso) -monitor stdio 
-	@#qemu-system-x86_64 -m 666 -hda $(Harddisk) -cdrom $(iso) -monitor stdio
+	@#qemu-system-x86_64 -m 666  $(iso) -monitor stdio 
+	@#qemu-system-x86_64 -m 666 -hdb $(Harddisk)  $(iso) -monitor stdio 
+	@#qemu-system-x86_64 -m 666 -hda $(Harddisk)  $(iso) -monitor stdio
+	qemu-system-x86_64 -m 666  $(iso) -monitor stdio 
 qemu: $(iso) $(Harddisk)
-	qemu-system-x86_64 -m 666 -hdb $(Harddisk) -cdrom $(iso) -monitor stdio 
+	qemu-system-x86_64 -m 666 -hdb $(Harddisk) $(iso) -monitor stdio 
 iso : $(iso)
 
 $(iso): $(kernel) $(grub_cfg)
@@ -137,3 +139,4 @@ virtualbox: $(iso)
 #
 #-nostdinc -Iinclude 不从系统中的库去找，而从自己的地方去找 
 # -hda means IDE disk0, and -hdb means IDE disk1. 
+# bug解决：删去-cdrom!从硬盘启动

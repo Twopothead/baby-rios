@@ -8,28 +8,35 @@
 #include <rios/keyboard.h>
 #include <rios/hd.h>
 #include <rios/timer.h>
+#include <rios/syscall.h>
 
 void keyboard_handler_main()
 {
 	do_keyboard();
-	//clear_screen();
-}
-
-void hd0_handler_main()
-{
-	do_hd0();
-}
-
-void hd1_handler_main()
-{
-	do_hd1();
 }
 
 void timer_8253_handler_main()
 {
 	do_timer();
-	//do_timer();
 }
+
+void _syscall_handler_main(TrapFrame *trapframe)
+{
+	do_syscall(trapframe);
+}
+
+
+void hd0_handler_main()
+{
+	// do_hd0();
+}
+
+void hd1_handler_main()
+{
+	// do_hd1();
+}
+
+
 
 void panic(int nr_irq){
 /* You can try this by :int a=0;int b=3;b/=a;*/

@@ -20,6 +20,9 @@ void irq_handle(TrapFrame *trapframe)
 		hd1_handler_main();
 	if(trapframe->err==666)
 		timer_8253_handler_main();
+/*system call*/	
+	if(trapframe->err==0x80)
+		_syscall_handler_main(trapframe);
 	
 /*interal Exception, irq0~irq31*/
 	if(trapframe->err==0)

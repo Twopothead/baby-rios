@@ -16,7 +16,7 @@
  */
 
 #define Get_Device_register(disk_no,sector_no) \
-	(0xe0 | ((disk_no & 1) << 4) | ((sector_no >> 24) & 0x0f) )
+	(0xa0 | ((disk_no & 1) << 4) | ((sector_no >> 24) & 0x0f) )
 /* The Device register structure
  * 7	|     1      |	
  * 6	|     L      |   LBA mode
@@ -78,11 +78,12 @@ void do_hd0();
 void _kdo_hd1();
 void do_hd1();
 void judge_disk1_exist();
-int IDE_disk_wait(int check_error);
+int _IDE_disk_wait(int check_error);
 int ATA_read(u32 sector_no, void *dest, int n_sectors);
 int ATA_write(u32 sector_no, void *dest, int n_sectors);
 
 
+int get_hd_size();
 
 #ifdef __cplusplus
 }

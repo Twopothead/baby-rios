@@ -6,6 +6,12 @@
 
 ##### Here are some notes in my kernel development.
 
+-----------------------------------
+### 硬盘驱动
+
+找了多少天的bug,总是控制不了硬盘！终于找到了，原来我qemu启动时错写了-cdrom
+把启动设备当成cdrom,这样导致硬盘不存在，当然出错，控制不了硬盘！
+
 ### inline assembly usage in kernel development
 Here is a mannual online of Inline assembly for x86 
  	https://www.ibm.com/developerworks/library/l-ia/index.html
@@ -140,3 +146,15 @@ oldmask  = umask(complmode);
 | 18          | Machine Check Exception (Pentium/586+) | No          |
 | 19 to 31    | Reserved Exceptions                    |             |
 
+## cross-compiler
+
+install cross-compiler is a painful process.Although RiOS currently do not need it.but we had better know how to install them.To ease your pain,you can download and install them with the following  shell script. 
+
+```shell
+chmod 777 i686-elf-tools.sh
+./i686-elf-tools.sh linux 
+```
+
+then i686-elf-gcc will be available.
+
+https://github.com/lordmilko/i686-elf-tools

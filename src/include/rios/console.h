@@ -46,6 +46,7 @@ static inline u8 VGA_color_code(enum Color foreground,enum Color background ){
 void clear_screen(void);
 void nextline();
 void con_putch(u8 ch);
+void puthex(int value);
 
 
 void print_cpqr(const char *str);
@@ -67,6 +68,7 @@ void putnum(int value);
 void clear_cmd_buffer();
 void del();
 void ch2cmd_buffer(u8 ch);
+void outnumxy(int x,int y,int num);
 void msg_cmd_help();
 void msg_8253_ok();
 void msg_hd1_exist(int  havedisk1);
