@@ -72,7 +72,8 @@ void outnumxy(int x,int y,int num);
 void msg_cmd_help();
 void msg_8253_ok();
 void msg_hd1_exist(int  havedisk1);
-
+void msg_danger_hdb();
+void msg_rios();
 
 #define println(sth) print(sth);nextline()
 

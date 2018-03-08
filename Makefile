@@ -54,9 +54,9 @@ Harddisk := build/hd.img
 
 run : $(iso) $(Harddisk)                                                           
 	@#qemu-system-x86_64 -m 666  $(iso) -monitor stdio 
-	@#qemu-system-x86_64 -m 666 -hdb $(Harddisk)  $(iso) -monitor stdio 
-	@#qemu-system-x86_64 -m 666 -hda $(Harddisk)  $(iso) -monitor stdio
-	qemu-system-x86_64 -m 666  $(iso) -monitor stdio 
+	qemu-system-x86_64 -m 666 -hdb $(Harddisk)  $(iso) -monitor stdio 
+	@#qemu-system-x86_64 -m 666  $(iso) -monitor stdio 
+
 qemu: $(iso) $(Harddisk)
 	qemu-system-x86_64 -m 666 -hdb $(Harddisk) $(iso) -monitor stdio 
 iso : $(iso)
@@ -136,7 +136,7 @@ virtualbox: $(iso)
 # target: ***build/RiOS-i386.iso*** => write to U disk
 # 	qemu-system-x86_64 -kernel kernel-i386.bin
 # 	qemu-system-x86_64 RiOS-i386.iso
-#
+#-hdb 第二块硬盘　iso镜像为第一块
 #-nostdinc -Iinclude 不从系统中的库去找，而从自己的地方去找 
 # -hda means IDE disk0, and -hdb means IDE disk1. 
 # bug解决：删去-cdrom!从硬盘启动

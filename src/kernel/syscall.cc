@@ -1,10 +1,15 @@
 #include <rios/syscall.h>
 #include <rios/trap.h>
 #include <rios/serial.h>
+#include <rios/hd.h>
 
 void do_syscall(struct TrapFrame *trapframe)
 {
-	if(trapframe->eax == _SYS_READ){
+	if(trapframe->eax == _SYS_WRITE)
+		print(" syscall write");
+	if(trapframe->eax == _SYS_READ)
+		print(" syscall read");
+	if(trapframe->eax == _SYS_TESTHD){
 		print("begin");
 
 		//print(" syscall read");
@@ -23,6 +28,7 @@ void do_syscall(struct TrapFrame *trapframe)
 		bbb=(unsigned char *)0x0;
 		for(int i=0;i<3;i++)
 			IDE_write_sector((void *)(bbb+512*i),i+1);
+		
 		print("magic");
 
 	bbb=(unsigned char *)0x0;
@@ -40,8 +46,7 @@ void do_syscall(struct TrapFrame *trapframe)
 			putnum(*(bbb+i));
 		}
 	}
-	if(trapframe->eax == _SYS_WRITE)
-		print(" syscall write");
+	
 }
 
 int _syscall(u32 _eax, u32 _ebx, u32 _ecx, u32 _edx)

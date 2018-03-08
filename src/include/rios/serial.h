@@ -1,8 +1,9 @@
 #ifndef _SERIAL_H
 #define _SERIAL_H
-
+#include <rios/hd.h>
 #include <asm/x86.h>
 #include <rios/type.h>
+#include <rios/console.h>
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -13,6 +14,7 @@ extern "C" {
 #define SERIAL_COM3 0x3e8
 #define SERIAL_COM4 0x2f8
 
+/*IDE : Integrated Drive Electronics, ATA*/
 #define ATA_PORT_DATA 		0x1f0
 #define ATA_PORT_ERROR 		0x1f1
 #define ATA_PORT_SECT_COUNT 	0x1f2
@@ -51,12 +53,20 @@ extern "C" {
 #define HD_IDENTIFY 0xec
 
 void init_serial();
-
+void init_hd();
 void IDE_disk_wait();
 void IDE_write_sector(void *src,int lba);
 void IDE_read_sector(void *dest, int lba);
+int get_hd_size(int nr_hd);
+int _IDE_disk_wait(int check_error);
 
 
+#define Get_Device_register(disk_no,sector_no) \
+	(0xa0 | ((disk_no & 1) << 4) | ((sector_no >> 24) & 0x0f) )
+
+/*@param disk_No: can ONLY be 0 or 1*/
+#define switch_to_disk(disk_No) \
+	outb(ATA_PORT_CURRENT,Get_Device_register(disk_No,0))	
 
 
 static inline int _in_data32(u16 port) {
@@ -68,11 +78,17 @@ static inline int _in_data32(u16 port) {
 static inline void _out_data32(u16 port, u32 data) {
     asm volatile("out %0,%1" : : "a"(data), "d"(port));
 }
+void judge_disk1_exist();
+void msg_get_hda_hdb_info();
+
 
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
 
+/* @param check_error : =0 => donnot check ,just wait until ok
+ *		        =1 => return status code.
+ */
 /* The Device register structure => port 0x1f7
  * 7	|     1      |	
  * 6	|     L      |   LBA mode

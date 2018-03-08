@@ -54,6 +54,10 @@ _v; \
 #define port_write(port,buffer,num) \
  __asm__ ("cld; rep; outsw"::"d"(port),"S"(buffer),"c"(num))
 
+#ifndef NULL
+#define NULL ((void *) 0)
+#endif
+
 /*
  * S => Si ,D => Di
  *Here is a mannual online of Inline assembly for x86 

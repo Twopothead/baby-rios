@@ -5,6 +5,9 @@
  */
 #include <rios/type.h>
 #include <rios/console.h>
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 void msg_ok()
 {
 	set_text_attr(LightGray,Black);
@@ -91,6 +94,17 @@ void msg_hd1_exist(int  havedisk1)
 	msg_ok();
 	print("  Kernel is located at disk0, and ");
 	if(havedisk1){
-  		print("disk1 exists.");
- 	}else print("disk1 does not exist!");
+  		print("disk1(hdb) exists.");
+ 	}else print("disk1(hdb) does not exist!");
 }
+void msg_danger_hdb()
+{
+	nextline();
+	msg_ok();
+	print("  Switching from hda(Udisk) to hdb(PC hard disk)!LOOK OUT!!!");
+}
+
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */

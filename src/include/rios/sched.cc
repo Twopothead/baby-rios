@@ -4,7 +4,9 @@
 extern "C" {
 #endif /* __cplusplus */
 
+struct task_struct{
 
+};
 	
 #ifdef __cplusplus
 }

@@ -226,6 +226,11 @@ void init_syscall()
  *0x00CFF2000000FFFF GDT_CODE_PL3
  */
 
+/*
+ *	Divide by zero Exception
+ *	int a=6;int b=0;a/=b;
+ */
+
 /*for more info about interrupt_Descriptor_table
  *https://wiki.osdev.org/Interrupt_Descriptor_Table
  * The meaning of IDT entry's bit fields:

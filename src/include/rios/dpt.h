@@ -2,7 +2,6 @@
 #define _DPT_H
 
 #include <rios/type.h>
-#include <rios/hd.h>
 #include <rios/console.h>
 #ifdef __cplusplus
 extern "C" {

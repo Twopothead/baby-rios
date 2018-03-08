@@ -12,7 +12,6 @@
 #include <rios/irq.h>
 #include <rios/trap.h>
 #include <rios/memory.h>
-#include <rios/hd.h>
 #include <rios/ext2.h>
 #include <rios/dpt.h>
 #include <rios/serial.h>
@@ -37,38 +36,22 @@ void RiOS_main(void)
 	init_idt();
 	init_8253();
 	init_mm();
-	init_Rishell();
-	nextline();println("Oh.");
-	//sys_setup();
+	init_Rishell(); 
 	init_Exception();
-	init_serial();
-	//init_hd();
+	//sys_setup();
+	init_hd();		/*DANGEROUS!*/
+/* OK,here we are switch to hdb(hd1),(hd0 is your Udisk
+ * and hdb(hd1) is your PC hard disk. 
+ * this operation may format your PC hard disk!
+ * Confirm that you know what you are doing!!!
+ */	
 	init_syscall();
-
-	// unsigned char *tmp=buffer_addr;
-	// for(int i=0;i<100;i++){
-	// 	*(buffer_addr)=1;
-	// 	putnum(*(buffer_addr));
-	// 	buffer_addr+=8;
-	// }
-	// buffer_addr=tmp;
-	// __asm__ __volatile__("int $0x80");
-	_syscall(_SYS_READ,0,0,0);
-
-	// print("begin");
-	// for(int i=0;i<100;i++)
-	// 	IDE_write_sector((void *)(buffer_addr+512*i),i+1);
-	// for(int i=0;i<100;i++){
-	// 	putnum(*(buffer_addr));
-	// 	buffer_addr+=8;
-	// }
-
-	print("haha,Thank god!I do no die.");
-	//init_fs();
-	/*Divide by zero :*/
-	int a=6;int b=0;a/=b;
-	print("?");
-
+	
+	
+	// _syscall(_SYS_TESTHD,0,0,0);
+	// nextline();
+	// print("haha,Thank god!I do no die.");
+	
 	while(1);
 }
 

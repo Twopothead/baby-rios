@@ -15,9 +15,6 @@ extern "C" {
 
 void init_ramdisk();
 
-
-
-
 inline void * memcpy(void * dest, const void * src, int num)
 {
 	__asm__ ("cld; rep; movsb"::"c"(num),"S"(src),"D"(dest));

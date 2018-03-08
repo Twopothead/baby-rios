@@ -305,6 +305,8 @@ void init_Rishell()
 	set_cursor();
 	sti();
 	msg_Rishell_ok();
+	msg_rios();
+
 }
 
 void putnum(int value)
@@ -349,6 +351,24 @@ void puthex(int value)
                  }
   		return;
  }
+
+ void msg_rios()
+{
+	#define _printloop(ch) __asm__ ("movb %1,%%ah\n\t" \
+		 "movw %%ax,%2\n\t" \
+		 ::"a"(ch),"m"(attr),"m"(*(short *)pos) \
+		);	pos += Bytes_each_box; 
+	char* _hello_rios="  Copyright (C) 2018 Frank Curie (qiuri).\0";
+	char *p=_hello_rios;
+	int tmp = pos;int x=1,y=6;
+	pos = (x*80+y)*Bytes_each_box+0xb8000;char _ch= *(char *)_hello_rios;
+	while(_ch!='\0'){
+		_printloop(_ch);p++;_ch=*p;
+	}
+	pos=tmp;
+	
+}
+
 /*
  *Bit(s)	Value
  *0-7		ASCII code point

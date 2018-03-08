@@ -6,7 +6,7 @@ extern "C" {
 
 
 	
-void init_fs();
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

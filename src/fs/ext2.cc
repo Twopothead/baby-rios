@@ -32,13 +32,7 @@ int sys_delete_inode(struct inode *inode){
 
 
 
-void init_fs(){
-	// switch_to_disk(0);
-/*for safety,I'll use disk0, that's where our kernel located.(U disk)
- *maybe I'll use disk1 later, but that wll be dangerous currently.
- */
 
-}
 
 /**
  *TODO
