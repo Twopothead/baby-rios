@@ -11,14 +11,14 @@ void do_syscall(struct TrapFrame *trapframe)
 		print(" syscall read");
 	if(trapframe->eax == _SYS_TESTHD){
 		print("begin");
-
+		switch_to_disk(1);
 		//print(" syscall read");
 		nextline();
 		print("wait...");
 		unsigned char *bbb=(unsigned char *)0x0;
 		
 		for(int i=0;i<100;i++){
-			*(bbb)=7;
+			*(bbb)=6;
 			//putnum(*(bbb));
 			bbb++;
 			

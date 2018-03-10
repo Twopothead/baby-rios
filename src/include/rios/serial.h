@@ -66,7 +66,7 @@ int _IDE_disk_wait(int check_error);
 
 /*@param disk_No: can ONLY be 0 or 1*/
 #define switch_to_disk(disk_No) \
-	outb(ATA_PORT_CURRENT,Get_Device_register(disk_No,0))	
+	outb(ATA_PORT_CURRENT,0xe0 |(disk_No<<4))	
 
 
 static inline int _in_data32(u16 port) {
@@ -80,7 +80,7 @@ static inline void _out_data32(u16 port, u32 data) {
 }
 void judge_disk1_exist();
 void msg_get_hda_hdb_info();
-
+void set_disk_no(int nr_disk);
 
 #ifdef __cplusplus
 }

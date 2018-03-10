@@ -16,6 +16,7 @@
 #include <rios/dpt.h>
 #include <rios/serial.h>
 #include <rios/syscall.h>
+#include <rios/dpt.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -46,9 +47,10 @@ void RiOS_main(void)
  * Confirm that you know what you are doing!!!
  */	
 	init_syscall();
+	init_dpt();
 	
 	
-	// _syscall(_SYS_TESTHD,0,0,0);
+	_syscall(_SYS_TESTHD,0,0,0);
 	// nextline();
 	// print("haha,Thank god!I do no die.");
 	

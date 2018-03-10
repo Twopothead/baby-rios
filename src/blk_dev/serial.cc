@@ -1,7 +1,19 @@
 #include <rios/serial.h>
 #include <rios/console.h>
 #include <rios/gdt_idt.h>
-unsigned char *buffer_addr=(unsigned char *)0x8888888;/*mm 0x666666*/
+unsigned char *buffer_addr=(unsigned char *)0x888888;/*mm 0x666666*/
+int disk_no =0 ;/*disk0 is your Udisk ,and disk1 is hdb(hard disk on your PC)*/
+/* @param nr_disk can only be 1 or 0.*/
+void set_disk_no(int nr_disk)
+{
+	if(nr_disk ==0){
+/*read & write to hda*/
+		disk_no =0;
+	}else if(nr_disk ==1){
+/*read & write to hdb*/
+		disk_no =1;
+	}
+}
 void init_serial()
 {
 	outb_wait(SERIAL_PORT + 1, 0x00); /*Disable all interrupt*/
@@ -15,6 +27,7 @@ void init_serial()
 
 void IDE_disk_wait()
 {
+	
 	while ( ( inb_wait(ATA_PORT_STATUS) & (BUSY_STAT|READY_STAT) )!=  READY_STAT )
 	    ;
 	//print("wait...ok ");
@@ -27,7 +40,8 @@ void IDE_write_sector(void *src,int lba)
 	outb_wait(ATA_PORT_LBA_LOW ,lba);/*outb(0x1f3,lba);*/
 	outb_wait(ATA_PORT_LBA_MID ,lba >> 8);/*outb(0x1f4,lba>>8)*/
 	outb_wait(ATA_PORT_LBA_HIGH ,lba >> 16);/*outb(0x1f5,lba>>16)*/
-	outb_wait(ATA_PORT_DEVICE , 0xe0 | (lba >> 24));/*outb(0x1f5,lba>>16)*/
+	outb_wait(ATA_PORT_DEVICE , 0xe0 |(disk_no&1)<<4| (lba >> 24));/*outb(0x1f5,lba>>16)*/
+	/*disk_no determine write to which disk.*/
 	outb_wait(ATA_PORT_STATUS, HD_WRITE);
 	IDE_disk_wait();
 	for(int i = 0; i < SECTOR_SIZE/4 ; i++){
@@ -37,12 +51,13 @@ void IDE_write_sector(void *src,int lba)
 
 void IDE_read_sector(void *dest, int lba)
 {
+	switch_to_disk(1);/*disk1 :PC hard disk */
 	IDE_disk_wait();
 	outb_wait(ATA_PORT_SECT_COUNT,1);/*outb(0x1f2,1);*/
 	outb_wait(ATA_PORT_LBA_LOW ,lba);/*outb(0x1f3,lba);*/
 	outb_wait(ATA_PORT_LBA_MID ,lba >> 8);/*outb(0x1f4,lba>>8)*/
 	outb_wait(ATA_PORT_LBA_HIGH ,lba >> 16);/*outb(0x1f5,lba>>16)*/
-	outb_wait(ATA_PORT_DEVICE , 0xe0 | (lba >> 24));/*outb(0x1f5,lba>>16)*/
+	outb_wait(ATA_PORT_DEVICE , 0xe0 |(disk_no&1)<<4 | (lba >> 24));/*outb(0x1f5,lba>>16)*/
 	outb_wait(ATA_PORT_STATUS, HD_READ );
 	IDE_disk_wait();
 	for(int i = 0; i < SECTOR_SIZE/4 ; i++){
@@ -90,7 +105,8 @@ void init_hd()
 	init_serial();
 	judge_disk1_exist();
 	msg_get_hda_hdb_info();
-	switch_to_disk(1);msg_danger_hdb();/*Dangerous!!!*/
+	switch_to_disk(1);msg_danger_hdb();
+	set_disk_no(1);/*Dangerous!!! read & write to hdb*/
 }
 int _IDE_disk_wait(int check_error)
 {
@@ -118,6 +134,7 @@ void judge_disk1_exist()
 	    }
 	}
 	msg_hd1_exist(havedisk1);
-	switch_to_disk(0);/*switch back to disk 0*/
+	switch_to_disk(0);
+	set_disk_no(0);/*switch back to disk 0*/
 }
 /*about serial ports:https://wiki.osdev.org/Serial_Ports*/

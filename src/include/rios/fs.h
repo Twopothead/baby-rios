@@ -91,4 +91,11 @@ void init_fs();
  * zone[9]:	trible indirect block 	(128^3)*512 = 4096MB
  */
 
+
 #endif
+/*
+｜＿＿＿＿｜＿＿＿＿｜＿＿＿＿｜＿＿＿＿｜＿＿＿＿｜＿  ＿  ＿  ＿｜		
+｜＿＿＿＿｜＿＿＿＿｜＿＿＿＿｜＿＿＿＿｜＿＿＿＿｜＿  ＿  ＿  ＿｜		
+bootsector   |	　　bmap    imap    inodes   DATA
+　     super_block
+*/

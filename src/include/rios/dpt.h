@@ -3,6 +3,7 @@
 
 #include <rios/type.h>
 #include <rios/console.h>
+#include <rios/hd.h>
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -22,8 +23,9 @@ struct DiskPartitionTable{
 	u32 num_sectors;/*num of sectors that partition takes up*/
 };
 
-#define NORMAL 0x2e
+#define NORMAL_FS 0x2e
 void sys_setup();
+void init_dpt();
 
 #ifdef __cplusplus
 }

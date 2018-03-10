@@ -54,8 +54,9 @@ Harddisk := build/hd.img
 
 run : $(iso) $(Harddisk)                                                           
 	@#qemu-system-x86_64 -m 666  $(iso) -monitor stdio 
-	qemu-system-x86_64 -m 666 -hdb $(Harddisk)  $(iso) -monitor stdio 
+	qemu-system-x86_64 -m 666  $(iso) -hdb $(Harddisk)  -monitor stdio 
 	@#qemu-system-x86_64 -m 666  $(iso) -monitor stdio 
+	
 
 qemu: $(iso) $(Harddisk)
 	qemu-system-x86_64 -m 666 -hdb $(Harddisk) $(iso) -monitor stdio 
