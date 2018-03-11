@@ -17,12 +17,13 @@
 #include <rios/serial.h>
 #include <rios/syscall.h>
 #include <rios/dpt.h>
-
+#include <rios/fs.h>
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
 extern unsigned char *buffer_addr;
+u8 _global_buf[512]={0};
 //unsigned char *buf=(unsigned char *)0x8888888;/*mm 0x666666*/
 
 void RiOS_main(void)
@@ -48,10 +49,11 @@ void RiOS_main(void)
  */	
 	init_syscall();
 	init_dpt();
+	init_fs();
+	char ch = '!';char *str="world";int tmp=1234;int hexnum=0x888;
+	kprintf("hello\t%s%d%c\n%x",str,tmp,ch,hexnum);
 	
-	
-	_syscall(_SYS_TESTHD,0,0,0);
-	// nextline();
+	//_syscall(_SYS_TESTHD,0,0,0);
 	// print("haha,Thank god!I do no die.");
 	
 	while(1);

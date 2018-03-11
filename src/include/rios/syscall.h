@@ -73,7 +73,7 @@ int _syscall(u32 _eax, u32 _ebx, u32 _ecx, u32 _edx);
 #define _SYS_WAIRPID	336
 #define _SYS_WAIT	337
 #define _SYS_EXECVE	338
-#define _SYS_EXIT	339
+#define _SYS_EXIT	339 
 #define _SYS_BRK	340
 #define _SYS_GETPID	341
 #define _SYS_GETGPRP	342
@@ -85,6 +85,8 @@ int _syscall(u32 _eax, u32 _ebx, u32 _ecx, u32 _edx);
 #define _SYS_ALARM	346
 #define _SYS_PAUSE	347
 
+#define _RIOS_READBUF   401
+#define _RIOS_WRITEBUF  402
 
 #ifdef __cplusplus
 }

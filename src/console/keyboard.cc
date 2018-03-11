@@ -30,11 +30,14 @@ void do_keyboard()
 		}else{ 
 			// putch(keymap[kbscancode]);
 			if(kbscancode == ENTER_KEYCODE){
-			con_putch(kbscancode);
+				con_putch(kbscancode);
 			}else if(kbscancode == BACKSPACE_KEYCODE){
 				con_putch(kbscancode);
 			}else if(kbscancode == RIGHT_CTRL_KEYCODE){
 				con_putch(kbscancode);
+			}else if(kbscancode == SLASH_KEYCODE){
+				//con_putch(kbscancode);
+				con_putch(0x5c);/* '\\' */
 			}else{
 				con_putch(keymap[kbscancode]);
 			}

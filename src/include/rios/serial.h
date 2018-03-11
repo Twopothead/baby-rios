@@ -7,6 +7,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
+#include <rios/ramdisk.h>
 #define SERIAL_PORT 0x3f8
 
 #define SERIAL_COM1 0x3f8
@@ -81,6 +82,11 @@ static inline void _out_data32(u16 port, u32 data) {
 void judge_disk1_exist();
 void msg_get_hda_hdb_info();
 void set_disk_no(int nr_disk);
+
+extern u8 _global_buf[512];
+void IDE_write2buf(int lba);
+void IDE_read2buf(int lba);
+
 
 #ifdef __cplusplus
 }

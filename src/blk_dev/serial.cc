@@ -35,13 +35,15 @@ void IDE_disk_wait()
 
 void IDE_write_sector(void *src,int lba)
 {
+	switch_to_disk(1);
+	set_disk_no(1);/*disk1 :PC hard disk */
 	IDE_disk_wait();
-	outb_wait(ATA_PORT_SECT_COUNT,1);/*outb(0x1f2,1);*/
-	outb_wait(ATA_PORT_LBA_LOW ,lba);/*outb(0x1f3,lba);*/
-	outb_wait(ATA_PORT_LBA_MID ,lba >> 8);/*outb(0x1f4,lba>>8)*/
+	outb_wait(ATA_PORT_SECT_COUNT,1);	/*outb(0x1f2,1);*/
+	outb_wait(ATA_PORT_LBA_LOW ,lba);	/*outb(0x1f3,lba);*/
+	outb_wait(ATA_PORT_LBA_MID ,lba >> 8);	/*outb(0x1f4,lba>>8)*/
 	outb_wait(ATA_PORT_LBA_HIGH ,lba >> 16);/*outb(0x1f5,lba>>16)*/
 	outb_wait(ATA_PORT_DEVICE , 0xe0 |(disk_no&1)<<4| (lba >> 24));/*outb(0x1f5,lba>>16)*/
-	/*disk_no determine write to which disk.*/
+	/*disk_no determines write to which disk.*/
 	outb_wait(ATA_PORT_STATUS, HD_WRITE);
 	IDE_disk_wait();
 	for(int i = 0; i < SECTOR_SIZE/4 ; i++){
@@ -51,13 +53,15 @@ void IDE_write_sector(void *src,int lba)
 
 void IDE_read_sector(void *dest, int lba)
 {
-	switch_to_disk(1);/*disk1 :PC hard disk */
+	switch_to_disk(1);
+	set_disk_no(1);/*disk1 :PC hard disk */
 	IDE_disk_wait();
-	outb_wait(ATA_PORT_SECT_COUNT,1);/*outb(0x1f2,1);*/
-	outb_wait(ATA_PORT_LBA_LOW ,lba);/*outb(0x1f3,lba);*/
-	outb_wait(ATA_PORT_LBA_MID ,lba >> 8);/*outb(0x1f4,lba>>8)*/
+	outb_wait(ATA_PORT_SECT_COUNT,1);	/*outb(0x1f2,1);*/
+	outb_wait(ATA_PORT_LBA_LOW ,lba);	/*outb(0x1f3,lba);*/
+	outb_wait(ATA_PORT_LBA_MID ,lba >> 8);	/*outb(0x1f4,lba>>8)*/
 	outb_wait(ATA_PORT_LBA_HIGH ,lba >> 16);/*outb(0x1f5,lba>>16)*/
 	outb_wait(ATA_PORT_DEVICE , 0xe0 |(disk_no&1)<<4 | (lba >> 24));/*outb(0x1f5,lba>>16)*/
+	/*disk_no determines read which disk.*/
 	outb_wait(ATA_PORT_STATUS, HD_READ );
 	IDE_disk_wait();
 	for(int i = 0; i < SECTOR_SIZE/4 ; i++){
@@ -70,6 +74,7 @@ void IDE_read_sector(void *dest, int lba)
  *	DANGEROUS!!! Please confirm that your PC hard disk 
  *      DONNOT contain important data,or just test in Virtual machine
  */
+int hdb_sect_total = 0;
 int get_hd_size(int nr_hd)
 {
 	u8 hd_buf[512*2];
@@ -89,6 +94,8 @@ int get_hd_size(int nr_hd)
 	int sectors = ((int)hd_info[61] << 16) +hd_info[60];
 	//print("HD size:");
 	putnum(sectors*512/1000000);print("MB");
+	if(nr_hd == 1) hdb_sect_total = sectors; 
+	/*calculate hdb total inodes*/
 	return sectors*512/1000000;/*MB*/
 }
 
@@ -108,6 +115,7 @@ void init_hd()
 	switch_to_disk(1);msg_danger_hdb();
 	set_disk_no(1);/*Dangerous!!! read & write to hdb*/
 }
+
 int _IDE_disk_wait(int check_error)
 {
 	int _r;
@@ -118,8 +126,6 @@ int _IDE_disk_wait(int check_error)
 		return -1;
 	return 0;
 }
-
-
 
 void judge_disk1_exist()
 {
@@ -138,3 +144,41 @@ void judge_disk1_exist()
 	set_disk_no(0);/*switch back to disk 0*/
 }
 /*about serial ports:https://wiki.osdev.org/Serial_Ports*/
+
+void IDE_write2buf(int lba)
+{
+	for(int i=0;i<512;i++)_global_buf[i]=0;
+	switch_to_disk(1);
+	set_disk_no(1);/*disk1 :PC hard disk */
+	IDE_disk_wait();
+	outb_wait(ATA_PORT_SECT_COUNT,1);	/*outb(0x1f2,1);*/
+	outb_wait(ATA_PORT_LBA_LOW ,lba);	/*outb(0x1f3,lba);*/
+	outb_wait(ATA_PORT_LBA_MID ,lba >> 8);	/*outb(0x1f4,lba>>8)*/
+	outb_wait(ATA_PORT_LBA_HIGH ,lba >> 16);/*outb(0x1f5,lba>>16)*/
+	outb_wait(ATA_PORT_DEVICE , 0xe0 |(disk_no&1)<<4| (lba >> 24));/*outb(0x1f5,lba>>16)*/
+	/*disk_no determines write to which disk.*/
+	outb_wait(ATA_PORT_STATUS, HD_WRITE);
+	IDE_disk_wait();
+	for(int i = 0; i < SECTOR_SIZE/4 ; i++){
+		 _out_data32(ATA_PORT_DATA,((u32*)_global_buf)[i]);
+	}
+}
+
+void IDE_read2buf(int lba)
+{
+	for(int i=0;i<512;i++)_global_buf[i]=0;
+	switch_to_disk(1);
+	set_disk_no(1);/*disk1 :PC hard disk */
+	IDE_disk_wait();
+	outb_wait(ATA_PORT_SECT_COUNT,1);	/*outb(0x1f2,1);*/
+	outb_wait(ATA_PORT_LBA_LOW ,lba);	/*outb(0x1f3,lba);*/
+	outb_wait(ATA_PORT_LBA_MID ,lba >> 8);	/*outb(0x1f4,lba>>8)*/
+	outb_wait(ATA_PORT_LBA_HIGH ,lba >> 16);/*outb(0x1f5,lba>>16)*/
+	outb_wait(ATA_PORT_DEVICE , 0xe0 |(disk_no&1)<<4 | (lba >> 24));/*outb(0x1f5,lba>>16)*/
+	/*disk_no determines read which disk.*/
+	outb_wait(ATA_PORT_STATUS, HD_READ );
+	IDE_disk_wait();
+	for(int i = 0; i < SECTOR_SIZE/4 ; i++){
+		 ((u32*)_global_buf)[i]=_in_data32(ATA_PORT_DATA);
+	}
+}

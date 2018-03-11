@@ -11,7 +11,7 @@ void do_syscall(struct TrapFrame *trapframe)
 		print(" syscall read");
 	if(trapframe->eax == _SYS_TESTHD){
 		print("begin");
-		switch_to_disk(1);
+		 set_disk_no(1);
 		//print(" syscall read");
 		nextline();
 		print("wait...");
@@ -45,6 +45,12 @@ void do_syscall(struct TrapFrame *trapframe)
 		for(int i=0;i<100;i++){
 			putnum(*(bbb+i));
 		}
+	}
+	if(trapframe->eax ==_RIOS_READBUF ){
+		IDE_read2buf(trapframe->ebx);
+	}
+	if(trapframe->eax ==_RIOS_WRITEBUF ){
+		IDE_write2buf(trapframe->ebx);
 	}
 	
 }

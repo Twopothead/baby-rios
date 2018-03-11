@@ -382,3 +382,39 @@ void puthex(int value)
 |__________Back____Fore_________|
 	BL:Blink, I:Highligh
 */	
+
+typedef char * va_list;
+#define va_start(arg_p, fmt) \
+arg_p = (va_list) ((unsigned int)&fmt + _var_round_size(&fmt));	
+/*取整后的type字节长度值，是sizeof(int)=4的倍数*/	
+#define _var_round_size(type) \
+(((sizeof(type)+sizeof(int)-1)/sizeof(int))*sizeof(int))
+/*get next arg from stackframe*/
+#define get_next_arg(arg_p, type) (((type *)(arg_p +=_var_round_size(type)))[-1])
+
+void kprintf(const char *fmt, ...){
+	va_list args;char *str;
+	va_start(args, fmt);
+	for(int i = 0; i< strlen(fmt); i++){
+		scroll();
+		if(fmt[i]=='\n'){
+			nextline();continue;
+		}else if(fmt[i]=='\t'){
+			print("    ");continue;
+		}else if(fmt[i]!='%'){
+			con_putch(fmt[i]);continue;
+		}
+/*fmt[i] = '%'*/
+
+		switch(fmt[++i]){
+			case 'd':putnum(get_next_arg(args, int));break;
+			case 'c':con_putch(get_next_arg(args, int));break;
+			case 'x':print("0x");puthex(get_next_arg(args, int));break;
+			case 's':str=(char *)get_next_arg(args, char*);
+				print((const char*)str);break;
+/*we can define more format here ,like %d,%c,%s ...,etc.*/
+		}
+
+		
+	}
+}

@@ -10,6 +10,7 @@ extern "C" {
 
 /*Disk Partition Table*/
 void setup_DPT();
+int check_DPT();
 struct DiskPartitionTable{
 	u8 boot_ind;
 	u8 head;
@@ -19,11 +20,11 @@ struct DiskPartitionTable{
 	u8 end_head;
 	u8 end_sector;
 	u8 end_cyl;
-	u32 start_sector; /*count from zero*/
-	u32 num_sectors;/*num of sectors that partition takes up*/
+	u32 start_sector; 	/*count from zero*/
+	u32 num_sectors;	/*num of sectors that partition takes up*/
 };
 
-#define NORMAL_FS 0x2e
+#define RIOS_FS 0x88		
 void sys_setup();
 void init_dpt();
 

@@ -3,16 +3,17 @@
 #ifdef __cplusplus
 
 #include <rios/type.h>
-#include <asm/x86>
-#include <sched.h>
+#include <asm/x86.h>
+#include <rios/sched.h>
+#include <rios/bitmap.h>
 
 extern "C" {
 #endif /* __cplusplus */
 
-extern struct task_struct;/*haven't implement yet :(*/
+/*struct task_struct haven't implement yet :(*/
 
-#define RIFS_MAGIC_NUMBER 0x8888
-#include MAX_NAME_LEN 14
+#define RIFS_MAGIC_NUMBER 0x88
+#define MAX_NAME_LEN 14
 #define _SECTOR_SIZE 512
 #define _BLOCK_SIZE 1024
 #define INODES_PER_BLOCK ((_BLOCK_SIZE)/sizeof(struct d_inode))	
@@ -21,12 +22,14 @@ extern struct task_struct;/*haven't implement yet :(*/
 #define RIFS_MAX_INFO_LEN 16
 struct super_block{
 
-	u16 s_magic;			/*ri_fs magic:0x8888*/
-	u16 s_startsect;
+	u16 s_ninodes;
 	u16 s_capacity_blks;		/*capacity count in blocks*/
-	u16 s_bitmap_blks;		/*num of blks that bitmap takes up*/
-	u16 s_info[RIFS_MAX_INFO_LEN+1];/*"RiFS by qiuri"*/
-
+	u16 s_startsect;
+	u16 s_zone_bitmap_blks;
+	u16 s_inode_bitmap_blks;	/*num of blks that bitmap takes up*/
+	u16 s_inode_blks;
+	u16 s_firstdatazone;
+	u16 s_magic;			/*ri_fs magic:0x88*/
 /*These are only in memeory*/
 
 };
@@ -67,6 +70,15 @@ struct m_inode
 };
 
 struct d_inode{
+	u8 i_mode;			/*file type(dir/normal) and attribute(rwx)*/
+	u8 i_size;
+	u8 i_uid;			/*user id*/
+	u8 i_gid;			/*group id*/
+	u8 i_nlinks;			/*num of files that link to it*/
+	u32 i_creat_time;	
+	u32 i_modify_time;
+	u32 i_delet_time; 
+	u16 i_zone[10];
 
 };
 struct dir_entry{
@@ -80,6 +92,7 @@ struct file
 };
 
 void init_fs();
+void get_file_attrib(m_inode *fd);
 	
 #ifdef __cplusplus
 }

@@ -74,6 +74,7 @@ void msg_8253_ok();
 void msg_hd1_exist(int  havedisk1);
 void msg_danger_hdb();
 void msg_rios();
+void kprintf(const char *fmt, ...);
 
 #define println(sth) print(sth);nextline()
 

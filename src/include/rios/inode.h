@@ -4,19 +4,19 @@
 extern "C" {
 #endif /* __cplusplus */
 
-struct superblock
-{
+// struct superblock
+// {
 
-};
-struct inode{
+// };
+// struct inode{
 
-};
-struct dentry{
+// };
+// struct dentry{
 
-};
-struct file{
+// };
+// struct file{
 
-};
+// };
 	
 
 #ifdef __cplusplus

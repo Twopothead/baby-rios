@@ -68,13 +68,28 @@ _v; \
 
 
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
+/*set and clear bitmap's bit*/	
+static inline void bitmap_set_bit(unsigned int nr, void * addr){
+	u8 *tmp = (u8*)addr;
+	tmp += nr >> 3;
+	*tmp |= 1<<(7-(nr%8));
+}
 
+/*the (nr)th bit of address is set to 1*/
+#ifdef __cplusplus
+}
+#endif
 
-
-
-
-
+#define bitmap_clear_bit(nr, addr)({ \
+register int _res; \
+__asm__ volatile("btrl %2,%3\n\tsetnb %%al": \
+"=a"(_res):"0"(0),"r"(nr),"m"(*(addr))); \
+_res;})
+/*the (nr)th bit of address is cleared to 0*/
 
 
 
