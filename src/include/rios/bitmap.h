@@ -18,6 +18,26 @@ extern "C" {
 #define NR_INODE_BLK(_superblock)		NR_INODE_MAP_BLK(_superblock) + (_superblock).s_inode_bitmap_blks
 #define NR_DATA_BLK(_superblock)		NR_INODE_BLK(_superblock) + INODE_BLKS 
 
+#define HDB_SUPER_BLOCK_SEC 2
+/*sector1:boot sector
+ *settor2:superblock;
+ */
+extern int hdb_sect_total;
+union Super_Block_Sect{
+/*利用联合体去占坑位*/
+		u8 bytes[512]={0};
+		struct {
+			u16 s_ninodes;
+			u16 s_capacity_blks;		/*capacity count in blocks*/
+			u16 s_startsect;
+			u16 s_zone_bitmap_blks;		/*in rios.a zone is a sector.*/
+			u16 s_inode_bitmap_blks;	/*num of blks that bitmap takes up*/
+			u16 s_inode_blks;
+			u16 s_firstdatazone;
+			u16 s_magic;			/*ri_fs magic:0x8888*/
+		};
+}; 
+
 void check_rifs();
 void format_disk();
 void format_superblock(union Super_Block_Sect rios_superblock);

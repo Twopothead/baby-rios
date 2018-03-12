@@ -79,6 +79,12 @@ static inline void bitmap_set_bit(unsigned int nr, void * addr){
 	*tmp |= 1<<(7-(nr%8));
 }
 
+static inline int bitmap_test_bit(unsigned int nr, void * addr){
+	u8 *tmp = (u8*)addr;
+	tmp += nr >> 3;
+	return (*tmp &= 1<<(7-(nr%8)))!=0;
+}
+
 /*the (nr)th bit of address is set to 1*/
 #ifdef __cplusplus
 }
