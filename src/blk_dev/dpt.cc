@@ -27,14 +27,14 @@ int check_DPT()
 	IDE_read_sector((void *)(_tmp_sect_buf),0);
 	nextline();
 	if(_tmp_sect_buf[0x1be] == 0x80)
-		print(" Active partition,");
-	else    print(" Inactive partition,"),_DPT_detected = 0;
+		;/*print("  Active partition,");*/
+	else    /*print("  Inactive partition,");*/_DPT_detected = 0;
 	if(_tmp_sect_buf[0x1be + 0x04] == RIOS_FS)
-		print(" valid system code :RIOS_FS,");
-	else    print(" invalid system code,no FS detected! "),_DPT_detected = 0;
+		;/*msg_ok(),kprintf("  valid partition ");*/
+	else    print("  no valid partition detected! "),_DPT_detected = 0;
 	if(_tmp_sect_buf[0x1fe]==0x55 && _tmp_sect_buf[0x1ff]==0xaa)
-		print(" 0xAA55 found.");/*magic number.*/
-	else    print(" 0xAA55 not found."),_DPT_detected = 0;
+		;/*print("  0xAA55 found."); magic number.*/
+	else    /*print("  0xAA55 not found.")*/_DPT_detected = 0;
 	return _DPT_detected;
 }
 
@@ -49,9 +49,9 @@ void init_dpt()
 {
 _check_DPT_again:	
 	if(check_DPT()==0){
-		nextline(),print(" Started set Disk partition table on hdb(disk1). "),set_DPT();
+		nextline(),print("  Started set Disk partition table on hdb(disk1). "),set_DPT();
 		goto _check_DPT_again;
 	}else
-		print(" OK");
+		msg_ok(),kprintf("  valid partition detected.\n");
 }
 

@@ -50,8 +50,7 @@ void RiOS_main(void)
 	init_syscall();
 	init_dpt();
 	init_fs();
-	char ch = '!';char *str="world";int tmp=1234;int hexnum=0x888;
-	kprintf("hello\t%s%d%c\n%x",str,tmp,ch,hexnum);
+	
 	
 	//_syscall(_SYS_TESTHD,0,0,0);
 	// print("haha,Thank god!I do no die.");

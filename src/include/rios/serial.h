@@ -53,7 +53,7 @@ extern "C" {
 
 #define HD_IDENTIFY 0xec
 
-void init_serial();
+
 void init_hd();
 void IDE_disk_wait();
 void IDE_write_sector(void *src,int lba);

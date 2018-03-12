@@ -74,6 +74,8 @@ void con_putch(u8 ch)
 				msg_cmd_help();
 			}else if(cmd_matching((char*)cmd_buffer,"logo")){
 				print_njau_logo();
+			}else{
+				/*code here*/
 			}
 
 			nextline();
@@ -418,3 +420,8 @@ void kprintf(const char *fmt, ...){
 		
 	}
 }
+
+/**
+ * char ch = '!';char *str="world";int tmp=1234;int hexnum=0x888;
+ * kprintf("hello\t%s%d%c\n%x",str,tmp,ch,hexnum);
+ */

@@ -14,16 +14,6 @@ void set_disk_no(int nr_disk)
 		disk_no =1;
 	}
 }
-void init_serial()
-{
-	outb_wait(SERIAL_PORT + 1, 0x00); /*Disable all interrupt*/
-	outb_wait(SERIAL_PORT + 3, 0x80); 
-	outb_wait(SERIAL_PORT + 0, 0x03); 
-	outb_wait(SERIAL_PORT + 1, 0x00); 
-	outb_wait(SERIAL_PORT + 3, 0x03); 
-	outb_wait(SERIAL_PORT + 2, 0xc7); /*enable FIFO*/
-	outb_wait(SERIAL_PORT + 3, 0x0b); /*enable irq*/
-}
 
 void IDE_disk_wait()
 {
@@ -109,7 +99,7 @@ void msg_get_hda_hdb_info()
 
 void init_hd()
 {
-	init_serial();
+	//init_serial();
 	judge_disk1_exist();
 	msg_get_hda_hdb_info();
 	switch_to_disk(1);msg_danger_hdb();

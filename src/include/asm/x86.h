@@ -87,7 +87,7 @@ static inline void bitmap_set_bit(unsigned int nr, void * addr){
 #define bitmap_clear_bit(nr, addr)({ \
 register int _res; \
 __asm__ volatile("btrl %2,%3\n\tsetnb %%al": \
-"=a"(_res):"0"(0),"r"(nr),"m"(*(addr))); \
+"=a"(_res):"a"(0),"r"(nr),"m"(addr)); \
 _res;})
 /*the (nr)th bit of address is cleared to 0*/
 

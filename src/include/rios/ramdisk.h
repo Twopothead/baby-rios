@@ -17,17 +17,26 @@ void init_ramdisk();
 
 inline void * memcpy(void * dest, const void * src, int num)
 {
-	__asm__ ("cld; rep; movsb"::"c"(num),"S"(src),"D"(dest));
+	__asm__ ("cld; rep; movsb"::"c"(num),"S"((int)src),"D"((int)dest));
+	return dest;
 }
 
 inline void * memmove(void * dest,const void * src, int num )
 {
+
 	if(dest<src){
-		__asm__("cld;rep;movsb"::"c"(num),"S"(src),"D"(dest));
+		__asm__("cld;rep;movsb"::"c"(num),"S"((int)src),"D"((int)dest));
 
 	}else{
-		__asm__("std;rep;movsb"::"c"(num),"S"(src+num-1),"D"(dest+num-1));
+		__asm__("std;rep;movsb"::"c"(num),"S"((int)src+num-1),"D"((int)dest+num-1));
 	}
+	return dest;
+}
+
+inline void * memset(void *str ,char ch, int count )
+{	
+	__asm__("cld;rep stosb"::"a"(ch),"D"(str),"c"(count));
+	return str;
 }
 
 #ifdef __cplusplus

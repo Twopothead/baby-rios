@@ -9,17 +9,22 @@ extern "C" {
 #include <rios/dpt.h>
 #include <rios/fs.h>
 #include <rios/hd.h>
+#include <rios/ramdisk.h>
 
-
-#define BOOT_BLK(_superblock) 		((_superblock).s_startsect)
-#define SUPER_BLK(_superblock)		((_superblock).s_startsect) + 1	
-#define ZONE_MAP_BLK(_superblock) 	((_superblock).s_startsect) + 2
-#define INODE_MAP_BLK(_superblock)	ZONE_MAP_BLK(_superblock) + (_superblock).s_zone_bitmap_blks
-#define INODE_BLK(_superblock)		INODE_MAP_BLK(_superblock) + (_superblock).s_inode_bitmap_blks
-#define DATA_BLK(_superblock)		INODE_BLK(_superblock) + (s_inode_blks)
+#define NR_BOOT_BLK(_superblock) 		((_superblock).s_startsect)
+#define NR_SUPER_BLK(_superblock)		NR_BOOT_BLK(_superblock)  + 1	
+#define NR_ZONE_MAP_BLK(_superblock) 		NR_SUPER_BLK(_superblock) + 1
+#define NR_INODE_MAP_BLK(_superblock)		NR_ZONE_MAP_BLK(_superblock) + (_superblock).s_zone_bitmap_blks
+#define NR_INODE_BLK(_superblock)		NR_INODE_MAP_BLK(_superblock) + (_superblock).s_inode_bitmap_blks
+#define NR_DATA_BLK(_superblock)		NR_INODE_BLK(_superblock) + INODE_BLKS 
 
 void check_rifs();
 void format_disk();
+void format_superblock(union Super_Block_Sect rios_superblock);
+void format_zone_bitmap_blks(union Super_Block_Sect  rios_superblock,int total_used_ctrl_blks);
+void format_inode_bitmap_blks(union Super_Block_Sect  rios_superblock);
+void format_inode_blks(union Super_Block_Sect  rios_superblock);
+void init_root_dir(union Super_Block_Sect  rios_superblock);
 
 #define INODE_BITMAP_BLK 1 		/* 512<<3 = 4096 inodes*/
 #define INODES_PER_BLK	(512/sizeof(d_inode))
