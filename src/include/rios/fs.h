@@ -25,10 +25,11 @@ struct super_block{
 	u16 s_ninodes;
 	u16 s_capacity_blks;		/*capacity count in blocks*/
 	u16 s_startsect;
-	u16 s_zone_bitmap_blks;
+	u16 s_zone_bitmap_blks;		/*according to Prof Jiang,we will not use this policy (data block bitmap) anymore.*/
 	u16 s_inode_bitmap_blks;	/*num of blks that bitmap takes up*/
 	u16 s_inode_blks;
 	u16 s_firstdatazone;
+	u16 s_specific_blk_nr_group;	/*成组链接专用块对应磁盘上的组号*/
 	u16 s_magic;			/*ri_fs magic:0x88*/
 /*These are only in memeory*/
 

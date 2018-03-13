@@ -31,9 +31,11 @@ union Super_Block_Sect{
 			u16 s_capacity_blks;		/*capacity count in blocks*/
 			u16 s_startsect;
 			u16 s_zone_bitmap_blks;		/*in rios.a zone is a sector.*/
+/*according to Prof Jiang,we will not use this policy (data block bitmap) anymore.*/			
 			u16 s_inode_bitmap_blks;	/*num of blks that bitmap takes up*/
 			u16 s_inode_blks;
 			u16 s_firstdatazone;
+			u16 s_specific_blk_nr_group;	/*成组链接专用块对应磁盘上的组号*/
 			u16 s_magic;			/*ri_fs magic:0x8888*/
 		};
 }; 
@@ -45,10 +47,16 @@ void format_zone_bitmap_blks(union Super_Block_Sect  rios_superblock,int total_u
 void format_inode_bitmap_blks(union Super_Block_Sect  rios_superblock);
 void format_inode_blks(union Super_Block_Sect  rios_superblock);
 void init_root_dir(union Super_Block_Sect  rios_superblock);
+void set_specific_blk_nr(int i);
+void init_free_space_grouping();
 
 #define INODE_BITMAP_BLK 1 		/* 512<<3 = 4096 inodes*/
 #define INODES_PER_BLK	(512/sizeof(d_inode))
 #define INODE_BLKS 	((INODE_BITMAP_BLK*(512<<3))+ (INODES_PER_BLK-1))/INODES_PER_BLK
+
+
+void free_space_grouping();
+
 
 
 #ifdef __cplusplus
