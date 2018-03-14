@@ -58,6 +58,8 @@ void init_free_space_grouping();
 void free_space_grouping();
 
 
+void _debug_visit_free_group_ctr();
+
 
 #ifdef __cplusplus
 }

@@ -3,6 +3,7 @@
 #include <rios/fs.h>
 #include <rios/console.h>
 #include <rios/ramdisk.h>
+#include <asm/x86.h>
 union Super_Block_Sect rios_superblock;
 
 void format_superblock(union Super_Block_Sect rios_superblock)
@@ -60,7 +61,7 @@ int new_inode()
 	}
 	return -1;
 }
-
+struct d_inode iroot;
 void init_root_dir(union Super_Block_Sect  rios_superblock)
 {
 	u8 sector[512]={0};
@@ -75,6 +76,25 @@ _again_check_root:
 
 
 		/*we need to handle struct dir_entry here */
+// iroot.i_zone[0] = new_block(&rios_superblock);		
+// struct dir_entry *de = NULL;
+// iput(&rios_superblock,&iroot,);
+// de = (struct dir_entry *) sector;
+// (const char *)&de.name=".";
+// de++;
+// (const char *)&de.name="..";
+// de = (struct dir_entry *) sector;
+/*通过一个空指针指在内存中扇区数组上达到操纵目的，之后写回到硬盘*/
+// if()
+
+
+
+
+
+
+
+
+		
 
 		goto _again_check_root;
 	}else{
@@ -82,20 +102,34 @@ _again_check_root:
 	}
 }
 
-int new_block(){
-	/* code here ....*/
-	return -1;
-}
-void free_block(){
 
-}
-struct m_inode * iget(int nr){
 
+
+void _panic(const char *str){
+	set_text_attr(Red,Black);nextline();
+	kprintf(str);
+	nextline();set_text_attr(LightGray,Black);
 }
 
-void iput(struct m_inode * inode){
+/*文件数据块映射到盘块*/
+// void _blockmap(struct m_inode * inode,int blk,int create){
+// 	if(blk<0)
+// 		;// _panic("_inode_bmap: block<0!");
+// 	// if(blk >= 7 +  )
+// 	// 	_panic("_inode_bmap: block>max!");
 
-}
+// 	if(blk<7){
+// 		return inode->i_zone[blk];
+// 	}
+// 	if(blk<512){
+
+// 	}
+
+
+
+// 	return 0;
+
+// }
 void format_disk()
 {
 	
@@ -202,10 +236,68 @@ void init_free_space_grouping()
 		IDE_write_sector((void *)&sector,i);	
 /*写入到这一块第二个扇区*/			
 		memset(sector,0x00,sizeof(sector)/sizeof(sector[0]));
-		u8 *p = (u8 *)free_data_blk;
-		for(int i = 0; i < 512; i++) p++;
+// 照这个思路，似乎倒是可以搞出文件读写指针	
+		u8 *p = (u8 *)free_data_blk;p+=512;/*这里之前搞错了*/	
 		memcpy((void *) sector, (const void *) p, 512);
 		IDE_write_sector((void *)&sector,i+1);	
 	}
 
 }
+
+void _debug_visit_free_group_ctr(){
+	u16 free_data_blk[512] = {0};/*2 sectors*/
+	u8 * psect = (u8 *)free_data_blk ;
+	//u8 _tmp_sec[512]={0};		
+	int nr_group = 0; 
+	int nr_last = NR_DATA_BLK(rios_superblock) + TOTAL_GROUP*BLKS_PER_GROUP*SECTOR_PER_BLOCK;
+	#define free_group_ctr(g_nr) NR_DATA_BLK(rios_superblock) + g_nr*BLKS_PER_GROUP*SECTOR_PER_BLOCK
+	
+	for(int i = NR_DATA_BLK(rios_superblock); i < free_group_ctr( TOTAL_GROUP ) ; \
+			i += BLKS_PER_GROUP*SECTOR_PER_BLOCK , nr_group++){
+/*一块两个扇区，第一个扇区*/		
+		IDE_read_sector((void *)psect,i);
+
+/*一块两个扇区，第二个扇区*/	
+		u8 *p = (u8*)free_data_blk+512;
+		IDE_read_sector((void *)p,i+1);
+/*！注意，这里ｐ和sect是指针，不能用(void *)&p,而应该用(void *)p*/		
+		kprintf("\n     free_group No.%d:([0] s_free)%d, ([1] nr_next_free_group )%d  \n \
+([2] free_blk_nr)%d ,([3] free_blk_nr)%d ...([62] free_blk_nr)%d" \		
+			,nr_group,(u16)free_data_blk[0],(u16)free_data_blk[1], \
+(u16)free_data_blk[2],(u16)free_data_blk[3],(u16)free_data_blk[62]);
+
+	}
+}
+
+
+
+union Super_Block_Sect * get_super(){
+	union Super_Block_Sect *sb = &rios_superblock;
+	IDE_read_sector((void *)sb,HDB_SUPER_BLOCK_SEC);
+	return sb;
+}
+
+void set_super(){
+/*set superblock by using global rios_superblock */
+	IDE_write_sector((void *)&rios_superblock,HDB_SUPER_BLOCK_SEC);
+}
+
+int new_block(){
+	/* code here ....*/
+	union Super_Block_Sect *sb = get_super();
+
+	return -1;
+}
+
+// void free_block(int nr){
+
+
+// }
+// struct m_inode * iget(struct m_inode * inode, int nr){
+// 	struct d_inode d;
+// }
+
+// void iput(struct m_inode * inode, int nr){
+// 	struct d_inode *d =(struct m_inode *)inode;
+// }
+
