@@ -223,7 +223,7 @@ void init_free_space_grouping()
 			}	
 /*每组空闲块６４块，但每组第一个是记录信息的那个，故搞６３条记录,初始化时我逆序而记*/
 		}else {/*the last free space block*/
-			free_data_blk[0] = BLKS_PER_GROUP;
+			free_data_blk[0] = BLKS_PER_GROUP-1;/*注意要减去１，下一组不存在*/
 			free_data_blk[1] = 0; /* next free blk doesn't exist.*/
 			int _tmp = BLKS_PER_GROUP *(nr_group + 1);
 			for(int j = 1; j < BLKS_PER_GROUP; j++){
@@ -241,10 +241,11 @@ void init_free_space_grouping()
 		memcpy((void *) sector, (const void *) p, 512);
 		IDE_write_sector((void *)&sector,i+1);	
 	}
-
+/*_debug_visit_free_group_ctr();*/
 }
 
 void _debug_visit_free_group_ctr(){
+/*此函数打印出所有组空闲块的控制信息*/	
 	u16 free_data_blk[512] = {0};/*2 sectors*/
 	u8 * psect = (u8 *)free_data_blk ;
 	//u8 _tmp_sec[512]={0};		
@@ -261,10 +262,10 @@ void _debug_visit_free_group_ctr(){
 		u8 *p = (u8*)free_data_blk+512;
 		IDE_read_sector((void *)p,i+1);
 /*！注意，这里ｐ和sect是指针，不能用(void *)&p,而应该用(void *)p*/		
-		kprintf("\n     free_group No.%d:([0] s_free)%d, ([1] nr_next_free_group )%d  \n \
-([2] free_blk_nr)%d ,([3] free_blk_nr)%d ...([62] free_blk_nr)%d" \		
+		kprintf("\n     free_group No.%d:(s_free)%d, ([0] nr_next_free_group )%d  \n \
+([1] free_blk_nr)%d ,([2] free_blk_nr)%d ...([63] free_blk_nr)%d" \		
 			,nr_group,(u16)free_data_blk[0],(u16)free_data_blk[1], \
-(u16)free_data_blk[2],(u16)free_data_blk[3],(u16)free_data_blk[62]);
+(u16)free_data_blk[2],(u16)free_data_blk[3],(u16)free_data_blk[64]);
 
 	}
 }
