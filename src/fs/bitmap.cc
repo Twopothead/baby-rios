@@ -202,6 +202,7 @@ int new_inode()
 	}
 	return i;
 }
+
 struct m_inode iroot;
 void init_root_dir(union Super_Block_Sect  rios_superblock)
 {
@@ -213,8 +214,14 @@ _again_check_root:
 		iroot.i_ino = new_inode();/*bitmap_set_bit(0,sector);*/
 		if(iroot.i_ino!=0)_panic("FBI WANNING:iroot's inode number must be 0!!!\n halt...");
 		/*we need to handle struct dir_entry here */
+		iroot.i_zone[0]=2;//成组链接函数还没写完，临时先搞个２(u16)new_block();/*成组链接分配数据区*/
 		iput(&iroot,iroot.i_ino);
-// iroot.i_zone[0] = new_block(&rios_superblock);		
+		struct dir_entry *de = (struct dir_entry *)NULL;
+		memset(&sector,0x00,512);
+		de=(struct dir_entry*)sector;
+		strcpy((char *)de->name,".");de->inode = 0;
+		++de;strcpy((char *)de->name,"..");de->inode=-1;/*root doesn't have parent.*/
+		IDE_write_sector((void *)&sector, NR_DATA_BLK(rios_superblock)+iroot.i_zone[0]);	
 // struct dir_entry *de = NULL;
 // iput(&rios_superblock,&iroot,);
 // de = (struct dir_entry *) sector;
@@ -224,23 +231,19 @@ _again_check_root:
 // de = (struct dir_entry *) sector;
 /*通过一个空指针指在内存中扇区数组上达到操纵目的，之后写回到硬盘*/
 // if()
-
-
-
-
-
-
-
-
-		
-
 		goto _again_check_root;
 	}else{
 		nextline(),msg_ok();kprintf("  root dir / detected.");
 	}
-	for(int i=0;i<9;i++)iput(&iroot,i);
+	
 }
 
+void dir_root(){
+	u8 sector[512] = {0};
+	iget(&iroot,0);/*read root from data zone's head*/
+	struct dir_entry *de = (struct dir_entry*)sector;
+	IDE_read_sector((void *)&sector, NR_INODE_BLK(rios_superblock)+iroot.i_zone[0]);	
+}
 
 
 
@@ -422,33 +425,15 @@ void set_super(){
 
 
 int new_block(){
+
+
 	/* code here ....*/
-	union Super_Block_Sect *sb = get_super();
-	union free_space_grouping_head g_head;
-	u8 * psect = (u8 *)&g_head ;	
-	int nr_group = 0; 
-	int nr_last = NR_DATA_BLK(rios_superblock) + TOTAL_GROUP*BLKS_PER_GROUP*SECTOR_PER_BLOCK;
-	#define free_group_ctr(g_nr) NR_DATA_BLK(rios_superblock) + g_nr*BLKS_PER_GROUP*SECTOR_PER_BLOCK
-	for(int i = NR_DATA_BLK(rios_superblock); i < free_group_ctr( TOTAL_GROUP ) ; \
-			i += BLKS_PER_GROUP*SECTOR_PER_BLOCK , nr_group++){
-/*一块两个扇区，第一个扇区*/		
-		IDE_read_sector((void *)psect,i);
 
-/*一块两个扇区，第二个扇区*/	
-		u8 *p = (u8*)&g_head+512;
-		IDE_read_sector((void *)p,i+1);
-/*！注意，这里ｐ和sect是指针，不能用(void *)&p,而应该用(void *)p*/
-		
-		kprintf("\n     free_group No.%d:(s_free)%d, ([0] nr_next_free_group )%d  \n \
-([1] free_blk_nr)%d ,([2] free_blk_nr)%d ...([63] free_blk_nr)%d" \		
-			,nr_group,(u16)g_head.s_free,(u16)g_head.s_next_free_group_nr, \
-(u16)g_head.s_free_blk_nr[0],g_head.s_free_blk_nr[1],(u16)g_head.s_free_blk_nr[62]);
-
-	}
 	return -1;
 }
 
-union free_space_grouping_head get_nr_free_group(int nr){
+union free_space_grouping_head get_nr_free_group(int nr)
+{
 	union Super_Block_Sect *sb = get_super();
 	union free_space_grouping_head g_head;
 	u8 * psect = (u8 *)&g_head ;	

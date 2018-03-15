@@ -23,6 +23,7 @@ extern "C" {
 #endif /* __cplusplus */
 
 extern unsigned char *buffer_addr;
+extern union Super_Block_Sect rios_superblock;
 u8 _global_buf[512]={0};
 //unsigned char *buf=(unsigned char *)0x8888888;/*mm 0x666666*/
 
@@ -42,7 +43,6 @@ void RiOS_main(void)
 	init_Exception();
 	//sys_setup();
 	init_hd();		/*DANGEROUS!*/
-	kprintf("\n%d\n",sizeof(d_inode) );
 /* OK,here we are switch to hdb(hd1),(hd0 is your Udisk
  * and hdb(hd1) is your PC hard disk. 
  * this operation may format your PC hard disk!
@@ -56,8 +56,14 @@ void RiOS_main(void)
 	// for(int i=0;i<=127;i++){
 	// 	kprintf("%d ",get_nr_free_group(i).s_next_free_group_nr);
 	// }
-	
+	// kprintf(" %d ", NR_DATA_BLK(rios_superblock));
 	//_syscall(_SYS_TESTHD,0,0,0);
+
+	// for(int i=0;i<20;i++)iput(&iroot,i);
+	// struct m_inode im;
+	// iget( &im, 20);
+	// kprintf("%d",im.i_creat_time);
+
 	// print("haha,Thank god!I do not die.");
 	
 	while(1);

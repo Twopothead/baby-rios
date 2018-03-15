@@ -90,6 +90,18 @@ void inline bitmap_clear_bit(unsigned int nr,void *addr) {
 }
 /*the (nr)th bit of address is cleared to 0*/
 
+inline char * strcpy(char * dest,const char *src)
+{
+        __asm__("cld\n"
+                "1:\tlodsb\n\t"
+                "stosb\n\t"
+                "testb %%al,%%al\n\t"
+                "jne 1b"
+                ::"S" (src),"D" (dest));
+        return dest;
+}
+
+
 #ifdef __cplusplus
 }
 #endif
