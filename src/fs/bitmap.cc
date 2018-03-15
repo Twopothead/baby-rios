@@ -72,34 +72,22 @@ void free_inode(int inode)
 	bitmap_clear_bit(inode,sector);
 	IDE_write_sector((void *)&sector,NR_INODE_MAP_BLK(rios_superblock));
 }
-// #define     setb(A,k)     ( A[(k/8)] |= (1 << (k%8)) )
-// #define     clrb(A,k)   ( A[(k/8)] &= ~(1 << (k%8)) )
-void setb(void *s, unsigned int i) {
-    unsigned char *v =(unsigned char *) s;
-    v += i>>3;
-    *v |= 1<<(7-(i%8));
-}
 
- 
-
-void clrb(void *s, unsigned int i) {
-    unsigned char *v = (unsigned char *)s;
-    v += i>>3;
-    *v &= ~(1<<(7-(i%8)));
-}
-int testb(void *s, unsigned int i) {
-    unsigned char *v =(unsigned char *) s;
-    v += i>>3;
-    return (*v&(1<<(7-(i%8)))) !=0;
-}
-
-
+/*You can hexdump NR_INODE_MAP_BLK(rios_superblock),eg "hexdump 8" to see this zone*/
 int new_inode(){
 	u8 sector[512]={0};
 	int i = 0;rios_superblock.s_startsect = 1;
 	IDE_read_sector((void *)&sector,NR_INODE_MAP_BLK(rios_superblock));
-	//testhex();
-
+	for(i=0;i<512*8;i++){
+		if(bitmap_test_bit(i,sector)){
+			;
+		}else{
+			bitmap_set_bit(i,sector);
+			IDE_write_sector((void *)&sector,NR_INODE_MAP_BLK(rios_superblock));
+			return i;
+		}
+	}
+	return i;
 }
 
 void testhex(){
