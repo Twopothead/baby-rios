@@ -72,13 +72,14 @@ void msg_mm_ok2(int mm_value)
 void msg_cmd_help()
 {
 	nextline();
-	println("GNU ri_shell,version 0.0.1-debug(x86_i386,x86_64-pc-rios)");
-	println("These shell commands are defined internally.  Type `help' to see this list.");
-	println(" - help  :: print this help manual.");
-	println(" - clear :: clear the screen.");
-	println(" - ls    :: list directory contents.");
-	println("            'ls' Usage:  ls [OPTION]... [FILE]...");
-	println(" - logo  :: print NJAU logo.");
+	kprintf("GNU ri_shell,version 0.0.1-debug(x86_i386,x86_64-pc-rios)\n\
+These shell commands are defined internally.  Type `help' to see this list.\n\
+ - help  :: print this help manual.\n\
+ - clear :: clear the screen.\n\
+ - hexdump NR :: hexdump the NRth sector,eg.hedump 0.\n\
+ - ls    :: list directory contents.\n\
+            'ls' Usage:  ls [OPTION]... [FILE]...\n\
+ - logo  :: print NJAU logo.\n");
 }
 
 void msg_8253_ok()

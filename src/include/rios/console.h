@@ -47,7 +47,7 @@ void clear_screen(void);
 void nextline();
 void con_putch(u8 ch);
 void puthex(int value);
-
+ void puthex_ch(unsigned char value);
 
 void print_cpqr(const char *str);
 void msg_ok();

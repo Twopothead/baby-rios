@@ -62,9 +62,9 @@ void free_inode(int inode);
 void _debug_visit_free_group_ctr();
 int new_block();
 
-void setb(void *s, unsigned int i);
-void clrb(void *s, unsigned int i);
-int testb(void *s, unsigned int i);
+void sector_hexdump(u8 *sector);
+void nr_sector_hexdump(int nr);
+void testhex();
 
 #ifdef __cplusplus
 }

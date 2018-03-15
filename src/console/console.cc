@@ -6,6 +6,7 @@
 #include <rios/console.h>
 #include <asm/x86.h>
 #include <rios/keyboard.h>
+#include <rios/bitmap.h>
 char *pVGA= (char *)0xb8000;
 static const int SCREEN_WIDTH = 80;
 static const int SCREEN_HEIGHT =25;
@@ -57,7 +58,7 @@ void del()
 	cmd_buffer[cmd_buffer_index]=' ';
 	cmd_buffer_index --;/*delete a char in buffer*/
 }
-
+#define ascii2value(n) (n-48)
 void con_putch(u8 ch)
 { /* put a char in console */
 	
@@ -74,6 +75,13 @@ void con_putch(u8 ch)
 				msg_cmd_help();
 			}else if(cmd_matching((char*)cmd_buffer,"logo")){
 				print_njau_logo();
+			}else if(cmd_matching((char*)cmd_buffer,"hexdump")){
+				/*hexdump 123*/
+				/*012345678  */
+				int tmp = 1;int nr = 0;
+				for(int i=8;i<cmd_buffer_index;i++)
+					nr+=(ascii2value(cmd_buffer[i])*tmp),tmp*=10;
+				nr_sector_hexdump(nr);/*usage :hexdump the NRth sector.eg.hexdump 0*/
 			}else{
 				/*code here*/
 			}
@@ -342,12 +350,41 @@ void puthex(int value)
                  if(raw != 0){
   	                      while(--l >= 0){
   	                      	 if(a[l]<10)
-  	                      		con_putch(value2ascii(a[l]));else if(a[l]==10)con_putch(0x61);
+  	                      		con_putch(value2ascii(a[l]));
+  	                      	  else if(a[l]==10)con_putch(0x61);
   	                      	  else if(a[l]==11)con_putch(0x62);
   	                      	  else if(a[l]==12)con_putch(0x63);
   	                      	  else if(a[l]==13)con_putch(0x64);
   	                      	  else if(a[l]==14)con_putch(0x65);
-  	                      	   else if(a[l]==15)con_putch(0x64);
+  	                      	  else if(a[l]==15)con_putch(0x66);
+
+  	              		}
+                 }
+  		return;
+ }
+
+ void puthex_ch(unsigned char value)
+{
+                if(value==0){con_putch('0');return;}
+  	        int raw = value;
+  	        int a[8];
+  	        int l=0;
+  	        while(value){
+  	                      a[l++] = value%16;
+  	                      value/=16;
+  	        }
+ /*just like a stack*/
+  	        
+                 if(raw != 0){
+  	                      while(--l >= 0){
+  	                      	 if(a[l]<10)
+  	                      		con_putch(value2ascii(a[l]));
+  	                      	  else if(a[l]==10)con_putch(0x61);
+  	                      	  else if(a[l]==11)con_putch(0x62);
+  	                      	  else if(a[l]==12)con_putch(0x63);
+  	                      	  else if(a[l]==13)con_putch(0x64);
+  	                      	  else if(a[l]==14)con_putch(0x65);
+  	                      	  else if(a[l]==15)con_putch(0x66);
 
   	              		}
                  }
@@ -411,7 +448,8 @@ void kprintf(const char *fmt, ...){
 		switch(fmt[++i]){
 			case 'd':putnum(get_next_arg(args, int));break;
 			case 'c':con_putch(get_next_arg(args, int));break;
-			case 'x':print("0x");puthex(get_next_arg(args, int));break;
+			case 'x':puthex(get_next_arg(args, int));break;
+			case 'X':puthex(get_next_arg(args, int));break;
 			case 's':str=(char *)get_next_arg(args, char*);
 				print((const char*)str);break;
 /*we can define more format here ,like %d,%c,%s ...,etc.*/

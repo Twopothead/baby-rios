@@ -6,6 +6,30 @@
 #include <asm/x86.h>
 union Super_Block_Sect rios_superblock;
 
+void sector_hexdump(u8 *sector)
+{
+	u16 *p =(u16 *)sector;
+	nextline();
+	for(int i=0;i<512/2;i++){
+		 int head = ((*p)&0x00ff);
+		 int tail = ((*p)&0xff00)>>8;
+		 if((head&0xf0)==0)print("0");
+		 kprintf("%x",head);
+		 if((tail&0xf0)==0)print("0");
+		 kprintf("%x ",tail);
+		/*!NOTE 不可kprintf("%x ",*p);因x86采用小端模式*/
+		*p++;
+	}
+}
+/*usage :nr_sector_hexdump(0) 把第0个扇区hexdump
+ */
+void nr_sector_hexdump(int nr)
+{
+	u8 sector[512]={0};
+	IDE_read_sector((void *)&sector,nr);
+	sector_hexdump(sector);
+}
+
 void format_superblock(union Super_Block_Sect rios_superblock)
 {
 	IDE_write_sector((void *)&rios_superblock,NR_SUPER_BLK(rios_superblock));
@@ -69,7 +93,16 @@ int testb(void *s, unsigned int i) {
     return (*v&(1<<(7-(i%8)))) !=0;
 }
 
+
 int new_inode(){
+	u8 sector[512]={0};
+	int i = 0;rios_superblock.s_startsect = 1;
+	IDE_read_sector((void *)&sector,NR_INODE_MAP_BLK(rios_superblock));
+	//testhex();
+
+}
+
+void testhex(){
 	u8 sector[512]={0};
 	int i = 0;rios_superblock.s_startsect = 1;
 	IDE_read_sector((void *)&sector,NR_INODE_MAP_BLK(rios_superblock));
@@ -98,11 +131,14 @@ int new_inode(){
 
 	}
 	bitmap_clear_bit(1,sector);
+	bitmap_set_bit(40,sector);
 	nextline();
-	for(int i=0;i<512;i++)
-		putnum(sector[i]),print(" ");
+	for(int i=0;i<512;i++){
+		puthex_ch(sector[i]);if(i%2==1)print(" ");//kprintf("%X",(int)sector[i]);//,print(" ");
+	}
 
-
+	// IDE_read_sector((void *)&sector,0);
+	// sector_hexdump(sector);
 }
 
 struct d_inode iroot;
