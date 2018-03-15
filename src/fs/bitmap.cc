@@ -214,7 +214,7 @@ _again_check_root:
 		iroot.i_ino = new_inode();/*bitmap_set_bit(0,sector);*/
 		if(iroot.i_ino!=0)_panic("FBI WANNING:iroot's inode number must be 0!!!\n halt...");
 		/*we need to handle struct dir_entry here */
-		iroot.i_zone[0]=2;//成组链接函数还没写完，临时先搞个２(u16)new_block();/*成组链接分配数据区*/
+		iroot.i_zone[0]=(u16)new_block();/*成组链接分配数据区*/
 		iput(&iroot,iroot.i_ino);
 		struct dir_entry *de = (struct dir_entry *)NULL;
 		memset(&sector,0x00,512);
@@ -231,11 +231,12 @@ _again_check_root:
 // de = (struct dir_entry *) sector;
 /*通过一个空指针指在内存中扇区数组上达到操纵目的，之后写回到硬盘*/
 // if()
+
 		goto _again_check_root;
 	}else{
 		nextline(),msg_ok();kprintf("  root dir / detected.");
 	}
-	
+	kprintf(" %d\n",iroot.i_zone[0]);
 }
 
 void dir_root(){
@@ -287,6 +288,7 @@ void format_disk()
  * 10MB= 20160sectors,need (20160+0xfff)>>12=5setors for zone_bitmap
  */
 	rios_superblock.s_ninodes = INODE_BLKS;
+	rios_superblock.s_specific_blk_nr_group = 0;	/*初始化时设第0号group为专用块*/
 	int total_used_ctrl_blks =  2 + rios_superblock.s_zone_bitmap_blks + \
 		 rios_superblock.s_inode_bitmap_blks + rios_superblock.s_inode_blks; 
 	format_superblock(rios_superblock);
@@ -423,13 +425,42 @@ void set_super(){
 	IDE_write_sector((void *)&rios_superblock,HDB_SUPER_BLOCK_SEC);
 }
 
-
+union free_space_grouping_head specific_block;/*内存专用块*/
+int is_specific_block_set = 0;
 int new_block(){
 
+	union Super_Block_Sect *p_ri_sb = get_super();
+	set_super();
 
+	if(!is_specific_block_set) {
+		specific_block = get_nr_free_group(p_ri_sb->s_specific_blk_nr_group);
+		is_specific_block_set = 1;
+	}
+/*要记得把内存专用是第几块写到磁盘上的超级块*/
+	if(specific_block.s_free > 1){
+		specific_block.s_free --;
+		return specific_block.s_free_blk_nr[specific_block.s_free-1];
+	}else if(specific_block.s_free == 1){
+		specific_block.s_free --;
+		specific_block=get_nr_free_group(specific_block.s_next_free_group_nr/BLKS_PER_GROUP);/*第几号块转化为组号*/
+		p_ri_sb->s_specific_blk_nr_group = specific_block.s_next_free_group_nr/BLKS_PER_GROUP;
+/*把当前用的是哪个专用块的信息写到磁盘超级块*/	set_super();	
+		specific_block.s_free--;
+		
+		return specific_block.s_free_blk_nr[specific_block.s_free-1];
+
+	}else if(specific_block.s_free ==0){
+
+	}
 	/* code here ....*/
 
+
+
+
+
+
 	return -1;
+	
 }
 
 union free_space_grouping_head get_nr_free_group(int nr)
@@ -464,13 +495,4 @@ union free_space_grouping_head get_nr_free_group(int nr)
 }
 
 // void free_block(int nr){
-
-
-// }
-// struct m_inode * iget(struct m_inode * inode, int nr){
-// 	struct d_inode d;
-// }
-
-// void iput(struct m_inode * inode, int nr){
-// 	struct d_inode *d =(struct m_inode *)inode;
 // }

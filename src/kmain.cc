@@ -51,6 +51,8 @@ void RiOS_main(void)
 	init_syscall();
 	init_dpt();
 	init_fs();
+	for(int i=0;i<120;i++)kprintf("f:%d ",new_block() );
+	kprintf("sp%d",rios_superblock.s_specific_blk_nr_group);
 	// new_block();
 	/*_debug_visit_free_group_ctr();*/
 	// for(int i=0;i<=127;i++){
