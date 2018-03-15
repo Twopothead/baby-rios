@@ -42,6 +42,7 @@ void RiOS_main(void)
 	init_Exception();
 	//sys_setup();
 	init_hd();		/*DANGEROUS!*/
+	kprintf("\n%d\n",sizeof(d_inode) );
 /* OK,here we are switch to hdb(hd1),(hd0 is your Udisk
  * and hdb(hd1) is your PC hard disk. 
  * this operation may format your PC hard disk!
@@ -50,10 +51,11 @@ void RiOS_main(void)
 	init_syscall();
 	init_dpt();
 	init_fs();
-	testhex();
 	// new_block();
 	/*_debug_visit_free_group_ctr();*/
-	
+	// for(int i=0;i<=127;i++){
+	// 	kprintf("%d ",get_nr_free_group(i).s_next_free_group_nr);
+	// }
 	
 	//_syscall(_SYS_TESTHD,0,0,0);
 	// print("haha,Thank god!I do not die.");

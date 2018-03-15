@@ -79,7 +79,8 @@ void con_putch(u8 ch)
 				/*hexdump 123*/
 				/*012345678  */
 				int tmp = 1;int nr = 0;
-				for(int i=8;i<cmd_buffer_index;i++)
+	/*高位是权重大的，要逆过来求值　123 = 3*1+ 2*10 + 1*100 */
+				for(int i=cmd_buffer_index-1;i>=8;i--)
 					nr+=(ascii2value(cmd_buffer[i])*tmp),tmp*=10;
 				nr_sector_hexdump(nr);/*usage :hexdump the NRth sector.eg.hexdump 0*/
 			}else{

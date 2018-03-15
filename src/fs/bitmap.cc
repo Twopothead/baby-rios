@@ -65,32 +65,7 @@ void format_inode_blks(union Super_Block_Sect  rios_superblock)
 		IDE_write_sector((void *)&sector,i);
 }
 
-void free_inode(int inode)
-{
-	u8 sector[512]={0};
-	IDE_read_sector((void *)&sector,NR_INODE_MAP_BLK(rios_superblock));
-	bitmap_clear_bit(inode,sector);
-	IDE_write_sector((void *)&sector,NR_INODE_MAP_BLK(rios_superblock));
-}
 
-/*You can hexdump NR_INODE_MAP_BLK(rios_superblock),eg "hexdump 8" to see this zone*/
-int new_inode()
-{
-	u8 sector[512]={0};
-	int i = 0;rios_superblock.s_startsect = 1;
-	IDE_read_sector((void *)&sector,NR_INODE_MAP_BLK(rios_superblock));
-	for(i=1;i<512*8;i++){
-/*we will never use bit 0,that's preseved for root inode bitmap. */		
-		if(bitmap_test_bit(i,sector)){
-			;
-		}else{
-			bitmap_set_bit(i,sector);
-			IDE_write_sector((void *)&sector,NR_INODE_MAP_BLK(rios_superblock));
-			return i;
-		}
-	}
-	return i;
-}
 
 void testhex(){
 	u8 sector[512]={0};
@@ -151,12 +126,13 @@ void testhex(){
 //     return inode;
 
 // }
-struct m_inode * iget(struct m_inode * inode, int nr){/*nr counts from 1*/	
-	u8 sector = {0};int NR_inode_blk_start = NR_INODE_BLK(rios_superblock);
-	int m = (nr-1)*sizeof(struct d_inode)/512;
-	int _m = nr*sizeof(struct d_inode)/512;
-	int n = (nr-1)*sizeof(struct d_inode)%512;
-	int _n = nr*sizeof(struct d_inode)%512;
+struct m_inode * iget(struct m_inode * inode, int nr){
+/*nr counts from 0*/	
+	u8 sector[512] = {0};int NR_inode_blk_start = NR_INODE_BLK(rios_superblock);
+	int m = nr*sizeof(struct d_inode)/512;
+	int _m = (nr+1)*sizeof(struct d_inode)/512;
+	int n = nr*sizeof(struct d_inode)%512;
+	int _n = (nr+1)*sizeof(struct d_inode)%512;
 	if(m==_m){/*即将要取的inode不跨越两个扇区*/
 		IDE_read_sector((void *)&sector,NR_inode_blk_start + m);
 		memcpy(  inode,(void *) sector + n, sizeof(struct d_inode));
@@ -176,24 +152,24 @@ struct m_inode * iget(struct m_inode * inode, int nr){/*nr counts from 1*/
 	return inode;
 }
 
-void iput(struct m_inode * inode, int nr){
-/*nr counts from 1*/	
-	u8 sector = {0};int NR_inode_blk_start = NR_INODE_BLK(rios_superblock);
-	int m = (nr-1)*sizeof(struct d_inode)/512;
-	int _m = nr*sizeof(struct d_inode)/512;
-	int n = (nr-1)*sizeof(struct d_inode)%512;
-	int _n = nr*sizeof(struct d_inode)%512;
+void iput(struct m_inode * inode, int nr)
+{/*nr counts from 0*/	
+	u8 sector[512] = {0};int NR_inode_blk_start = NR_INODE_BLK(rios_superblock);
+	int m = nr*sizeof(struct d_inode)/512;
+	int _m = (nr+1)*sizeof(struct d_inode)/512;
+	int n = nr*sizeof(struct d_inode)%512;
+	int _n = (nr+1)*sizeof(struct d_inode)%512;
 	if(m==_m){/*即将要存的inode不跨越两个扇区*/
-		IDE_read_sector((void *)&sector,NR_inode_blk_start + m);
+		IDE_read_sector((void *)&sector,NR_inode_blk_start + m );
 		memcpy( (void *)(sector + n), inode , sizeof(struct d_inode));
 /*内容上，d_inode是m_inode的子集，这里把m_inode的前半段(即d_inode)抄送磁盘d_inode*/
 		IDE_write_sector((void *)&sector,NR_inode_blk_start + m);
-	}else{/*即将要存的inode将跨越两个扇区*/
+	 }else{/*即将要存的inode将跨越两个扇区*/
 /*copy 前半截 offset: n ~ 512*/		
 		IDE_read_sector((void *)&sector,NR_inode_blk_start + m);
 		memcpy( (void *)(sector + n), inode ,512-n);
 		IDE_write_sector((void *)&sector,NR_inode_blk_start + m);
-/*copy 后半截 offset: 0 ~ _n*/	memset(&sector,0x00,512);/*清零*/
+/*copy 后半截 offset: 0 ~ _n	memset(&sector,0x00,512);*//*清零*/
 		IDE_read_sector((void *)&sector,NR_inode_blk_start + m + 1);
 		memcpy( (void *)(sector + 0), inode + (512-n) ,_n);
 		IDE_write_sector((void *)&sector,NR_inode_blk_start + m + 1);
@@ -201,22 +177,43 @@ void iput(struct m_inode * inode, int nr){
 	return;	
 }
 
-
-struct d_inode iroot;
-void init_root_dir(union Super_Block_Sect  rios_superblock)
+void free_inode(int inode)
 {
 	u8 sector[512]={0};
-	IDE_read_sector((void *)&sector,NR_INODE_BLK(rios_superblock));
+	IDE_read_sector((void *)&sector,NR_INODE_MAP_BLK(rios_superblock));
+	bitmap_clear_bit(inode,sector);
+	IDE_write_sector((void *)&sector,NR_INODE_MAP_BLK(rios_superblock));
+}
+
+/*You can hexdump NR_INODE_MAP_BLK(rios_superblock),eg "hexdump 8" to see this zone*/
+int new_inode()
+{
+	u8 sector[512]={0};
+	int i = 0;rios_superblock.s_startsect = 1;
+	IDE_read_sector((void *)&sector,NR_INODE_MAP_BLK(rios_superblock));
+	for(i=0;i<512*8;i++){
+		if(bitmap_test_bit(i,sector)){
+			;
+		}else{
+			bitmap_set_bit(i,sector);
+			IDE_write_sector((void *)&sector,NR_INODE_MAP_BLK(rios_superblock));
+			return i;
+		}
+	}
+	return i;
+}
+struct m_inode iroot;
+void init_root_dir(union Super_Block_Sect  rios_superblock)
+{
+	u8 sector[512]={0};iroot.i_creat_time = 2018;
 _again_check_root:	
+	IDE_read_sector((void *)&sector,NR_INODE_MAP_BLK(rios_superblock));
 	if(!bitmap_test_bit(0,sector)){		
 		kprintf("\n  no root directory found! init root '\\' now...");
-		bitmap_set_bit(0,sector);
-		IDE_read_sector((void *)&rios_superblock,HDB_SUPER_BLOCK_SEC);
-		rios_superblock.s_startsect = 1;/*m_superblock may not sysc with disk*/
-		IDE_write_sector((void *)&sector,NR_INODE_BLK(rios_superblock));
-		NR_INODE_BLK(rios_superblock);
-
+		iroot.i_ino = new_inode();/*bitmap_set_bit(0,sector);*/
+		if(iroot.i_ino!=0)_panic("FBI WANNING:iroot's inode number must be 0!!!\n halt...");
 		/*we need to handle struct dir_entry here */
+		iput(&iroot,iroot.i_ino);
 // iroot.i_zone[0] = new_block(&rios_superblock);		
 // struct dir_entry *de = NULL;
 // iput(&rios_superblock,&iroot,);
@@ -241,6 +238,7 @@ _again_check_root:
 	}else{
 		nextline(),msg_ok();kprintf("  root dir / detected.");
 	}
+	for(int i=0;i<9;i++)iput(&iroot,i);
 }
 
 
@@ -250,6 +248,7 @@ void _panic(const char *str){
 	set_text_attr(Red,Black);nextline();
 	kprintf(str);
 	nextline();set_text_attr(LightGray,Black);
+	__asm__("cli;hlt\n\t");
 }
 
 /*文件数据块映射到盘块*/
@@ -449,6 +448,36 @@ int new_block(){
 	return -1;
 }
 
+union free_space_grouping_head get_nr_free_group(int nr){
+	union Super_Block_Sect *sb = get_super();
+	union free_space_grouping_head g_head;
+	u8 * psect = (u8 *)&g_head ;	
+	int nr_group = 0; 
+	int nr_last = NR_DATA_BLK(rios_superblock) + TOTAL_GROUP*BLKS_PER_GROUP*SECTOR_PER_BLOCK;
+	#define free_group_ctr(g_nr) NR_DATA_BLK(rios_superblock) + g_nr*BLKS_PER_GROUP*SECTOR_PER_BLOCK
+	int i;
+	for(i = NR_DATA_BLK(rios_superblock); i < free_group_ctr( nr ) ; \
+			i += BLKS_PER_GROUP*SECTOR_PER_BLOCK , nr_group++)
+		;/*get i*/
+	{
+/*一块两个扇区，第一个扇区*/		
+		IDE_read_sector((void *)psect,i);
+
+/*一块两个扇区，第二个扇区*/	
+		u8 *p = (u8*)&g_head+512;
+		IDE_read_sector((void *)p,i+1);
+/*！注意，这里ｐ和sect是指针，不能用(void *)&p,而应该用(void *)p*/
+/*		
+		kprintf("\n     free_group No.%d:(s_free)%d, ([0] nr_next_free_group )%d  \n \
+([1] free_blk_nr)%d ,([2] free_blk_nr)%d ...([63] free_blk_nr)%d" \		
+			,nr_group,(u16)g_head.s_free,(u16)g_head.s_next_free_group_nr, \
+(u16)g_head.s_free_blk_nr[0],g_head.s_free_blk_nr[1],(u16)g_head.s_free_blk_nr[62]);
+*/
+	}
+
+	return g_head;
+}
+
 // void free_block(int nr){
 
 
@@ -460,4 +489,3 @@ int new_block(){
 // void iput(struct m_inode * inode, int nr){
 // 	struct d_inode *d =(struct m_inode *)inode;
 // }
-

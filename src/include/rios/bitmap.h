@@ -66,6 +66,7 @@ void init_root_dir(union Super_Block_Sect  rios_superblock);
 void set_specific_blk_nr(int i);
 void init_free_space_grouping();
 union Super_Block_Sect * get_super();
+void _panic(const char *str);
 
 #define INODE_BITMAP_BLK 1 		/* 512<<3 = 4096 inodes*/
 #define INODES_PER_BLK	(512/sizeof(d_inode))
@@ -81,6 +82,11 @@ int new_block();
 
 void sector_hexdump(u8 *sector);
 void nr_sector_hexdump(int nr);
+
+union free_space_grouping_head get_nr_free_group(int nr);
+/*group NR range from 0 to 127*/
+
+
 void testhex();
 
 #ifdef __cplusplus

@@ -50,10 +50,23 @@ struct m_inode
 	u8 i_uid;			/*user id*/
 	u8 i_gid;			/*group id*/
 	u8 i_nlinks;			/*num of files that link to it*/
+	u8 padding0;
 	u32 i_creat_time;	
-	u32 i_modify_time;
-	u32 i_delet_time; 
 	u16 i_zone[10];
+	u16 i_ino;			/*inode id号　(bitmap)*/
+	u32 padding1[8];		/*占位　8*32个字节*/
+/* ok,let's make sizeof(d_inode) exactly equal to 64,that's 512bits,
+ * a sector can put exactly 8 of d_inode.
+ * if we attemp to extend the m_inode and d_inode,make sure that
+ * they are in sync with each other,and adjust the fields and paddings
+ * without changing the sizeof(d_inode)
+ */
+
+/*请控制好d_inode的大小以及与m_inode同步性．这里设置几个padding的意义在于占位，
+ *我把d_inode 的大小控制在8*6+32+16*10+16+32*8=512 bits,这样一个扇区512*8=4096bits,
+ *正好可以放８个d_inode,尽量避免跨扇区操作inode;
+ */	
+
 /*
  * zone[0~6]:	direct block 
  * zone[7]:	single indirect block
@@ -68,7 +81,8 @@ struct m_inode
 	u8 i_dirty;
 	u8 i_updated;
 	struct task_struct *i_wait;	/*not implement yet*/
-};
+}__attribute__((packed));
+/*一定要加，不然字节对不齐，会多用空间*/
 
 struct d_inode{
 	u8 i_mode;			/*file type(dir/normal) and attribute(rwx)*/
@@ -76,16 +90,18 @@ struct d_inode{
 	u8 i_uid;			/*user id*/
 	u8 i_gid;			/*group id*/
 	u8 i_nlinks;			/*num of files that link to it*/
+	u8 padding0;
 	u32 i_creat_time;	
-	u32 i_modify_time;
-	u32 i_delet_time; 
 	u16 i_zone[10];
+	u16 i_ino;			/*inode id号*/
+	u32 padding1[8];
+}__attribute__((packed));
+/*一定要加，不然字节对不齐，会多用空间*/
 
-};
 struct dir_entry{
-	u16 inode;
+	u32 inode;
 	u8 name[MAX_NAME_LEN];
-};
+}__attribute__((packed));
 
 struct file
 {
