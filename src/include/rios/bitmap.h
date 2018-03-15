@@ -57,9 +57,14 @@ void init_free_space_grouping();
 
 void free_space_grouping();
 
-
+int new_inode();
+void free_inode(int inode);
 void _debug_visit_free_group_ctr();
+int new_block();
 
+void setb(void *s, unsigned int i);
+void clrb(void *s, unsigned int i);
+int testb(void *s, unsigned int i);
 
 #ifdef __cplusplus
 }

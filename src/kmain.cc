@@ -50,8 +50,7 @@ void RiOS_main(void)
 	init_syscall();
 	init_dpt();
 	init_fs();
-
-	_debug_visit_free_group_ctr();
+	/*_debug_visit_free_group_ctr();*/
 	
 	
 	//_syscall(_SYS_TESTHD,0,0,0);

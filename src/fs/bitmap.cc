@@ -44,23 +44,67 @@ void format_inode_blks(union Super_Block_Sect  rios_superblock)
 void free_inode(int inode)
 {
 	u8 sector[512]={0};
-	IDE_read_sector((void *)&sector,NR_INODE_BLK(rios_superblock));
+	IDE_read_sector((void *)&sector,NR_INODE_MAP_BLK(rios_superblock));
 	bitmap_clear_bit(inode,sector);
-	IDE_write_sector((void *)&sector,NR_INODE_BLK(rios_superblock));
+	IDE_write_sector((void *)&sector,NR_INODE_MAP_BLK(rios_superblock));
+}
+// #define     setb(A,k)     ( A[(k/8)] |= (1 << (k%8)) )
+// #define     clrb(A,k)   ( A[(k/8)] &= ~(1 << (k%8)) )
+void setb(void *s, unsigned int i) {
+    unsigned char *v =(unsigned char *) s;
+    v += i>>3;
+    *v |= 1<<(7-(i%8));
 }
 
-int new_inode()
-{
-	u8 sector[512]={0};
-	IDE_read_sector((void *)&sector,NR_INODE_BLK(rios_superblock));
-	for(int i = 0; i < 512<<3 ; i++){
-		if(bitmap_test_bit(i,sector)==0){
-			bitmap_set_bit(i,sector);
-			IDE_write_sector((void *)&sector,NR_INODE_BLK(rios_superblock));
-		}
-	}
-	return -1;
+ 
+
+void clrb(void *s, unsigned int i) {
+    unsigned char *v = (unsigned char *)s;
+    v += i>>3;
+    *v &= ~(1<<(7-(i%8)));
 }
+int testb(void *s, unsigned int i) {
+    unsigned char *v =(unsigned char *) s;
+    v += i>>3;
+    return (*v&(1<<(7-(i%8)))) !=0;
+}
+
+int new_inode(){
+	u8 sector[512]={0};
+	int i = 0;rios_superblock.s_startsect = 1;
+	IDE_read_sector((void *)&sector,NR_INODE_MAP_BLK(rios_superblock));
+	/*test*/
+	
+	for(int i=0;i<32;i++){
+		//if(testb(sector,i) )
+		if(bitmap_test_bit(i,sector))
+		{
+			print("1");
+		}else {
+			bitmap_set_bit(i,sector);
+			print("0");
+		}
+
+	}
+	nextline();
+	for(int i=0;i<32;i++){
+		if(bitmap_test_bit(i,sector)) {
+			print("1");
+		}
+		else {
+			bitmap_set_bit(i,sector);
+			print("0");
+		}
+
+	}
+	bitmap_clear_bit(1,sector);
+	nextline();
+	for(int i=0;i<512;i++)
+		putnum(sector[i]),print(" ");
+
+
+}
+
 struct d_inode iroot;
 void init_root_dir(union Super_Block_Sect  rios_superblock)
 {
@@ -283,9 +327,11 @@ void set_super(){
 	IDE_write_sector((void *)&rios_superblock,HDB_SUPER_BLOCK_SEC);
 }
 
+
 int new_block(){
 	/* code here ....*/
 	union Super_Block_Sect *sb = get_super();
+	// kprintf("%x",sb->s_magic);
 
 	return -1;
 }

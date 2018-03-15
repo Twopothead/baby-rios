@@ -10,4 +10,6 @@ void get_file_attrib(m_inode *fd)
 void init_fs()
 {
 	check_rifs();
+	new_inode();
+
 }
