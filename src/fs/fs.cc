@@ -12,5 +12,6 @@ void init_fs()
 	check_rifs();
 	for(int i=0;i<100;i++)
 		kprintf(" %d ",new_inode());
+	for(int i=34;i<40;i++)free_inode(i);
 
 }

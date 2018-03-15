@@ -65,9 +65,6 @@ _v; \
  *and here is a comparision of GAS and NASM
  * 	https://www.ibm.com/developerworks/library/l-gas-nasm/index.html
  */
-
-
-
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -78,6 +75,7 @@ static inline void bitmap_set_bit(unsigned int nr, void * addr){
 	tmp += nr >> 3;
 	*tmp |= 1<<(7-(nr%8));
 }
+/*the (nr)th bit of address is set to 1*/
 
 static inline int bitmap_test_bit(unsigned int nr, void * addr){
 	u8 *tmp = (u8*)addr;
@@ -85,27 +83,16 @@ static inline int bitmap_test_bit(unsigned int nr, void * addr){
 	return (*tmp &(1<<(7-(nr%8))))!=0;
 }
 
-// int testb(void *s, unsigned int i) {
-//     unsigned char *v =(unsigned char *) s;
-//     v += i>>3;
-//     return (*v&(1<<(7-(i%8)))) !=0;
-// }
+void inline bitmap_clear_bit(unsigned int nr,void *addr) {
+    unsigned char *_tmp = (unsigned char *)addr;
+    _tmp += nr>>3;
+    *_tmp &= ~(1<<(7-(nr%8)));
+}
+/*the (nr)th bit of address is cleared to 0*/
 
-/*the (nr)th bit of address is set to 1*/
 #ifdef __cplusplus
 }
 #endif
-
-#define bitmap_clear_bit(nr, addr)({ \
-register int _res; \
-__asm__ volatile("btrl %2,%3\n\tsetnb %%al": \
-"=a"(_res):"a"(0),"r"(nr),"m"(addr)); \
-_res;})
-/*the (nr)th bit of address is cleared to 0*/
-
-
-
-
 
 
 #endif

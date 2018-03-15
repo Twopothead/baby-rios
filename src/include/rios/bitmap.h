@@ -40,6 +40,22 @@ union Super_Block_Sect{
 		};
 }; 
 
+/*　Free space management :grouping (空闲块成组链接)　*/
+#define BLKS_PER_GROUP 		64				/*每组64块*/
+#define TOTAL_GROUP 		128				/*一共128组*/
+#define SECTOR_PER_BLOCK 	2				/*每个块２个扇区,1KB*/
+
+union free_space_grouping_head {/*成组链接法，各组空闲块的头*/
+	u16 bytes[512] = {0};/*占坑位　2 sectors*/
+	struct {
+		u16 s_free;
+		u16 s_next_free_group_nr;
+		u16 s_free_blk_nr[BLKS_PER_GROUP-1];/*[63]*/
+	};
+};
+
+
+
 void check_rifs();
 void format_disk();
 void format_superblock(union Super_Block_Sect rios_superblock);
@@ -49,6 +65,7 @@ void format_inode_blks(union Super_Block_Sect  rios_superblock);
 void init_root_dir(union Super_Block_Sect  rios_superblock);
 void set_specific_blk_nr(int i);
 void init_free_space_grouping();
+union Super_Block_Sect * get_super();
 
 #define INODE_BITMAP_BLK 1 		/* 512<<3 = 4096 inodes*/
 #define INODES_PER_BLK	(512/sizeof(d_inode))

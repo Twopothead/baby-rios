@@ -50,11 +50,13 @@ void RiOS_main(void)
 	init_syscall();
 	init_dpt();
 	init_fs();
+	testhex();
+	// new_block();
 	/*_debug_visit_free_group_ctr();*/
 	
 	
 	//_syscall(_SYS_TESTHD,0,0,0);
-	// print("haha,Thank god!I do no die.");
+	// print("haha,Thank god!I do not die.");
 	
 	while(1);
 }
