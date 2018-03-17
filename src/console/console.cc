@@ -7,6 +7,7 @@
 #include <asm/x86.h>
 #include <rios/keyboard.h>
 #include <rios/bitmap.h>
+#include <rios/app/hexdump.h>
 char *pVGA= (char *)0xb8000;
 static const int SCREEN_WIDTH = 80;
 static const int SCREEN_HEIGHT =25;
@@ -18,7 +19,10 @@ static unsigned char attr = 0x07; /*white text,black background*/
 static u32 index;/*about cursor pos*/
 static u8 cmd_running = 0;
 static u8 cmd_input =0;
+
 #define value2ascii(n) (n+48)
+#define ascii2value(n) (n-48)
+
 u8 cmd_buffer[80*25];/*keyboard data buffer*/
 int cmd_buffer_index = 0;
 
@@ -35,16 +39,12 @@ int strlen(const char * str)
 
 void putch(u8 ch)
 {
-
 	__asm__ ("movb %1,%%ah\n\t"
 		 "movw %%ax,%2\n\t"
 		 ::"a"(ch),"m"(attr),"m"(*(short *)pos)
 		);
-
 	pos += Bytes_each_box;
 	set_cursor();
-	
-	
 }
 
 void del()
@@ -58,7 +58,7 @@ void del()
 	cmd_buffer[cmd_buffer_index]=' ';
 	cmd_buffer_index --;/*delete a char in buffer*/
 }
-#define ascii2value(n) (n-48)
+
 void con_putch(u8 ch)
 { /* put a char in console */
 	
@@ -409,6 +409,13 @@ void puthex(int value)
 	
 }
 
+void _panic(const char *str)
+{
+	set_text_attr(Red,Black);nextline();
+	kprintf(str);
+	nextline();set_text_attr(LightGray,Black);
+	__asm__("cli;hlt\n\t");
+}
 /*
  *Bit(s)	Value
  *0-7		ASCII code point

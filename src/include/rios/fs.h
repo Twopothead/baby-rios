@@ -88,7 +88,7 @@ struct m_inode
 	u8 i_dev;			/*hd0 or hd1*/
 	u8 i_dirty;
 	u8 i_updated;
-	struct task_struct *i_wait;	/*not implement yet*/
+	struct task_struct *i_wait;	/*not implemented yet*/
 }__attribute__((packed));
 /*一定要加，不然字节对不齐，会多用空间*/
 

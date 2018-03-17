@@ -51,8 +51,14 @@ void RiOS_main(void)
 	init_syscall();
 	init_dpt();
 	init_fs();
-	for(int i=0;i<120;i++)kprintf("f:%d ",new_block() );
-	kprintf("sp%d",rios_superblock.s_specific_blk_nr_group);
+	visit_all_free_blks();
+	// extern union free_space_grouping_head specific_block;
+	// for(int i=0;i<100;i++){//kprintf("blk:%d ",new_block() );
+	// 	int tmp =new_block();kprintf("blk:%d ",tmp );if(tmp==-1)_panic("die!");
+	// kprintf(" group_nr:%d",rios_superblock.s_specific_blk_nr_group);
+	// kprintf(" %d",specific_block.s_next_free_group_nr);
+// }
+
 	// new_block();
 	/*_debug_visit_free_group_ctr();*/
 	// for(int i=0;i<=127;i++){
@@ -65,9 +71,6 @@ void RiOS_main(void)
 	// struct m_inode im;
 	// iget( &im, 20);
 	// kprintf("%d",im.i_creat_time);
-
-	// print("haha,Thank god!I do not die.");
-	
 	while(1);
 }
 

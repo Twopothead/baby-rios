@@ -4,130 +4,12 @@
 #include <rios/console.h>
 #include <rios/ramdisk.h>
 #include <asm/x86.h>
+#include <rios/format.h>
 union Super_Block_Sect rios_superblock;
 
-void sector_hexdump(u8 *sector)
-{
-	u16 *p =(u16 *)sector;
-	nextline();
-	for(int i=0;i<512/2;i++){
-		 int head = ((*p)&0x00ff);
-		 int tail = ((*p)&0xff00)>>8;
-		 if((head&0xf0)==0)print("0");
-		 kprintf("%x",head);
-		 if((tail&0xf0)==0)print("0");
-		 kprintf("%x ",tail);
-		/*!NOTE 不可kprintf("%x ",*p);因x86采用小端模式*/
-		*p++;
-	}
-}
-/*usage :nr_sector_hexdump(0) 把第0个扇区hexdump
- */
-void nr_sector_hexdump(int nr)
-{
-	u8 sector[512]={0};
-	IDE_read_sector((void *)&sector,nr);
-	sector_hexdump(sector);
-}
-
-void format_superblock(union Super_Block_Sect rios_superblock)
-{
-	IDE_write_sector((void *)&rios_superblock,NR_SUPER_BLK(rios_superblock));
-}
-
-void format_zone_bitmap_blks(union Super_Block_Sect  rios_superblock,int total_used_ctrl_blks)
-{
-	u8 sector[512]={0};
-	memset(sector,0xff,sizeof(sector)/sizeof(sector[0]));/*set bitmap with 11111...*/
-	int nr_zonemap_p = NR_ZONE_MAP_BLK(rios_superblock);
-	for(int i=total_used_ctrl_blks/(512<<3);i>0;--i){
-		IDE_write_sector((void *)&sector,nr_zonemap_p++);
-		/* in case that bitmap uses more than one sector*/
-	}
-	for(int i=total_used_ctrl_blks%(512<<3);i<(512<<3);++i){
-		bitmap_clear_bit(i,sector);
-/* skip those used ones,and clear the rest bit*/
-	}
-	IDE_write_sector((void *)&sector,nr_zonemap_p);
-}
-
-void format_inode_bitmap_blks(union Super_Block_Sect  rios_superblock)
-{
-	u8 sector[512]={0};memset(sector,0x00,sizeof(sector)/sizeof(sector[0]));/*aa*/
-	for(int i=NR_INODE_MAP_BLK(rios_superblock);i<NR_INODE_BLK(rios_superblock);i++)
-		IDE_write_sector((void *)&sector,i);
-}
-
-void format_inode_blks(union Super_Block_Sect  rios_superblock)
-{
-	u8 sector[512]={0};memset(sector,0x00,sizeof(sector)/sizeof(sector[0]));/*bb*/
-	for(int i= NR_INODE_BLK(rios_superblock);i<NR_DATA_BLK(rios_superblock);i++)
-		IDE_write_sector((void *)&sector,i);
-}
-
-
-
-void testhex(){
-	u8 sector[512]={0};
-	int i = 0;rios_superblock.s_startsect = 1;
-	IDE_read_sector((void *)&sector,NR_INODE_MAP_BLK(rios_superblock));
-	/*test*/
-	
-	for(int i=0;i<32;i++){
-		//if(testb(sector,i) )
-		if(bitmap_test_bit(i,sector))
-		{
-			print("1");
-		}else {
-			bitmap_set_bit(i,sector);
-			print("0");
-		}
-
-	}
-	nextline();
-	for(int i=0;i<32;i++){
-		if(bitmap_test_bit(i,sector)) {
-			print("1");
-		}
-		else {
-			bitmap_set_bit(i,sector);
-			print("0");
-		}
-
-	}
-	bitmap_clear_bit(4,sector);
-	bitmap_set_bit(40,sector);
-	nextline();
-	for(int i=0;i<32;i++){
-		if(bitmap_test_bit(i,sector)) {
-			print("1");
-		}
-		else {
-			bitmap_set_bit(i,sector);
-			print("0");
-		}
-
-	}
-	// for(int i=0;i<512;i++){
-	// 	puthex_ch(sector[i]);if(i%2==1)print(" ");//kprintf("%X",(int)sector[i]);//,print(" ");
-	// }
-
-	// IDE_read_sector((void *)&sector,0);
-	// sector_hexdump(sector);
-}
-
-
-// struct INODE * iget(struct SUPER_BLOCK *sb, struct INODE *inode, int n) {
-//     unsigned char sect[512] = {0};
-//     int i = n/INODES_PER_BLK;
-//     int j = n%INODES_PER_BLK;
-//     hd_rw(ABS_INODE_BLK(*sb)+i, HD_READ, 1, sect);
-//     memcpy(inode, sect+j*sizeof(struct INODE), sizeof(struct INODE));
-//     return inode;
-
-// }
+/*iget: disk =>memory*/
 struct m_inode * iget(struct m_inode * inode, int nr){
-/*nr counts from 0*/	
+/*inode nr counts from 0*/	
 	u8 sector[512] = {0};int NR_inode_blk_start = NR_INODE_BLK(rios_superblock);
 	int m = nr*sizeof(struct d_inode)/512;
 	int _m = (nr+1)*sizeof(struct d_inode)/512;
@@ -142,18 +24,19 @@ struct m_inode * iget(struct m_inode * inode, int nr){
 /*copy 前半截 offset: n ~ 512*/		
 		IDE_read_sector((void *)&sector,NR_inode_blk_start + m);
 		memcpy( inode, (void *) (sector + n) ,512-n);
-		IDE_read_sector((void *)&sector,NR_inode_blk_start + m);
+		IDE_write_sector((void *)&sector,NR_inode_blk_start + m);
 /*copy 后半截 offset: 0 ~ _n*/	memset(&sector,0x00,512);/*清零*/
-		IDE_write_sector((void *)&sector,NR_inode_blk_start + m + 1);
-		memcpy( (void *)(inode + (512-n)), (void *)(sector + 0),_n);
 		IDE_read_sector((void *)&sector,NR_inode_blk_start + m + 1);
+		memcpy( (void *)(inode + (512-n)), (void *)(sector + 0),_n);
+		IDE_write_sector((void *)&sector,NR_inode_blk_start + m + 1);
 	}
 /*内容上，d_inode是m_inode的子集，这里把部分m_inode抄送d_inode*/	
 	return inode;
 }
 
+/*iput : memory => disk*/
 void iput(struct m_inode * inode, int nr)
-{/*nr counts from 0*/	
+{/*inode nr counts from 0*/	
 	u8 sector[512] = {0};int NR_inode_blk_start = NR_INODE_BLK(rios_superblock);
 	int m = nr*sizeof(struct d_inode)/512;
 	int _m = (nr+1)*sizeof(struct d_inode)/512;
@@ -248,54 +131,9 @@ void dir_root(){
 
 
 
-void _panic(const char *str){
-	set_text_attr(Red,Black);nextline();
-	kprintf(str);
-	nextline();set_text_attr(LightGray,Black);
-	__asm__("cli;hlt\n\t");
-}
-
-/*文件数据块映射到盘块*/
-// void _blockmap(struct m_inode * inode,int blk,int create){
-// 	if(blk<0)
-// 		;// _panic("_inode_bmap: block<0!");
-// 	// if(blk >= 7 +  )
-// 	// 	_panic("_inode_bmap: block>max!");
-
-// 	if(blk<7){
-// 		return inode->i_zone[blk];
-// 	}
-// 	if(blk<512){
-
-// 	}
 
 
 
-// 	return 0;
-
-// }
-void format_disk()
-{
-	
-	rios_superblock.s_startsect = 1;			/*sect0 for MBR and sect1 for superblock*/
-	rios_superblock.s_capacity_blks = hdb_sect_total/1;	/*call get_hd_size first*/	
-	rios_superblock.s_magic = RIFS_MAGIC_NUMBER;
-	rios_superblock.s_inode_bitmap_blks = INODE_BITMAP_BLK;	/*we use a blk for inode bitmap*/
-	rios_superblock.s_inode_blks = INODE_BLKS;
-	rios_superblock.s_zone_bitmap_blks = (hdb_sect_total+0xfff)>>12;
-/** 
- * a zone bitmap can represent 512*8=4096sectors, 
- * 10MB= 20160sectors,need (20160+0xfff)>>12=5setors for zone_bitmap
- */
-	rios_superblock.s_ninodes = INODE_BLKS;
-	rios_superblock.s_specific_blk_nr_group = 0;	/*初始化时设第0号group为专用块*/
-	int total_used_ctrl_blks =  2 + rios_superblock.s_zone_bitmap_blks + \
-		 rios_superblock.s_inode_bitmap_blks + rios_superblock.s_inode_blks; 
-	format_superblock(rios_superblock);
-	format_zone_bitmap_blks(rios_superblock,total_used_ctrl_blks);
-	format_inode_bitmap_blks(rios_superblock);
-	format_inode_blks(rios_superblock);
-}
 
 void set_specific_blk_nr(int i){/*设定第几块是专业块，从０开始计数*/
 	rios_superblock.s_startsect = 1;
@@ -325,7 +163,7 @@ _again_check_fs:
 		kprintf(" total sector:%d. ",hdb_sect_total);	/* init_hd first */
 /*C*H*S=20160 cylinders=20, heads=16, spt=63*/		
 	}
-	init_root_dir(rios_superblock);
+	//init_root_dir(rios_superblock);
 }
 
 /* total_used_ctrl_blks = 350
@@ -343,71 +181,34 @@ _again_check_fs:
 
 void init_free_space_grouping()
 {
-	u8 sector[512]={0};/*a block is 2 sector*/
-	u16 free_data_blk[512] = {0};
-/*u16 free_data_blk[512] = 2　个　u8 sector[512] */
-/*这里注意一下，sector 是８个bit,若要存块号会位数不够，我要用一个16位的东西来存*/
-	memset(sector,0x00,sizeof(sector)/sizeof(sector[0]));
-	sector[0] = BLKS_PER_GROUP;				/*空闲块计数*/
-
-	int nr_group = 0;					/*0~127*/
-	int nr_last = NR_DATA_BLK(rios_superblock) + TOTAL_GROUP*BLKS_PER_GROUP*SECTOR_PER_BLOCK;
-	for(int i = NR_DATA_BLK(rios_superblock); i < nr_last ; \
-			i += BLKS_PER_GROUP*SECTOR_PER_BLOCK , nr_group++){
-		free_data_blk[0] = BLKS_PER_GROUP ;			/*64块划分成一组*/
-		if(nr_group != TOTAL_GROUP - 1){
-			free_data_blk[0] = BLKS_PER_GROUP;		/*第一项：空闲块计数*/
-			free_data_blk[1] = (nr_group +1) * BLKS_PER_GROUP;	
-/*第二项：指向下一组空闲盘块BLKS_PER_GROUP号(初始化时是直接＂下一组＂),形成一个链*/
-			int _tmp = BLKS_PER_GROUP *(nr_group + 1);
-			for(int j = 1; j < BLKS_PER_GROUP; j++){
-				free_data_blk[2+(j-1)] = --_tmp;
-			}	
-/*每组空闲块６４块，但每组第一个是记录信息的那个，故搞６３条记录,初始化时我逆序而记*/
-		}else {/*the last free space block*/
-			free_data_blk[0] = BLKS_PER_GROUP-1;/*注意要减去１，下一组不存在*/
-			free_data_blk[1] = 0; /* next free blk doesn't exist.*/
-			int _tmp = BLKS_PER_GROUP *(nr_group + 1);
-			for(int j = 1; j < BLKS_PER_GROUP; j++){
-				free_data_blk[2+(j-1)] = --_tmp;
-			}	
-		}
-/*写入到这一块第一个扇区*/	
-     		memset(sector,0x00,sizeof(sector)/sizeof(sector[0]));
-		memcpy((void *) sector, (const void *) free_data_blk, 512);
-		IDE_write_sector((void *)&sector,i);	
-/*写入到这一块第二个扇区*/			
-		memset(sector,0x00,sizeof(sector)/sizeof(sector[0]));
-// 照这个思路，似乎倒是可以搞出文件读写指针	
-		u8 *p = (u8 *)free_data_blk;p+=512;/*这里之前搞错了*/	
-		memcpy((void *) sector, (const void *) p, 512);
-		IDE_write_sector((void *)&sector,i+1);	
-	}
-/*_debug_visit_free_group_ctr();*/
-}
-
-void _debug_visit_free_group_ctr(){
-/*此函数打印出所有组空闲块的控制信息*/	
 	union Super_Block_Sect *sb = get_super();
 	union free_space_grouping_head g_head;
-	u8 * psect = (u8 *)&g_head ;	
-	int nr_group = 0; 
-	int nr_last = NR_DATA_BLK(rios_superblock) + TOTAL_GROUP*BLKS_PER_GROUP*SECTOR_PER_BLOCK;
-	#define free_group_ctr(g_nr) NR_DATA_BLK(rios_superblock) + g_nr*BLKS_PER_GROUP*SECTOR_PER_BLOCK
-	for(int i = NR_DATA_BLK(rios_superblock); i < free_group_ctr( TOTAL_GROUP ) ; \
-			i += BLKS_PER_GROUP*SECTOR_PER_BLOCK , nr_group++){
-/*一块两个扇区，第一个扇区*/		
-		IDE_read_sector((void *)psect,i);
+	int nr_group = 1;
+/* nr_group counts from 1 */	
+	for(int i = 1; i <= TOTAL_GROUP; i++)
+	{
+		int sector_num = NR_GROUP_SECTOR_NUMBER(i);
+		if( i!= TOTAL_GROUP){
+			g_head.s_free = BLKS_PER_GROUP;//64
+			g_head.s_free_blk_nr[0] = i*BLKS_PER_GROUP+1;
+			int tmp = g_head.s_free_blk_nr[0];
+			for(int j = 0; j <= g_head.s_free; j ++){
+				g_head.s_free_blk_nr[j] = tmp--;  
+			}
 
-/*一块两个扇区，第二个扇区*/	
-		u8 *p = (u8*)&g_head+512;
-		IDE_read_sector((void *)p,i+1);
-/*！注意，这里ｐ和sect是指针，不能用(void *)&p,而应该用(void *)p*/
-		kprintf("\n     free_group No.%d:(s_free)%d, ([0] nr_next_free_group )%d  \n \
-([1] free_blk_nr)%d ,([2] free_blk_nr)%d ...([63] free_blk_nr)%d" \		
-			,nr_group,(u16)g_head.s_free,(u16)g_head.s_next_free_group_nr, \
-(u16)g_head.s_free_blk_nr[0],g_head.s_free_blk_nr[1],(u16)g_head.s_free_blk_nr[62]);
-
+		}else{
+			g_head.s_free = BLKS_PER_GROUP-1;//63
+			g_head.s_free_blk_nr[0] = 0;/* next group doesn't exist */
+			int tmp =BLKS_PER_GROUP*i;
+			for(int j = 0; j <= g_head.s_free; j ++){
+				g_head.s_free_blk_nr[j] = tmp--;  
+			}
+		}
+/*in rios, a data block contains 2 sectors,this the first*/		
+		u8 * p1 = (u8 *)&g_head ;IDE_write_sector((void *)p1,sector_num );
+/*then the second.*/
+		u8 * p2 = (u8 *)&g_head + 512;IDE_write_sector((void *)p2,sector_num +1);
+/*!attention here, p and sect are pointers,we SHOULD NOT use (void*)p , but should use (void *)p */		
 	}
 }
 
@@ -427,72 +228,89 @@ void set_super(){
 
 union free_space_grouping_head specific_block;/*内存专用块*/
 int is_specific_block_set = 0;
-int new_block(){
-
-	union Super_Block_Sect *p_ri_sb = get_super();
-	set_super();
-
-	if(!is_specific_block_set) {
-		specific_block = get_nr_free_group(p_ri_sb->s_specific_blk_nr_group);
-		is_specific_block_set = 1;
-	}
-/*要记得把内存专用是第几块写到磁盘上的超级块*/
-	if(specific_block.s_free > 1){
-		specific_block.s_free --;
-		return specific_block.s_free_blk_nr[specific_block.s_free-1];
-	}else if(specific_block.s_free == 1){
-		specific_block.s_free --;
-		specific_block=get_nr_free_group(specific_block.s_next_free_group_nr/BLKS_PER_GROUP);/*第几号块转化为组号*/
-		p_ri_sb->s_specific_blk_nr_group = specific_block.s_next_free_group_nr/BLKS_PER_GROUP;
-/*把当前用的是哪个专用块的信息写到磁盘超级块*/	set_super();	
-		specific_block.s_free--;
-		
-		return specific_block.s_free_blk_nr[specific_block.s_free-1];
-
-	}else if(specific_block.s_free ==0){
-
-	}
-	/* code here ....*/
-
-
-
-
-
-
-	return -1;
-	
+int tmp =0;
+int new_block()
+{
+// 	union Super_Block_Sect *p_ri_sb = get_super();
+// 	set_super();
+// _again:
+// 	if(specific_block.s_next_free_group_nr==65535&&specific_block.s_free==0)_panic("FBI WANNING:No free space on disk available!!!");
+// 	if(!is_specific_block_set) {
+// 		specific_block = get_nr_free_group(p_ri_sb->s_specific_blk_nr_group);set_nr_free_group(specific_block,p_ri_sb->s_specific_blk_nr_group/BLKS_PER_GROUP);
+// 		is_specific_block_set = 1;
+// 	}
+// /*要记得把内存专用是第几块写到磁盘上的超级块*/
+// 	if(specific_block.s_free > 1){
+// 		specific_block.s_free --;set_nr_free_group(specific_block,p_ri_sb->s_specific_blk_nr_group/BLKS_PER_GROUP);
+// 		return specific_block.s_free_blk_nr[specific_block.s_free-1];
+// 	}else if(specific_block.s_free == 1){
+// 		specific_block.s_free --;set_nr_free_group(specific_block,p_ri_sb->s_specific_blk_nr_group/BLKS_PER_GROUP);
+// 		specific_block=get_nr_free_group(specific_block.s_next_free_group_nr/BLKS_PER_GROUP);/*第几号块转化为组号*/
+// 		p_ri_sb->s_specific_blk_nr_group = specific_block.s_next_free_group_nr/BLKS_PER_GROUP;
+// /*把当前用的是哪个专用块的信息写到磁盘超级块*/	set_super();
+// 		goto _again;	
+// 	}else if(specific_block.s_free ==0){
+// 		kprintf("   %d",specific_block.s_next_free_group_nr);
+// _panic("FBI WANNING:No free space on disk available!!!");
+// 	}
+// 	return -1;
+	return tmp++;
 }
 
+
 union free_space_grouping_head get_nr_free_group(int nr)
-{
+{/* group_nr counts from 1 */
 	union Super_Block_Sect *sb = get_super();
 	union free_space_grouping_head g_head;
-	u8 * psect = (u8 *)&g_head ;	
-	int nr_group = 0; 
-	int nr_last = NR_DATA_BLK(rios_superblock) + TOTAL_GROUP*BLKS_PER_GROUP*SECTOR_PER_BLOCK;
-	#define free_group_ctr(g_nr) NR_DATA_BLK(rios_superblock) + g_nr*BLKS_PER_GROUP*SECTOR_PER_BLOCK
-	int i;
-	for(i = NR_DATA_BLK(rios_superblock); i < free_group_ctr( nr ) ; \
-			i += BLKS_PER_GROUP*SECTOR_PER_BLOCK , nr_group++)
-		;/*get i*/
+	int i = NR_GROUP_SECTOR_NUMBER(nr);
 	{
-/*一块两个扇区，第一个扇区*/		
-		IDE_read_sector((void *)psect,i);
-
-/*一块两个扇区，第二个扇区*/	
-		u8 *p = (u8*)&g_head+512;
-		IDE_read_sector((void *)p,i+1);
-/*！注意，这里ｐ和sect是指针，不能用(void *)&p,而应该用(void *)p*/
-/*		
-		kprintf("\n     free_group No.%d:(s_free)%d, ([0] nr_next_free_group )%d  \n \
-([1] free_blk_nr)%d ,([2] free_blk_nr)%d ...([63] free_blk_nr)%d" \		
-			,nr_group,(u16)g_head.s_free,(u16)g_head.s_next_free_group_nr, \
-(u16)g_head.s_free_blk_nr[0],g_head.s_free_blk_nr[1],(u16)g_head.s_free_blk_nr[62]);
-*/
+/* in RiOS, a data block is consists of 2 sector, the first sector */		
+		u8 * p1 = (u8 *)&g_head ;	
+		IDE_read_sector((void *)p1,i);
+/* then the second sector */	
+		u8 * p2 = (u8*)&g_head + 512;
+		IDE_read_sector((void *)p2,i+1);
 	}
-
 	return g_head;
 }
 
-// void free_block(int nr){
-// }
+void set_nr_free_group(union free_space_grouping_head g_head,int nr)
+{/* group_nr counts from 1 */
+	union Super_Block_Sect *sb = get_super();	
+	int i =  NR_GROUP_SECTOR_NUMBER(nr);
+	{
+/* the first sector of a data block */		
+		u8 * p1 = (u8 *)&g_head ;
+		IDE_write_sector((void *)p1,i);
+/* then the second */		
+		u8 * p2 = (u8*)&g_head + 512;
+		IDE_write_sector((void *)p2,i+1);
+	}
+	return;
+}
+
+
+void visit_all_free_blks()
+{/* free space management : grouping */
+/* this function prints all free block group's contrl info */	
+	union Super_Block_Sect *sb = get_super();
+	union free_space_grouping_head g_head;
+	int nr_group = 1;
+/* nr_group counts from 1 */	
+	for(int i = 1; i <= 10; i++,nr_group++)
+	{
+		
+		int sector_num = NR_GROUP_SECTOR_NUMBER(i);
+/*in rios, a data block contains 2 sectors,this the first*/		
+		u8 * p1 = (u8 *)&g_head ;
+		IDE_read_sector((void *)p1,sector_num);
+/*then the second.*/
+		u8 * p2 = (u8 *)&g_head + 512;
+		IDE_read_sector((void *)p2,sector_num+1);
+/*!attention here, p and sect are pointers,we SHOULD NOT use (void*)p , but should use (void *)p */		
+		kprintf("\n%d:",(i-1)*BLKS_PER_GROUP+1);
+		kprintf(" group[%d] s_free:%d [0]%d [1]%d [2]%d ...[%d]%d ", nr_group, g_head.s_free, \
+			g_head.s_free_blk_nr[0],g_head.s_free_blk_nr[1],g_head.s_free_blk_nr[2],\
+			g_head.s_free-1,g_head.s_free_blk_nr[g_head.s_free-1]);
+	}
+}

@@ -39,7 +39,8 @@ cc_obj := $(patsubst src/%.cc,\
 	$(kernel_objs) \
 	$(blk_dev_objs) \
 	$(fs_objs) \
-	$(task_objs)
+	$(task_objs) \
+	$(app_objs)
 
 gas_obj := $(patsubst src/kernel/gas/%.S,\
 	build/arch/$(arch)/kernel/gas/%.o, $(wildcard src/kernel/gas/*.S))

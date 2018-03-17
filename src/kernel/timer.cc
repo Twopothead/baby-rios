@@ -7,7 +7,7 @@ void do_timer()
 {
 	jiffies ++;
 	outb(PIC0_OCW2,0x60);/*irq acknowledge*/
-	outnumxy(0,60,jiffies);
+	outnumxy(0,65,jiffies);
 /*inform 8259A that irq0 has been handled*/
 	
 	//print("A");/*print A all the time*/
