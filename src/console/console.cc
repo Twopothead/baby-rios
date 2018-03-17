@@ -9,6 +9,7 @@
 #include <rios/bitmap.h>
 #include <rios/app/hexdump.h>
 #include <rios/app/iapp.h>
+#include <rios/app/mkdir.h>
 char *pVGA= (char *)0xb8000;
 static const int SCREEN_WIDTH = 80;
 static const int SCREEN_HEIGHT =25;
@@ -88,6 +89,8 @@ void con_putch(u8 ch)
 				info_service((char*)cmd_buffer);
 			}else if(cmd_matching((char*)cmd_buffer,"ls")){
 				ls_service((char*)cmd_buffer);
+			}else if(cmd_matching((char*)cmd_buffer,"mkdir")){
+				mkdir_service((char*)cmd_buffer,cmd_buffer_index);
 			}else{
 				/*code here*/
 			}

@@ -10,7 +10,7 @@ _again_check_root:
 		kprintf("\n  no root directory found! init root '\\' now...");
 		iroot.i_ino = new_inode();/*bitmap_set_bit(0,sector);*/
 		if(iroot.i_ino!=0)_panic("FBI WANNING:iroot's inode number must be 0!!!\n halt...");
-		/*we need to handle struct dir_entry here */
+/*we need to install root directory here */
 		iroot.i_zone[0]=(u16)new_block();/*成组链接分配数据区*/
 		iroot.i_size = 2 * sizeof(struct dir_entry);/*. and ..*/
 /* ok,let's think about how to caculate how many dir_entry in a directory
@@ -23,18 +23,11 @@ _again_check_root:
 		strcpy((char *)de->name,".");de->inode = 0;
 		++de;strcpy((char *)de->name,"..");de->inode=-1;/*root doesn't have parent.*/
 		IDE_write_sector((void *)&sector, DATA_BLK_NR_TO_SECTOR_NR(iroot.i_zone[0]));	
-// struct dir_entry *de = NULL;
-// iput(&rios_superblock,&iroot,);
-// de = (struct dir_entry *) sector;
-// (const char *)&de.name=".";
-// de++;
-// (const char *)&de.name="..";
-// de = (struct dir_entry *) sector;
-/*通过一个空指针指在内存中扇区数组上达到操纵目的，之后写回到硬盘*/
-// if()
 
 		goto _again_check_root;
 	}else{
+/* currently,iroot in memory is nothing,we must load iroot from disk */	
+		iget(&iroot, 0);
 		nextline(),msg_ok();kprintf("  root dir / detected.");
 	}
 	kprintf(" %d\n",iroot.i_zone[0]);
@@ -51,11 +44,6 @@ void dir_root(){
 		de++;
 	}
 }
-
-
-
-
-
 
 
 void set_specific_blk_nr(int i){

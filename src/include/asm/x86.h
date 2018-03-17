@@ -101,6 +101,17 @@ inline char * strcpy(char * dest,const char *src)
         return dest;
 }
 
+/* see Linux0.11/include/asm/segment.h get_fs_byte
+ * currently,our rios run under ring0,so everything is ok,
+ * but in the future when we come into user mode(ring 3),
+ * we may have to consider 'fs'
+ */
+static inline unsigned char get_byte(const char * addr)
+{
+        unsigned register char _t;
+        __asm__("movb %1,%0":"=r"(_t):"m"(*addr));
+        return _t;
+}
 
 #ifdef __cplusplus
 }

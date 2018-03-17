@@ -1,4 +1,5 @@
 #include <rios/app/iapp.h>
+#include <rios/app/mkdir.h>
 #include <rios/grouping.h>
 #include <rios/console.h>
 #include <rios/bitmap.h>
@@ -32,11 +33,34 @@ void info_service(char * cmd_buffer)
      NR_DATA_BLK(rios_superblock)+SECTORS_EACH_DATA_BLK*(nr_blk-1)\n\
  NR_DATA_BLK(rios_superblock):%d, SECTORS_EACH_DATA_BLK:%d \n",NR_DATA_BLK(rios_superblock),SECTORS_EACH_DATA_BLK);
     }
+    if(cmd_matching((char*)cmd_buffer,"info disk")){
+                kprintf(" \n\
+     |________|________|_______|_______|________|___ __ __ __ __| \n\
+     |________|________|_______|_______|________|___ __ __ __ __| \n\
+ bootsector       |      bmap    imap    inodes   DATA                \n\
+             super_block                                                \n\
+     NR_BOOT_BLK:      %d,\n\
+     NR_SUPER_BLK:     %d,\n\
+     NR_ZONE_MAP_BLK:  %d,\n( At Prof.Jiang's request,for free space management,we will use grouping stragety instead of bitmap.\
+therefore,we will not use this field(ZONE_MAP_BLK) anymore. Qiuri )\n\
+     NR_INODE_MAP_BLK: %d,\n\
+     NR_DATA_BLK:      %d,\n",
+     NR_BOOT_BLK(rios_superblock),NR_SUPER_BLK(rios_superblock),\
+     NR_ZONE_MAP_BLK(rios_superblock),NR_INODE_MAP_BLK(rios_superblock),\
+     NR_DATA_BLK(rios_superblock));
+    }    
+
 }
 
 void ls_service(char* cmd_buffer){
     if(cmd_matching((char*)cmd_buffer,"ls /")){
         dir_root();
+    }
+
+}
+void mkdir_service(char* cmd_buffer,int cmd_buffer_index){
+    if(cmd_matching((char*)cmd_buffer,"mkdir /")){
+       mkdir("fuck_your_mather",DIR_FILE);
     }
 
 }

@@ -18,6 +18,7 @@
 #include <rios/syscall.h>
 #include <rios/dpt.h>
 #include <rios/fs.h>
+#include <rios/app/mkdir.h>
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -63,6 +64,7 @@ void RiOS_main(void)
 	// iget( &im, 20);
 	// kprintf("%d",im.i_creat_time);
 	kprintf("\n%d",iroot.i_zone[0]);
+	mkdir("new_dir",DIR_FILE);
 	while(1);
 }
 

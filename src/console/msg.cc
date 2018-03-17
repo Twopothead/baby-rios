@@ -80,8 +80,9 @@ These shell commands are defined internally.  Type `help' to see this list.\n\
  - ls    :: list directory contents.\n\
             'ls' Usage:  ls [OPTION]... [FILE]...\n\
  - logo  :: print NJAU logo.\n\
- - info  :: 'info superblock','info grouping','info debug'\n\
- - ls :: 'ls /'  ");
+ - info  :: 'info superblock','info grouping','info debug',\n\
+         'info disk'\n\
+ - ls    :: 'ls /'  ");
 }
 
 void msg_8253_ok()
