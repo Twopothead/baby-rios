@@ -12,7 +12,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
-
+#include <rios/app/iapp.h>
 
 enum Color{
 	Black	       	= 0,

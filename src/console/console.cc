@@ -8,6 +8,7 @@
 #include <rios/keyboard.h>
 #include <rios/bitmap.h>
 #include <rios/app/hexdump.h>
+#include <rios/app/iapp.h>
 char *pVGA= (char *)0xb8000;
 static const int SCREEN_WIDTH = 80;
 static const int SCREEN_HEIGHT =25;
@@ -83,6 +84,10 @@ void con_putch(u8 ch)
 				for(int i=cmd_buffer_index-1;i>=8;i--)
 					nr+=(ascii2value(cmd_buffer[i])*tmp),tmp*=10;
 				nr_sector_hexdump(nr);/*usage :hexdump the NRth sector.eg.hexdump 0*/
+			}else if(cmd_matching((char*)cmd_buffer,"info")){
+				info_service((char*)cmd_buffer);
+			}else if(cmd_matching((char*)cmd_buffer,"ls")){
+				ls_service((char*)cmd_buffer);
 			}else{
 				/*code here*/
 			}

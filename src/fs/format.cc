@@ -48,8 +48,10 @@ void format_disk()
  * a zone bitmap can represent 512*8=4096sectors, 
  * 10MB= 20160sectors,need (20160+0xfff)>>12=5setors for zone_bitmap
  */
-	rios_superblock.s_ninodes = INODE_BLKS;
-	rios_superblock.s_specific_blk_nr_group = 0;	/*初始化时设第0号group为专用块*/
+	rios_superblock.s_ninodes = INODE_BITMAP_BLK*(512<<3);
+	rios_superblock.s_firstdatazone = NR_DATA_BLK(rios_superblock);
+	rios_superblock.s_specific_blk_nr = 1;	/*free space management stragety: grouping*/
+/*initially, the first( counting from 1 ) data block is allocated for specific block.*/
 	int total_used_ctrl_blks =  2 + rios_superblock.s_zone_bitmap_blks + \
 		 rios_superblock.s_inode_bitmap_blks + rios_superblock.s_inode_blks; 
 	format_superblock(rios_superblock);

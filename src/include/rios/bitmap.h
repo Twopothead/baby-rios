@@ -10,6 +10,14 @@ extern "C" {
 #include <rios/fs.h>
 #include <rios/hd.h>
 #include <rios/ramdisk.h>
+#include <rios/grouping.h>
+#include <rios/syscall.h>
+#include <rios/fs.h>
+#include <rios/console.h>
+#include <rios/ramdisk.h>
+#include <asm/x86.h>
+#include <rios/format.h>
+#include <rios/inode.h>
 
 #define NR_BOOT_BLK(_superblock) 		((_superblock).s_startsect)
 #define NR_SUPER_BLK(_superblock)		NR_BOOT_BLK(_superblock)  + 1	
@@ -35,55 +43,29 @@ union Super_Block_Sect{
 			u16 s_inode_bitmap_blks;	/*num of blks that bitmap takes up*/
 			u16 s_inode_blks;
 			u16 s_firstdatazone;
-			u16 s_specific_blk_nr_group;	/*成组链接专用块对应磁盘上的组号*/
-			u16 s_magic;			/*ri_fs magic:0x8888*/
+			u16 s_specific_blk_nr;		/*free space management:grouping, the specific block's block number,coounting from 1*/
+/*成组链接专用块对应磁盘上的盘块号(从1计数)*/
+			u16 s_magic;			/*ri_fs magic:0x88*/
 		};
 }; 
 
-/*　Free space management :grouping (空闲块成组链接)　*/
-#define BLKS_PER_GROUP 		64				/*每组64块*/
-#define TOTAL_GROUP 		128				/*一共128组*/
-#define SECTOR_PER_BLOCK 	2				/*每个块２个扇区,1KB*/
+#define SECTORS_EACH_DATA_BLK 	2			/*in data block,each block contains 2 sectors*/
+#define DATA_BLK_NR_TO_SECTOR_NR(nr_blk) NR_DATA_BLK(rios_superblock)+SECTORS_EACH_DATA_BLK*(nr_blk-1)
 
-union free_space_grouping_head {/*成组链接法，各组空闲块的头*/
-	u16 bytes[512] = {0};/*占坑位　2 sectors*/
-	struct {
-		u16 s_free;
-		u16 s_free_blk_nr[BLKS_PER_GROUP];/*[64]*/
-	};
-/*s_free_blk_nr[0] is next free group's nr*/
-};
-
-/* here, nr_group counts from 1 */	
-#define NR_GROUP_SECTOR_NUMBER(g_nr) NR_DATA_BLK(rios_superblock) + (g_nr-1)*BLKS_PER_GROUP*SECTOR_PER_BLOCK
-
+union free_space_grouping_head;
 
 void check_rifs();
-
 void init_root_dir(union Super_Block_Sect  rios_superblock);
 void set_specific_blk_nr(int i);
-void init_free_space_grouping();
-union Super_Block_Sect * get_super();
+void dir_root();
+
 
 #define INODE_BITMAP_BLK 1 		/* 512<<3 = 4096 inodes*/
 #define INODES_PER_BLK	(512/sizeof(d_inode))
 #define INODE_BLKS 	((INODE_BITMAP_BLK*(512<<3))+ (INODES_PER_BLK-1))/INODES_PER_BLK
 
 
-void free_space_grouping();
-
-int new_inode();
-void free_inode(int inode);
 int new_block();
-
-union free_space_grouping_head get_nr_free_group(int nr);
-/*group NR range from 0 to 127*/
-void set_nr_free_group(union free_space_grouping_head g_head,int nr);
-
-
-void testhex();
-void visit_all_free_blks();
-
 #ifdef __cplusplus
 }
 #endif

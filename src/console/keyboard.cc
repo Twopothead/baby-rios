@@ -38,6 +38,8 @@ void do_keyboard()
 			}else if(kbscancode == SLASH_KEYCODE){
 				//con_putch(kbscancode);
 				con_putch(0x5c);/* '\\' */
+			}else if(kbscancode == SPACE_KEYCODE){
+				con_putch(0x20);/*空格　man ascii */
 			}else{
 				con_putch(keymap[kbscancode]);
 			}

@@ -20,7 +20,7 @@ extern "C" {
 #define BACKSPACE_KEYCODE 	0x0e
 #define RIGHT_CTRL_KEYCODE 	0x1d
 #define SLASH_KEYCODE		0x2b
-
+#define SPACE_KEYCODE		0x39
 
 /*handle keyboard interrupt*/
 void do_keyboard();

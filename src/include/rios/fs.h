@@ -28,8 +28,9 @@ struct super_block{
 	u16 s_zone_bitmap_blks;		/*according to Prof Jiang,we will not use this policy (data block bitmap) anymore.*/
 	u16 s_inode_bitmap_blks;	/*num of blks that bitmap takes up*/
 	u16 s_inode_blks;
-	u16 s_firstdatazone;
-	u16 s_specific_blk_nr_group;	/*成组链接专用块对应磁盘上的组号*/
+	u16 s_firstdatazone;		/*first data zone locates at which sector*/
+	u16 s_specific_blk_nr;	/*free space management:grouping, the specific block's block number,coounting from 1*/
+/*成组链接专用块对应磁盘上的盘块号(从1计数)*/
 	u16 s_magic;			/*ri_fs magic:0x88*/
 /*These are only in memeory*/
 	/*code here.addtional info in memory*/

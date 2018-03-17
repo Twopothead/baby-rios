@@ -24,6 +24,7 @@ extern "C" {
 
 extern unsigned char *buffer_addr;
 extern union Super_Block_Sect rios_superblock;
+extern struct m_inode iroot;
 u8 _global_buf[512]={0};
 //unsigned char *buf=(unsigned char *)0x8888888;/*mm 0x666666*/
 
@@ -52,18 +53,8 @@ void RiOS_main(void)
 	init_dpt();
 	init_fs();
 	visit_all_free_blks();
-	// extern union free_space_grouping_head specific_block;
-	// for(int i=0;i<100;i++){//kprintf("blk:%d ",new_block() );
-	// 	int tmp =new_block();kprintf("blk:%d ",tmp );if(tmp==-1)_panic("die!");
-	// kprintf(" group_nr:%d",rios_superblock.s_specific_blk_nr_group);
-	// kprintf(" %d",specific_block.s_next_free_group_nr);
-// }
-
-	// new_block();
-	/*_debug_visit_free_group_ctr();*/
-	// for(int i=0;i<=127;i++){
-	// 	kprintf("%d ",get_nr_free_group(i).s_next_free_group_nr);
-	// }
+	nextline();
+	for(int i=0;i<10;i++)kprintf(" %d ",new_block());
 	// kprintf(" %d ", NR_DATA_BLK(rios_superblock));
 	//_syscall(_SYS_TESTHD,0,0,0);
 
@@ -71,6 +62,7 @@ void RiOS_main(void)
 	// struct m_inode im;
 	// iget( &im, 20);
 	// kprintf("%d",im.i_creat_time);
+	kprintf("\n%d",iroot.i_zone[0]);
 	while(1);
 }
 

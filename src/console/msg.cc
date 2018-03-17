@@ -79,7 +79,9 @@ These shell commands are defined internally.  Type `help' to see this list.\n\
  - hexdump NR :: hexdump the NRth sector,eg.hedump 0.\n\
  - ls    :: list directory contents.\n\
             'ls' Usage:  ls [OPTION]... [FILE]...\n\
- - logo  :: print NJAU logo.\n");
+ - logo  :: print NJAU logo.\n\
+ - info  :: 'info superblock','info grouping','info debug'\n\
+ - ls :: 'ls /'  ");
 }
 
 void msg_8253_ok()
@@ -105,6 +107,15 @@ void msg_danger_hdb()
 	print("  Switching from hda(Udisk) to hdb(PC hard disk)!LOOK OUT!!!");
 }
 
+/* total_used_ctrl_blks = 350
+ 		(the first 2 sectors are boot sector and superblock blk 
+   		350 = 2 + 5 + 1 + 342
+ 	kprintf(" total used contrl blks are :%d. = 2+ %d * %d * %d",total_used_ctrl_blks, \
+ 		rios_superblock.s_zone_bitmap_blks , \
+ 		 rios_superblock.s_inode_bitmap_blks , \
+ 		  rios_superblock.s_inode_blks);
+ 	 kprintf(" data blk NO.:%d.",NR_DATA_BLK(rios_superblock)); 351
+ */
 
 #ifdef __cplusplus
 }

@@ -26,4 +26,10 @@
 
 ![](grouping.png)
 
+### 目录
+
+如何得知一个目录文件里有多少个目录项？
+目录文件的inode中记录有大小i_size,由目录文件的inode中的i_size得到目录文件大小
+而struct dir_entry目录项的大小是固定的，由i_size除以sizeof(dir_entry)可知有几个目录项目．
+
 
