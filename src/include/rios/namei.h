@@ -6,6 +6,7 @@ extern "C" {
 #include <rios/fs.h>
 #include <asm/x86.h>	
 #include <rios/bitmap.h>
+#include <rios/ramdisk.h>
 
 
 

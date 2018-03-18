@@ -53,7 +53,7 @@ void RiOS_main(void)
 	init_syscall();
 	init_dpt();
 	init_fs();
-	visit_all_free_blks();
+	//visit_all_free_blks();
 	nextline();
 	// for(int i=0;i<10;i++)kprintf(" %d ",new_block());
 	clear_cmd_buffer();	

@@ -114,11 +114,17 @@ struct dir_entry{
 
 struct file
 {
-	
+	u8 f_mode;
+	u8 f_flags;
+	u16 f_count;
+	struct m_inode * f_inode;
+	u32 f_pos;
 };
-
+#define NR_FILE 64
+/* RiOS can support open up to 64 files */
 void init_fs();
 void get_file_attrib(m_inode *fd);
+#define MAX_FULL_PATH_LEN 128
 	
 #ifdef __cplusplus
 }

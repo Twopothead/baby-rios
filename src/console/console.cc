@@ -10,6 +10,7 @@
 #include <rios/app/hexdump.h>
 #include <rios/app/iapp.h>
 #include <rios/app/mkdir.h>
+#include <rios/string.h>
 char *pVGA= (char *)0xb8000;
 static const int SCREEN_WIDTH = 80;
 static const int SCREEN_HEIGHT =25;
@@ -69,44 +70,60 @@ void con_putch(u8 ch)
 	if(ch == BACKSPACE_KEYCODE){/*Backspace*/
 		del();
 	}else if(ch == ENTER_KEYCODE){
-			if(cmd_matching((char*)cmd_buffer,(char *)"clear")){
-				clear_screen();
-				clear_cmd_buffer();
-				pos = 0xb8000;
-			}else if(cmd_matching((char*)cmd_buffer,(char *)"help")){
-				msg_cmd_help();
-			}else if(cmd_matching((char*)cmd_buffer,(char *)"logo")){
-				print_njau_logo();
-			}else if(cmd_matching((char*)cmd_buffer,(char *)"hexdump")){
-				/*hexdump 123*/
-				/*012345678  */
-				int tmp = 1;int nr = 0;
-	/*高位是权重大的，要逆过来求值　123 = 3*1+ 2*10 + 1*100 */
-				for(int i=cmd_buffer_index-1;i>=8;i--)
-					nr+=(ascii2value(cmd_buffer[i])*tmp),tmp*=10;
-				nr_sector_hexdump(nr);/*usage :hexdump the NRth sector.eg.hexdump 0*/
-			}else if(cmd_matching((char*)cmd_buffer,(char *)"info")){
-				info_service((char*)cmd_buffer);
-			}else if(cmd_matching((char*)cmd_buffer,(char *)"ls")){
-				ls_service((char*)cmd_buffer);
-			}else if(cmd_matching((char*)cmd_buffer,(char *)"mkdir")){
-				mkdir_service((char*)cmd_buffer,cmd_buffer_index);
-			}else{
 /* ok,you may want to print cmd_buffer (as I have tried before),but you may need another buffer,
  * because when you print cmd_buffer to screen, you need to call cmd_buffer itself, cmd_buffer will 
  * be changed.When you directly print cmd_buffer (say "hello"),you may get "hellohellohello...", 
  * So another buffer, say tmp[80*25] is necessary.
  */				
-				char tmp[80*25];
-    				strcpy(tmp,(char*)cmd_buffer);
-    				if(cmd_buffer_index!=0)kprintf("\n%s: command not found.",tmp);
-				/*code here*/
-			}
+		char tmp[80*25];
+    		strcpy(tmp,(char*)cmd_buffer);   		
+    		char * arg0 = (char *)NULL;char *arg1 = (char *)NULL; char *arg2 =(char *)NULL;char *arg3=(char *)NULL;
+    		eatcmd(tmp,arg0);
+    		arg0=strtok((char*)tmp,(char *)" ");
+    		arg1=strtok((char*)NULL,(char *)" ");
+    		arg2=strtok((char*)NULL,(char *)" ");
+    		arg3=strtok((char*)NULL,(char *)" ");
+    		if(cmd_matching(arg0,(char *)"clear")){
+    				clear_screen();
+				clear_cmd_buffer();
+				pos = 0xb8000;
+    		}else if(cmd_matching(arg0,(char *)"help")){
+    				msg_cmd_help();
+    		}else if(cmd_matching(arg0,(char *)"hexdump")){
+/*hexdump 123*/			int tmp = 1;int nr = 0;
+/*012345678  usage :hexdump the NRth sector.eg.hexdump 0*/
+/*高位是权重大的，要逆过来求值　123 = 3*1+ 2*10 + 1*100 */
+				for(int i=cmd_buffer_index-1;i>=8;i--)
+					nr+=(ascii2value(cmd_buffer[i])*tmp),tmp*=10;
+				nr_sector_hexdump(nr);
+    		}else if(cmd_matching(arg0,(char *)"info")){
+   				info_service((char*)cmd_buffer);
+    		}else if(cmd_matching(arg0,(char *)"ls")){
+    				ls_service((char*)cmd_buffer);
+    		}else if(cmd_matching(arg0,(char *)"logo")){
+    				print_njau_logo();
+    		}else if(cmd_matching(arg0,(char *)"mkdir")){
+    			char _buf[80*25]={0};
+    			// strcpy(_buf,eatcmd(tmp,arg0));
+    			// memset(_buf,0x00,80*25);
+    			// strcpy(_buf,eatcmd(_buf,arg1));
+    			// char *tmp1 = eatcmd(tmp,arg0);
+    			// char *tmp2 = eatcmd(tmp1,arg1);
+    			// char *tmp3 = eatcmd(tmp2,arg2);
+    			// char *tmp4 = eatcmd(tmp3,arg3);
+    			// kprintf("\n%s\n%s\n%s",arg0,arg1,arg2,arg3);
+    			kprintf("\n%s",arg0);
+    			kprintf("\n%s",arg1);
+			kprintf("\n%s",arg2);
+			kprintf("\n%s",arg3);
 
-			nextline();
-			cmd_start();
-			cmd_input = 0;	
-			clear_cmd_buffer();
+
+    				// mkdir_service((char*)cmd_buffer,cmd_buffer_index);
+    		}else{
+    			if(cmd_buffer_index!=0)kprintf("\n%s: command not found.",tmp);
+    		}
+
+		nextline(),cmd_start(),cmd_input = 0,clear_cmd_buffer();
 	}
 	else if (ch == RIGHT_CTRL_KEYCODE){
 	/*@debug

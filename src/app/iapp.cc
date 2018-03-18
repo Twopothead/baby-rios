@@ -3,6 +3,7 @@
 #include <rios/grouping.h>
 #include <rios/console.h>
 #include <rios/bitmap.h>
+#include <rios/string.h>
 void info_service(char * cmd_buffer)
 {
 	if(cmd_matching((char*)cmd_buffer,(char *)"info superblock")){
@@ -59,9 +60,16 @@ void ls_service(char* cmd_buffer){
 
 }
 void mkdir_service(char* cmd_buffer,int cmd_buffer_index){
-    char tmp[80*25];
+    char tmp[80*25];char name[50];
     strcpy(tmp,cmd_buffer);
-    kprintf("\n%s",tmp);
+   // cuthead(tmp,name);
+   // while(name!=0){
+        
+        // kprintf("%s\n",eatcmd(tmp,name));
+        // kprintf("%s\n",eatcmd(eatcmd(tmp,name),name));
+        // kprintf("%s\n",eatcmd(eatcmd(eatcmd(tmp,name),name),name));
+    
+    //}
     // if(cmd_matching((char*)cmd_buffer,"mkdir /")){
     //    mkdir("fuck_your_mather",DIR_FILE);
     // }

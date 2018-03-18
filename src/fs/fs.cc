@@ -11,3 +11,12 @@ void init_fs()
 {
 	check_rifs();
 }
+
+int open(char * filenamep,u8 mode){
+
+}
+int close(unsigned int fd){
+	struct file *filp;
+
+
+}

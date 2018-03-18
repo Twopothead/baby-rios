@@ -32,6 +32,7 @@ enum Color{
 	Yellow 		= 14,
 	White		= 15,
 };
+#define MAX_CMD_LEN 128
 void puts(char *str);
 void set_text_attr(enum Color foreground,enum Color background);
 void outtextxy(int x,int y,char *textstring);
