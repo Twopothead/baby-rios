@@ -106,3 +106,23 @@ void set_super()
 {/*set superblock by using global rios_superblock */
 	IDE_write_sector((void *)&rios_superblock,HDB_SUPER_BLOCK_SEC);
 }
+
+void free_blk_traverse(){
+	union Super_Block_Sect *sb = get_super();
+	union free_space_grouping_head g_head;
+	int nr_group = 1;int nr_blk = sb->s_specific_blk_nr;
+	int sector_num = DATA_BLK_NR_TO_SECTOR_NR(nr_blk);
+	nextline();
+	g_head = get_blk_nr_free_group(nr_blk);
+	int i;
+next_group:	
+	for(i=g_head.s_free;i>0;i--){
+		nr_blk = g_head.s_free_blk_nr[i];
+		kprintf("  %d   ",g_head.s_free_blk_nr[i]);
+	}
+	if(i==0){
+		nr_blk = g_head.s_free_blk_nr[i];
+		g_head = get_blk_nr_free_group(nr_blk);
+		if(g_head.s_free_blk_nr[0]!=0)goto next_group;
+	}
+}

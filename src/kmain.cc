@@ -45,7 +45,7 @@ void RiOS_main(void)
 	init_Exception();
 	//sys_setup();
 	init_hd();		/*DANGEROUS!*/
-/* OK,here we are switch to hdb(hd1),(hd0 is your Udisk
+/* OK,here we are switching to hdb(hd1),(hd0 is your Udisk
  * and hdb(hd1) is your PC hard disk. 
  * this operation may format your PC hard disk!
  * Confirm that you know what you are doing!!!
@@ -55,16 +55,18 @@ void RiOS_main(void)
 	init_fs();
 	visit_all_free_blks();
 	nextline();
-	for(int i=0;i<10;i++)kprintf(" %d ",new_block());
-	// kprintf(" %d ", NR_DATA_BLK(rios_superblock));
+	// for(int i=0;i<10;i++)kprintf(" %d ",new_block());
+	clear_cmd_buffer();	
 	//_syscall(_SYS_TESTHD,0,0,0);
 
-	// for(int i=0;i<20;i++)iput(&iroot,i);
-	// struct m_inode im;
-	// iget( &im, 20);
-	// kprintf("%d",im.i_creat_time);
-	kprintf("\n%d",iroot.i_zone[0]);
+		// for(int i=0;i<20;i++)iput(&iroot,i);
+		// struct m_inode im;
+		// iget( &im, 20);
+		// kprintf("%d",im.i_creat_time);
+	// kprintf("\n%d",iroot.i_zone[0]);
 	mkdir("new_dir",DIR_FILE);
+	free_blk_traverse();
+	clear_cmd_buffer();	
 	while(1);
 }
 

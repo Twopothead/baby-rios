@@ -10,7 +10,7 @@
 extern "C" {
 #endif /* __cplusplus */
 
-/*struct task_struct haven't implement yet :(*/
+/*struct task_struct haven't been implemented yet :(*/
 
 #define RIFS_MAGIC_NUMBER 0x88
 #define MAX_NAME_LEN 14

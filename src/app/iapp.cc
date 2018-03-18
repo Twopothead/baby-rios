@@ -5,7 +5,7 @@
 #include <rios/bitmap.h>
 void info_service(char * cmd_buffer)
 {
-	if(cmd_matching((char*)cmd_buffer,"info superblock")){
+	if(cmd_matching((char*)cmd_buffer,(char *)"info superblock")){
 		union Super_Block_Sect *sb = get_super();
 		kprintf("\n info about superblock :\n\
         u16 s_ninodes                                  :%d\n\
@@ -21,19 +21,19 @@ void info_service(char * cmd_buffer)
         sb->s_zone_bitmap_blks,sb->s_inode_blks,sb->s_firstdatazone,\
         sb->s_specific_blk_nr,sb->s_magic);
 	}
-	if(cmd_matching((char*)cmd_buffer,"info grouping")){
+	if(cmd_matching((char*)cmd_buffer,(char *)"info grouping")){
 		visit_all_free_blks();
 	}
-    if(cmd_matching((char*)cmd_buffer,"info constants")){
+    if(cmd_matching((char*)cmd_buffer,(char *)"info constants")){
                 kprintf("\nNR_DATA_BLK(rios_superblock):%d.",NR_DATA_BLK(rios_superblock));
             
     }
-    if(cmd_matching((char*)cmd_buffer,"info debug")){
+    if(cmd_matching((char*)cmd_buffer,(char *)"info debug")){
                 kprintf(" \n DATA_BLK_NR_TO_SECTOR_NR(nr_blk): \n\
      NR_DATA_BLK(rios_superblock)+SECTORS_EACH_DATA_BLK*(nr_blk-1)\n\
  NR_DATA_BLK(rios_superblock):%d, SECTORS_EACH_DATA_BLK:%d \n",NR_DATA_BLK(rios_superblock),SECTORS_EACH_DATA_BLK);
     }
-    if(cmd_matching((char*)cmd_buffer,"info disk")){
+    if(cmd_matching((char*)cmd_buffer,(char *)"info disk")){
                 kprintf(" \n\
      |________|________|_______|_______|________|___ __ __ __ __| \n\
      |________|________|_______|_______|________|___ __ __ __ __| \n\
@@ -59,9 +59,12 @@ void ls_service(char* cmd_buffer){
 
 }
 void mkdir_service(char* cmd_buffer,int cmd_buffer_index){
-    if(cmd_matching((char*)cmd_buffer,"mkdir /")){
-       mkdir("fuck_your_mather",DIR_FILE);
-    }
+    char tmp[80*25];
+    strcpy(tmp,cmd_buffer);
+    kprintf("\n%s",tmp);
+    // if(cmd_matching((char*)cmd_buffer,"mkdir /")){
+    //    mkdir("fuck_your_mather",DIR_FILE);
+    // }
 
 }
 void msg_info_superblock()

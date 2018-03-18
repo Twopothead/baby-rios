@@ -3,11 +3,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
+#include <rios/fs.h>
+#include <asm/x86.h>	
+#include <rios/bitmap.h>
 
 
 
-
-};
 	
 #ifdef __cplusplus
 }

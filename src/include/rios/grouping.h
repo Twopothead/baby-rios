@@ -41,6 +41,8 @@ void set_blk_nr_free_group(union free_space_grouping_head g_head,int nr_blk);
 union Super_Block_Sect * get_super();
 void set_super();
 
+void free_blk_traverse();
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

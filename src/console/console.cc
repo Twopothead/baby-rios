@@ -69,15 +69,15 @@ void con_putch(u8 ch)
 	if(ch == BACKSPACE_KEYCODE){/*Backspace*/
 		del();
 	}else if(ch == ENTER_KEYCODE){
-			if(cmd_matching((char*)cmd_buffer,"clear")){
+			if(cmd_matching((char*)cmd_buffer,(char *)"clear")){
 				clear_screen();
 				clear_cmd_buffer();
 				pos = 0xb8000;
-			}else if(cmd_matching((char*)cmd_buffer,"help")){
+			}else if(cmd_matching((char*)cmd_buffer,(char *)"help")){
 				msg_cmd_help();
-			}else if(cmd_matching((char*)cmd_buffer,"logo")){
+			}else if(cmd_matching((char*)cmd_buffer,(char *)"logo")){
 				print_njau_logo();
-			}else if(cmd_matching((char*)cmd_buffer,"hexdump")){
+			}else if(cmd_matching((char*)cmd_buffer,(char *)"hexdump")){
 				/*hexdump 123*/
 				/*012345678  */
 				int tmp = 1;int nr = 0;
@@ -85,13 +85,21 @@ void con_putch(u8 ch)
 				for(int i=cmd_buffer_index-1;i>=8;i--)
 					nr+=(ascii2value(cmd_buffer[i])*tmp),tmp*=10;
 				nr_sector_hexdump(nr);/*usage :hexdump the NRth sector.eg.hexdump 0*/
-			}else if(cmd_matching((char*)cmd_buffer,"info")){
+			}else if(cmd_matching((char*)cmd_buffer,(char *)"info")){
 				info_service((char*)cmd_buffer);
-			}else if(cmd_matching((char*)cmd_buffer,"ls")){
+			}else if(cmd_matching((char*)cmd_buffer,(char *)"ls")){
 				ls_service((char*)cmd_buffer);
-			}else if(cmd_matching((char*)cmd_buffer,"mkdir")){
+			}else if(cmd_matching((char*)cmd_buffer,(char *)"mkdir")){
 				mkdir_service((char*)cmd_buffer,cmd_buffer_index);
 			}else{
+/* ok,you may want to print cmd_buffer (as I have tried before),but you may need another buffer,
+ * because when you print cmd_buffer to screen, you need to call cmd_buffer itself, cmd_buffer will 
+ * be changed.When you directly print cmd_buffer (say "hello"),you may get "hellohellohello...", 
+ * So another buffer, say tmp[80*25] is necessary.
+ */				
+				char tmp[80*25];
+    				strcpy(tmp,(char*)cmd_buffer);
+    				if(cmd_buffer_index!=0)kprintf("\n%s: command not found.",tmp);
 				/*code here*/
 			}
 
@@ -116,9 +124,10 @@ void con_putch(u8 ch)
 
 void ch2cmd_buffer(u8 ch)
 {
-	if(cmd_input==1)
-	cmd_buffer[cmd_buffer_index] = ch;
-	cmd_buffer_index++;
+	if(cmd_input==1){
+		cmd_buffer[cmd_buffer_index] = ch;
+		cmd_buffer_index++;
+	}
 }
 
 
@@ -406,7 +415,7 @@ void puthex(int value)
 		 "movw %%ax,%2\n\t" \
 		 ::"a"(ch),"m"(attr),"m"(*(short *)pos) \
 		);	pos += Bytes_each_box; 
-	char* _hello_rios="  Copyright (C) 2018 Frank Curie (qiuri).\0";
+	char* _hello_rios=(char *)"  Copyright (C) 2018 Frank Curie (qiuri).\0";
 	char *p=_hello_rios;
 	int tmp = pos;int x=1,y=6;
 	pos = (x*80+y)*Bytes_each_box+0xb8000;char _ch= *(char *)_hello_rios;

@@ -32,4 +32,7 @@
 目录文件的inode中记录有大小i_size,由目录文件的inode中的i_size得到目录文件大小
 而struct dir_entry目录项的大小是固定的，由i_size除以sizeof(dir_entry)可知有几个目录项目．
 
+### command
+- cwd   current working directory
+- 
 
