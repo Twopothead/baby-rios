@@ -1,4 +1,14 @@
 #include <rios/string.h>
+
+const char *get_basename(const char *path,int delimiter)
+{
+    const char *lastSlash = strrchr(path, delimiter);
+    // const char *lastSlash = strrchr(path, '/');
+    if (lastSlash)
+        return lastSlash+1;
+    return path;
+}
+
 /* cuthead("/usr/bin",name) => name:usr*/
 char * cuthead(char * path,char * name){
 	char *s;
@@ -104,5 +114,17 @@ char * strtok(char * s,const char * ct)
 		*send++ = '\0';
 	___strtok = send;
 	return (sbegin);
+}
+#endif
+
+#ifndef __HAVE_ARCH_STRRCHR
+char * strrchr(const char * s, int c)
+{
+       const char *p = s + strlen(s);
+       do {
+           if (*p == (char)c)
+               return (char *)p;
+       } while (--p >= s);
+       return (char *)NULL;
 }
 #endif

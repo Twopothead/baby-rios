@@ -1,6 +1,8 @@
 #include <rios/bitmap.h>
 union Super_Block_Sect rios_superblock;
 struct m_inode iroot;
+struct m_inode ipwd;
+extern task_struct * current;
 void init_root_dir(union Super_Block_Sect  rios_superblock)
 {
 	u8 sector[512]={0};iroot.i_creat_time = 2018;
@@ -17,6 +19,7 @@ _again_check_root:
  * my solution is :we can get the size of a dir file,then divide the sizeof dir_entry, then we'll get it.
  */
 		iput(&iroot,iroot.i_ino);
+
 		struct dir_entry *de = (struct dir_entry *)NULL;
 		memset(&sector,0x00,512);
 		de=(struct dir_entry*)sector;
@@ -30,6 +33,8 @@ _again_check_root:
 		iget(&iroot, 0);
 		nextline(),msg_ok();kprintf("  root dir / detected.");
 	}
+/*ok, we'll set pwd with root directory defaultly. */	
+	iget(&ipwd,0);current -> pwd = &ipwd;current -> root = &iroot;
 	kprintf(" %d\n",iroot.i_zone[0]);
 }
 
@@ -39,6 +44,18 @@ void dir_root(){
 	int dir_num = iroot.i_size/(sizeof(struct dir_entry));
 	struct dir_entry *de = (struct dir_entry*)sector;
 	IDE_read_sector((void *)&sector, DATA_BLK_NR_TO_SECTOR_NR(iroot.i_zone[0]));	
+	for(int i=0; i < dir_num; i++){
+		kprintf("\n %s",&de->name);
+		de++;
+	}
+}
+
+void ls(){
+	u8 sector[512] = {0};
+	// iget(current->pwd,current->pwd->i_zone[0]);/*read root from data zone's head*/
+	int dir_num = current->pwd->i_size/(sizeof(struct dir_entry));
+	struct dir_entry *de = (struct dir_entry*)sector;
+	IDE_read_sector((void *)&sector, DATA_BLK_NR_TO_SECTOR_NR(current->pwd->i_zone[0]));	
 	for(int i=0; i < dir_num; i++){
 		kprintf("\n %s",&de->name);
 		de++;

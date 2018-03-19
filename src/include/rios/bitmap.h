@@ -58,7 +58,7 @@ void check_rifs();
 void init_root_dir(union Super_Block_Sect  rios_superblock);
 void set_specific_blk_nr(int i);
 void dir_root();
-
+void ls();
 
 #define INODE_BITMAP_BLK 1 		/* 512<<3 = 4096 inodes*/
 #define INODES_PER_BLK	(512/sizeof(d_inode))

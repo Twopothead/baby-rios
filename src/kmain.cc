@@ -19,15 +19,16 @@
 #include <rios/dpt.h>
 #include <rios/fs.h>
 #include <rios/app/mkdir.h>
+#include <rios/sched.h>
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
-
+u8 _global_buf[512]={0};
 extern unsigned char *buffer_addr;
 extern union Super_Block_Sect rios_superblock;
 extern struct m_inode iroot;
-u8 _global_buf[512]={0};
-//unsigned char *buf=(unsigned char *)0x8888888;/*mm 0x666666*/
+struct task_struct _task;/* we haven't fully implement it */ 
+struct task_struct * current = &_task;
 
 void RiOS_main(void)
 {
@@ -66,7 +67,8 @@ void RiOS_main(void)
 	// kprintf("\n%d",iroot.i_zone[0]);
 	mkdir("new_dir",DIR_FILE);
 	free_blk_traverse();
-	clear_cmd_buffer();	
+	clear_cmd_buffer();
+	kprintf("\n\n%d",get_dir((char *)"new_dir"));
 	while(1);
 }
 

@@ -1,4 +1,6 @@
 #include <rios/fs.h>
+extern struct m_inode iroot;
+extern struct task_struct * current;
 void get_file_attrib(m_inode *fd)
 {
 	if(fd -> i_mode == NORMAL_FILE)
@@ -9,6 +11,8 @@ void get_file_attrib(m_inode *fd)
 
 void init_fs()
 {
+	current -> root = & iroot;
+	current -> pwd = & iroot;
 	check_rifs();
 }
 

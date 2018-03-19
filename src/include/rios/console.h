@@ -18,7 +18,7 @@ enum Color{
 	Black	       	= 0,
 	Blue	        = 1,
 	Green           = 2,
-	Cyam            = 3,
+	Cyan            = 3,
 	Red             = 4,
 	Magenta         = 5,
 	Brown           = 6,
@@ -32,7 +32,11 @@ enum Color{
 	Yellow 		= 14,
 	White		= 15,
 };
-#define MAX_CMD_LEN 128
+#define MAX_CMD_LEN 		128
+#define start_with(s1,s2) 	cmd_matching(s1,(char *)s2)
+#define equal_to(s1,s2) 	cmd_equal(s1,(char *)s2)
+
+int cmd_equal(char *str1,char *str2);
 void puts(char *str);
 void set_text_attr(enum Color foreground,enum Color background);
 void outtextxy(int x,int y,char *textstring);
@@ -48,7 +52,7 @@ void clear_screen(void);
 void nextline();
 void con_putch(u8 ch);
 void puthex(int value);
- void puthex_ch(unsigned char value);
+void puthex_ch(unsigned char value);
 
 void print_cpqr(const char *str);
 void msg_ok();

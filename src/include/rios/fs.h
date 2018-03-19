@@ -121,6 +121,7 @@ struct file
 	u32 f_pos;
 };
 #define NR_FILE 64
+
 /* RiOS can support open up to 64 files */
 void init_fs();
 void get_file_attrib(m_inode *fd);

@@ -87,38 +87,34 @@ void con_putch(u8 ch)
     				clear_screen();
 				clear_cmd_buffer();
 				pos = 0xb8000;
-    		}else if(cmd_matching(arg0,(char *)"help")){
+    		}else if(start_with(arg0,"help")){
     				msg_cmd_help();
-    		}else if(cmd_matching(arg0,(char *)"hexdump")){
+    		}else if(start_with(arg0,"hexdump")){
 /*hexdump 123*/			int tmp = 1;int nr = 0;
 /*012345678  usage :hexdump the NRth sector.eg.hexdump 0*/
 /*高位是权重大的，要逆过来求值　123 = 3*1+ 2*10 + 1*100 */
 				for(int i=cmd_buffer_index-1;i>=8;i--)
 					nr+=(ascii2value(cmd_buffer[i])*tmp),tmp*=10;
 				nr_sector_hexdump(nr);
-    		}else if(cmd_matching(arg0,(char *)"info")){
+    		}else if(start_with(arg0,"info")){
    				info_service((char*)cmd_buffer);
-    		}else if(cmd_matching(arg0,(char *)"ls")){
+    		}else if(start_with(arg0,"ls")){
     				ls_service((char*)cmd_buffer);
-    		}else if(cmd_matching(arg0,(char *)"logo")){
+    		}else if(start_with(arg0,"logo")){
     				print_njau_logo();
-    		}else if(cmd_matching(arg0,(char *)"mkdir")){
+    		}else if(start_with(arg0,"mkdir")){
     			char _buf[80*25]={0};
-    			// strcpy(_buf,eatcmd(tmp,arg0));
-    			// memset(_buf,0x00,80*25);
-    			// strcpy(_buf,eatcmd(_buf,arg1));
-    			// char *tmp1 = eatcmd(tmp,arg0);
-    			// char *tmp2 = eatcmd(tmp1,arg1);
-    			// char *tmp3 = eatcmd(tmp2,arg2);
-    			// char *tmp4 = eatcmd(tmp3,arg3);
-    			// kprintf("\n%s\n%s\n%s",arg0,arg1,arg2,arg3);
-    			kprintf("\n%s",arg0);
-    			kprintf("\n%s",arg1);
-			kprintf("\n%s",arg2);
-			kprintf("\n%s",arg3);
+   //  			kprintf("\n%s",arg0);
+   //  			kprintf("\n%s",arg1);
+			// kprintf("\n%s",arg2);
+			// kprintf("\n%s",arg3);
 
 
-    				// mkdir_service((char*)cmd_buffer,cmd_buffer_index);
+    			 mkdir_service((char*)cmd_buffer,cmd_buffer_index);
+    		}else if(start_with(arg0,"cd")){
+    			 cd_service((char*)cmd_buffer,cmd_buffer_index);
+    		}else if(start_with(arg0,"pwd")){
+    			 pwd_service();
     		}else{
     			if(cmd_buffer_index!=0)kprintf("\n%s: command not found.",tmp);
     		}
@@ -232,6 +228,23 @@ int cmd_matching(char *str1,char *str2)
 	int _l1 = strlen(str1);
 	int _l2 = strlen(str2);
 	if(_l2 > _l1){
+		return 0;
+	}else {
+		int i = 0;
+		while(i < _l2){
+			if(str1[i] != str2[i])
+				return 0;
+			i++;
+		}
+		return 1;
+	}
+}
+
+int cmd_equal(char *str1,char *str2)
+{/*cmd_matching(your_cmd_input,system)*/
+	int _l1 = strlen(str1);
+	int _l2 = strlen(str2);
+	if(_l2 != _l1){
 		return 0;
 	}else {
 		int i = 0;
