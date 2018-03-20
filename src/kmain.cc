@@ -65,10 +65,10 @@ void RiOS_main(void)
 		// iget( &im, 20);
 		// kprintf("%d",im.i_creat_time);
 	// kprintf("\n%d",iroot.i_zone[0]);
-	mkdir("new_dir",DIR_FILE);
+	mkdir("newdir",DIR_FILE);
 	free_blk_traverse();
 	clear_cmd_buffer();
-	kprintf("\n\n%d",get_dir((char *)"new_dir"));
+	kprintf("\n\n%d",get_dir((char *)"newdir"));
 	while(1);
 }
 

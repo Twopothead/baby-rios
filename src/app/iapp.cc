@@ -86,6 +86,7 @@ void mkdir_service(char* cmd_buffer,int cmd_buffer_index){
             }else if(!basename){
                 kprintf("\n please input a valid directory name.");
             }else{ 
+    
                 while(thisname!= basename){
                     thisname = strtok((char*)NULL,(char *)"/");
                     kprintf("\n%s",thisname);
@@ -93,7 +94,9 @@ void mkdir_service(char* cmd_buffer,int cmd_buffer_index){
 /*ok. let pwd temporarily point to it, and make 'mkdir -p' work smoothly. */                    
                     iget(&_work_inode,get_dir(thisname));
                     current->pwd = &_work_inode;
+/*This is WRONG!!!:iget(current->pwd,get_dir(thisname));*/
                  }
+                
             }
     }
     current->pwd = saved_pwd;
@@ -123,6 +126,7 @@ void cd_service(char* cmd_buffer,int cmd_buffer_index){
                     kprintf("\n%s",thisname);
                     iget(&_work_inode,get_dir(thisname));
                     current->pwd = &_work_inode;
+/* This is WRONG!!!:iget(current->pwd,get_dir(thisname));*/
                  }
             }
     }

@@ -4,9 +4,9 @@ extern struct task_struct * current;
 /* 'mkdir' is stupid ,it will create directory under current directory */
 void mkdir(const char *name,u8 mode){
 	struct m_inode newinode;
-	newinode.i_ino =  new_inode();		/*allocate inode number*/
-	newinode.i_zone[0] = (u16)new_block();	/*allocate block number*/
-	newinode.i_size = 1 * sizeof(struct dir_entry);
+	newinode.i_ino =  new_inode();			/* allocate inode number */
+	newinode.i_zone[0] = (u16)new_block();		/* allocate block number */
+	newinode.i_size = 2 * sizeof(struct dir_entry); /* at least '.' and '..' */
 	newinode.i_mode = DIR_FILE;/* mode */
 	iput(&newinode,newinode.i_ino);
 	struct dir_entry *de = (struct dir_entry *)NULL;
@@ -20,8 +20,23 @@ void mkdir(const char *name,u8 mode){
 	strcpy((char *)de->name,name);de->inode = newinode.i_ino;
 	IDE_write_sector((void *)&sector, DATA_BLK_NR_TO_SECTOR_NR(current->pwd->i_zone[0]));	
 /*ok, update current directory file's filesize, because we add a record.*/	
-	current->pwd->i_size += newinode.i_size;
+	current->pwd->i_size += 1 * sizeof(struct dir_entry);	/* add a new dir*/
 	iput(current->pwd,current->pwd->i_ino);
+/* handle . and .. here */
+	struct m_inode *saved_pino = current->pwd;
+	current->pwd = &newinode;
+	memset(sector,0x00,512);
+	IDE_read_sector((void *)&sector, DATA_BLK_NR_TO_SECTOR_NR(current->pwd->i_zone[0]));	
+	for(int i=0;i<current->pwd->i_size/sizeof(struct dir_entry);i++)de++;	/*point to correct position*/
+	de = (struct dir_entry*)sector; 
+	strcpy((char *)de->name,(char*)".");de->inode = newinode.i_ino;
+	de++;
+	strcpy((char *)de->name,(char*)"..");de->inode = saved_pino ->i_ino;
+	de++;
+	IDE_write_sector((void *)&sector, DATA_BLK_NR_TO_SECTOR_NR(current->pwd->i_zone[0]));	
+	iput(current->pwd,current->pwd->i_ino);
+	current->pwd = saved_pino ;
+
 }
 
 /* 'get_dir' is also stupid. it gets dir by name(not full pathname) under current directory*/

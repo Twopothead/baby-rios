@@ -26,7 +26,7 @@ _again_check_root:
 		strcpy((char *)de->name,".");de->inode = 0;
 		++de;strcpy((char *)de->name,"..");de->inode=-1;/*root doesn't have parent.*/
 		IDE_write_sector((void *)&sector, DATA_BLK_NR_TO_SECTOR_NR(iroot.i_zone[0]));	
-
+		current->pwd = &iroot;current->pwd = &iroot;
 		goto _again_check_root;
 	}else{
 /* currently,iroot in memory is nothing,we must load iroot from disk */	
@@ -34,7 +34,7 @@ _again_check_root:
 		nextline(),msg_ok();kprintf("  root dir / detected.");
 	}
 /*ok, we'll set pwd with root directory defaultly. */	
-	iget(&ipwd,0);current -> pwd = &ipwd;current -> root = &iroot;
+	iget(&iroot,0);current -> pwd = &iroot;current -> root = &iroot;
 	kprintf(" %d\n",iroot.i_zone[0]);
 }
 
@@ -52,7 +52,7 @@ void dir_root(){
 
 void ls(){
 	u8 sector[512] = {0};
-	// iget(current->pwd,current->pwd->i_zone[0]);/*read root from data zone's head*/
+	//iget(current->pwd,current->pwd->i_zone[0]);/*read root from data zone's head*/
 	int dir_num = current->pwd->i_size/(sizeof(struct dir_entry));
 	struct dir_entry *de = (struct dir_entry*)sector;
 	IDE_read_sector((void *)&sector, DATA_BLK_NR_TO_SECTOR_NR(current->pwd->i_zone[0]));	
