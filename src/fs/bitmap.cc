@@ -52,7 +52,9 @@ void dir_root(){
 
 void ls(){
 	u8 sector[512] = {0};
-	//iget(current->pwd,current->pwd->i_zone[0]);/*read root from data zone's head*/
+
+	iget(current->pwd,current->pwd->i_ino);/*read root from data zone's head*/
+	kprintf("%d",current->pwd->i_ino);
 	int dir_num = current->pwd->i_size/(sizeof(struct dir_entry));
 	struct dir_entry *de = (struct dir_entry*)sector;
 	IDE_read_sector((void *)&sector, DATA_BLK_NR_TO_SECTOR_NR(current->pwd->i_zone[0]));	

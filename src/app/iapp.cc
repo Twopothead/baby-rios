@@ -68,10 +68,12 @@ void ls_service(char* cmd_buffer){
 extern struct task_struct * current;
 extern struct m_inode * iroot;
 struct m_inode _work_inode;
+struct m_inode _s_ino;
 void mkdir_service(char* cmd_buffer,int cmd_buffer_index){
     char tmp[80*25];char name[50];
     strcpy(tmp,cmd_buffer); 
-    struct m_inode * saved_pwd = current->pwd;
+    // struct m_inode * saved_pwd = current->pwd;
+    _s_ino = *current->pwd;
     if(equal_to(tmp,"mkdir /")){
         current -> pwd = iroot;
         kprintf("\n root directory exists.");
@@ -93,13 +95,13 @@ void mkdir_service(char* cmd_buffer,int cmd_buffer_index){
                     mkdir(thisname,DIR_FILE);
 /*ok. let pwd temporarily point to it, and make 'mkdir -p' work smoothly. */                    
                     iget(&_work_inode,get_dir(thisname));
-                    current->pwd = &_work_inode;
+                    * current->pwd = _work_inode;
 /*This is WRONG!!!:iget(current->pwd,get_dir(thisname));*/
                  }
                 
             }
     }
-    current->pwd = saved_pwd;
+    *current->pwd = _s_ino;
     return;
 }
 
@@ -125,7 +127,7 @@ void cd_service(char* cmd_buffer,int cmd_buffer_index){
                     thisname = strtok((char*)NULL,(char *)"/");
                     kprintf("\n%s",thisname);
                     iget(&_work_inode,get_dir(thisname));
-                    current->pwd = &_work_inode;
+                    * current->pwd = _work_inode;
 /* This is WRONG!!!:iget(current->pwd,get_dir(thisname));*/
                  }
             }
