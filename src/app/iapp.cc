@@ -75,7 +75,7 @@ void mkdir_service(char* cmd_buffer,int cmd_buffer_index){
     // struct m_inode * saved_pwd = current->pwd;
     _s_ino = *current->pwd;
     if(equal_to(tmp,"mkdir /")){
-        current -> pwd = iroot;
+        *(current -> pwd) = *iroot;
         kprintf("\n root directory exists.");
         return;
     }else{ 
@@ -110,9 +110,15 @@ void cd_service(char* cmd_buffer,int cmd_buffer_index){
     char tmp[80*25];char name[50];
     strcpy(tmp,cmd_buffer);
     if(equal_to(tmp,"cd /")){
-        current -> pwd = iroot;
+        *(current -> pwd) = *iroot;
+/* a little tricky here,current->pwd always points to ipwd,
+ * what will be changed is its contents,not the pointer itself.
+ */        
     }else if(equal_to(tmp,"cd .")){
-
+                ;
+    }else if(equal_to(tmp,"cd ..")){
+          iget(&_work_inode,get_dir((char *)".."));
+          * current->pwd = _work_inode;
     }else{ 
             char * thisname = (char *)NULL;thisname = tmp;
             char * basename = (char *)get_path_basename(get_cmd_basename(tmp));
@@ -134,6 +140,7 @@ void cd_service(char* cmd_buffer,int cmd_buffer_index){
     }
 
 }
+
  void pwd_service(){
 
  }

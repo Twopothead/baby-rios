@@ -78,11 +78,12 @@ These shell commands are defined internally.  Type `help' to see this list.\n\
  - clear :: clear the screen.\n\
  - hexdump NR :: hexdump the NRth sector,eg.hedump 0.\n\
  - ls    :: list directory contents.\n\
-            'ls' Usage:  ls [OPTION]... [FILE]...\n\
+ - mkdir :: make directory. eg.mkdir /dir1/dir2/dir3.\n\
+ - cd    :: change directory. eg.cd .. , cd dir1  .\n\
  - logo  :: print NJAU logo.\n\
  - info  :: 'info superblock','info grouping','info debug',\n\
          'info disk'\n\
- - ls    :: 'ls /'  ");
+ - ls    :: List. eg.'ls /'  ");
 }
 
 void msg_8253_ok()
