@@ -80,10 +80,11 @@ These shell commands are defined internally.  Type `help' to see this list.\n\
  - ls    :: list directory contents.\n\
  - mkdir :: make directory. eg.mkdir /dir1/dir2/dir3.\n\
  - cd    :: change directory. eg.cd .. , cd dir1  .\n\
- - logo  :: print NJAU logo.\n\
  - info  :: 'info superblock','info grouping','info debug',\n\
          'info disk'\n\
- - ls    :: List. eg.'ls /'  ");
+ - pwd   :: print current working directory.\n\        
+ - ls    :: List. eg.'ls /' .\n\ 
+ - logo  :: print NJAU logo.");
 }
 
 void msg_8253_ok()

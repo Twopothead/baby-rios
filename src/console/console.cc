@@ -53,7 +53,11 @@ void putch(u8 ch)
 void del()
 {
 	set_cursor();
-	if(Vx > 18){/*[root@localhost]# */
+	int pound_x = 17;/*'#'*/
+/*locate where '#' is*/	
+	for(int i=0;i<50;i++)if(pVGA[Vy*80*Bytes_each_box+i*Bytes_each_box]=='#')pound_x=i;
+	//if(Vx > 18){/*[root@localhost]# */
+	if(Vx > pound_x + 2){
 		pos -= 1<<1;
 		*(char *)pos = ' ';
 		set_cursor();
@@ -108,13 +112,11 @@ void con_putch(u8 ch)
    //  			kprintf("\n%s",arg1);
 			// kprintf("\n%s",arg2);
 			// kprintf("\n%s",arg3);
-
-
     			 mkdir_service((char*)cmd_buffer,cmd_buffer_index);
     		}else if(start_with(arg0,"cd")){
     			 cd_service((char*)cmd_buffer,cmd_buffer_index);
     		}else if(start_with(arg0,"pwd")){
-    			 pwd_service();
+    			 nextline();print_pwd();/*pwd_service();*/
     		}else{
     			if(cmd_buffer_index!=0)kprintf("\n%s: command not found.",tmp);
     		}
@@ -333,13 +335,43 @@ void scroll()
 void cmd_start()
 {
  	set_text_attr(Yellow,Black);print("[");
- 	set_text_attr(Green,Black);print("root");
- 	set_text_attr(Blue,Black);print("@");
- 	set_text_attr(Green,Black);print("localhost");
+	if(current->pwd->i_ino == current->root->i_ino){
+	 	set_text_attr(Green,Black);print("root");
+	 	set_text_attr(Blue,Black);print("@");
+	 	set_text_attr(Green,Black);print("localhost");
+	}else{
+		if(current->uid==0){
+			set_text_attr(Green,Black);print("qiuri");
+	 		set_text_attr(Blue,Black);print("@");
+	 	}
+		set_text_attr(LightGray,Black);
+		print_pwd();
+	}
  	set_text_attr(Yellow,Black);print("]");
  	set_text_attr(Green,Black);print("# ");
 	set_text_attr(LightGray,Black);
 }
+
+void print_pwd()
+{
+    struct m_inode tmp_node = * current->pwd;
+    int s[100]={0};int _index = 0;
+    while(current->pwd->i_ino != current->root->i_ino){
+        int part_ino = current->pwd->i_ino;s[_index++]=part_ino;
+        iget(current->pwd,get_dir(".."));/* switch to parrent folder */
+        // kprintf("%s",get_dir_name(part_ino));
+    }
+    * current->pwd = * current->root;
+    // nextline();
+    for(int i=_index;i>=0;i--){
+        // kprintf(" %d ",s[i]);
+        if(s[i] == current->root->i_ino){
+            ;
+        }else if(get_dir_name(s[i])!=(char*)NULL)kprintf("/%s",get_dir_name(s[i]));
+        iget(current->pwd,s[i]);
+    }
+    * current->pwd = tmp_node;
+ }
 
 void clear_cmd_buffer()
 {

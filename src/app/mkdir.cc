@@ -11,9 +11,15 @@ void mkdir(const char *name,u8 mode){
 	iput(&newinode,newinode.i_ino);
 	struct dir_entry *de = (struct dir_entry *)NULL;
 	u8 sector[512]={0};
-/*currently, "namei" hasn't been implemented,i will mkdir under '/' root directory.   */
+/*it will mkdir under current directory.   */
 	IDE_read_sector((void *)&sector, DATA_BLK_NR_TO_SECTOR_NR(current->pwd->i_zone[0]));	
 	de = (struct dir_entry*)sector; 
+
+/* in case that two directory have the same name */
+	if(get_dir((char *)name)!=-1){
+		kprintf("\n WARNNING:a folder with that name already exists.");
+		return;
+	}
 	for(int i=0;i<current->pwd->i_size/sizeof(struct dir_entry);i++)de++;	/*point to correct position*/
 /*we should control the length of dir name,otherwise may run into problem*/
 	if( strlen(name) > MAX_NAME_LEN)_panic("FBI WARNNING:length of dir name must under 14 chars!\n halt...");//MAX_NAME_LEN	
@@ -50,4 +56,16 @@ int get_dir(char * partname){
 		de++;
 	}
 	return -1;
+}
+
+char * get_dir_name(u32 inode){
+	int dir_total = current->pwd->i_size/(sizeof(struct dir_entry));
+	struct dir_entry * de = (struct dir_entry *)NULL;u8 sector[512]={0};
+	IDE_read_sector((void *)&sector, DATA_BLK_NR_TO_SECTOR_NR(current->pwd->i_zone[0]));	
+	de = (struct dir_entry*)sector; 
+	for(int i=0;i<dir_total;i++){
+		if( de->inode == inode )return (char *)de->name;
+		de++;
+	}
+	return (char *)NULL;
 }

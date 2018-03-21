@@ -91,7 +91,7 @@ void mkdir_service(char* cmd_buffer,int cmd_buffer_index){
     
                 while(thisname!= basename){
                     thisname = strtok((char*)NULL,(char *)"/");
-                    kprintf("\n%s",thisname);
+                    kprintf("\n Creating directory %s ...",thisname);
                     mkdir(thisname,DIR_FILE);
 /*ok. let pwd temporarily point to it, and make 'mkdir -p' work smoothly. */                    
                     iget(&_work_inode,get_dir(thisname));
@@ -131,7 +131,7 @@ void cd_service(char* cmd_buffer,int cmd_buffer_index){
             }else{ 
                 while(thisname!= basename){
                     thisname = strtok((char*)NULL,(char *)"/");
-                    kprintf("\n%s",thisname);
+                    kprintf("\n cd %s",thisname);
                     iget(&_work_inode,get_dir(thisname));
                     * current->pwd = _work_inode;
 /* This is WRONG!!!:iget(current->pwd,get_dir(thisname));*/
@@ -142,7 +142,24 @@ void cd_service(char* cmd_buffer,int cmd_buffer_index){
 }
 
  void pwd_service(){
-
+/*This function has been merged to 'print_pwd' */    
+    struct m_inode tmp_node = * current->pwd;
+    int s[100]={0};int _index = 0;
+    while(current->pwd->i_ino != current->root->i_ino){
+        int part_ino = current->pwd->i_ino;s[_index++]=part_ino;
+        iget(current->pwd,get_dir(".."));/* switch to parrent folder */
+        kprintf("\n%s",get_dir_name(part_ino));
+    }
+    * current->pwd = * current->root;
+    nextline();
+    for(int i=_index;i>=0;i--){
+        kprintf(" %d ",s[i]);
+        if(s[i] == current->root->i_ino){
+            ;
+        }else if(get_dir_name(s[i])!=(char*)NULL)kprintf("/%s",get_dir_name(s[i]));
+        iget(current->pwd,s[i]);
+    }
+    * current->pwd = tmp_node;
  }
 void msg_info_superblock()
 {

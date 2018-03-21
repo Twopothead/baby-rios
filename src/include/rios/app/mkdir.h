@@ -7,8 +7,9 @@ extern "C" {
 #include <rios/console.h>	
 #include <rios/fs.h>
 #include <rios/bitmap.h>
-void mkdir(const char *name,u8 mode);	
-
+void mkdir(const char *name,u8 mode);
+int get_dir(char * partname);	
+char * get_dir_name(u32 inode);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

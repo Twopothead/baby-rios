@@ -37,6 +37,7 @@ _again_check_root:
 	iget(&iroot,0);current -> root = &iroot;
 	ipwd = *iget(&iroot,0);current -> pwd = &ipwd;
 	kprintf(" %d\n",iroot.i_zone[0]);
+	current->uid=0;/*uid = 0 => you are qiuri */
 }
 
 void dir_root(){

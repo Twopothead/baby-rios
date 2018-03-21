@@ -13,7 +13,7 @@
 extern "C" {
 #endif /* __cplusplus */
 #include <rios/app/iapp.h>
-
+extern struct task_struct * current;
 enum Color{
 	Black	       	= 0,
 	Blue	        = 1,
@@ -36,6 +36,7 @@ enum Color{
 #define start_with(s1,s2) 	cmd_matching(s1,(char *)s2)
 #define equal_to(s1,s2) 	cmd_equal(s1,(char *)s2)
 
+void print_pwd();
 int cmd_equal(char *str1,char *str2);
 void puts(char *str);
 void set_text_attr(enum Color foreground,enum Color background);
