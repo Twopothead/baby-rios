@@ -68,7 +68,8 @@ void RiOS_main(void)
 	mkdir("newdir",DIR_FILE);
 	free_blk_traverse();
 	clear_cmd_buffer();
-	kprintf("\n\n%d",get_dir((char *)"newdir"));
+	for(int i=0;i<200;i++)kprintf(" new:%d ",new_block());
+	//for(int i=0;i<20000;i++)kprintf(" new:%d ",new_block());
 	while(1);
 }
 

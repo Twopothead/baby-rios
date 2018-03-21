@@ -98,7 +98,6 @@ _again_check_fs:
 
 union free_space_grouping_head specific_block;/*内存专用块*/
 int is_specific_block_set = 0;
-int tmp =0;
 int new_block()
 {
 	union Super_Block_Sect *p_ri_sb = get_super();
@@ -110,6 +109,7 @@ int new_block()
 		is_specific_block_set = 1;
 	}
 /* remember to write back to disk. */	
+again:	
 	if(specific_block.s_free > 1){
 		specific_block.s_free --;
 		set_specific_blk_nr(p_ri_sb->s_specific_blk_nr);/*write back*/
@@ -117,14 +117,51 @@ int new_block()
 		return specific_block.s_free_blk_nr[specific_block.s_free];
 	}else if(specific_block.s_free == 1){
 		specific_block.s_free --;
-		int nr = specific_block.s_free_blk_nr[0];
-
-	}
-
-	// return tmp++;
+		int current_group_nr = p_ri_sb->s_specific_blk_nr;
+		int next_group_nr = specific_block.s_free_blk_nr[0];
+/* get NR of next group,copy its contents to specific block in memory through buffer
+ * , and **allocate current block**. 
+ */
+		specific_block = get_blk_nr_free_group(next_group_nr);
+		set_specific_blk_nr(next_group_nr);
+/* now, we are switching to a different specific block*/		
+		specific_block.s_free --;
+/* XX return specific_block.s_free_blk_nr[specific_block.s_free];
+ * ok,we were able to return NR here,but in that case,the following code won't execute,
+ * and the last specific block haven't been allocated.
+ */		
+		int tmp = specific_block.s_free_blk_nr[specific_block.s_free];
+		{/* allocate the last specific block */
+			specific_block.s_free_blk_nr[specific_block.s_free] = current_group_nr; 
+			specific_block.s_free ++; 
+		}
+		if(tmp!=0){
+			return tmp;
+		}else{/*SHOULD NOT allocate root*/
+			goto again;
+		}
+	}else if(specific_block.s_free == 0){
+		_panic(" FBI_WARNNING:There is no free block available!!!");
+	}	
 }
 
 void free_block(int block){
+// 	union Super_Block_Sect *p_ri_sb = get_super();
+// 	set_super();
+// 	if(!is_specific_block_set){
+// 		_panic(" Specific Block is not set, CANNOT free a block");
+// 	}
+// /* remember to write back to disk. */	
+// 	if(specific_block.s_free > 1){
+// 		specific_block.s_free --;
+// 		set_specific_blk_nr(p_ri_sb->s_specific_blk_nr);/*write back*/
+// 		set_blk_nr_free_group(specific_block,p_ri_sb->s_specific_blk_nr);
+// 		return specific_block.s_free_blk_nr[specific_block.s_free];
+// 	}else if(specific_block.s_free == 1){
+// 		specific_block.s_free --;
+// 		int nr = specific_block.s_free_blk_nr[0];
+
+// 	}
 
 }
 
