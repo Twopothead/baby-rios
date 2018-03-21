@@ -139,7 +139,7 @@ outb(0x43,0x34) =>
 
 ### File System
 
-This might be a joke, but our RiOS kernel is plan to be POSIX compatible, for this reason, system calls should be carefully designed. Here are some system calls that I'm going to implement. You can see them in Andre S. Tanenbaum's book 《Operating Systems Design and Implementation,3rd Edition》P19 System calls of Minix.
+This might be a joke, but our RiOS kernel is plan to be POSIX compatible, for this reason, system calls should be carefully designed. Here are some system calls that I'm going to implement. You can see them in Andrew S. Tanenbaum's book 《Operating Systems Design and Implementation,3rd Edition》P19 System calls of Minix.
 
 ---------------------------------------
 

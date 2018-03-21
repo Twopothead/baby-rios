@@ -66,6 +66,7 @@ void ls();
 
 
 int new_block();
+void free_block(int block);
 #ifdef __cplusplus
 }
 #endif

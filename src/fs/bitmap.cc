@@ -35,7 +35,7 @@ _again_check_root:
 	}
 /*ok, we'll set pwd with root directory defaultly. */	
 	iget(&iroot,0);current -> root = &iroot;
-	ipwd = *iget(&iroot,0);current -> pwd = &ipwd;
+	ipwd = iroot;current -> pwd = &ipwd;
 	kprintf(" %d\n",iroot.i_zone[0]);
 	current->uid=0;/*uid = 0 => you are qiuri */
 }
@@ -136,32 +136,43 @@ again:
 			specific_block.s_free ++; 
 		}
 		if(tmp!=0){
+/*write back*/
+			set_blk_nr_free_group(specific_block,p_ri_sb->s_specific_blk_nr);
 			return tmp;
 		}else{/*SHOULD NOT allocate root*/
 			goto again;
 		}
 	}else if(specific_block.s_free == 0){
-		_panic(" FBI_WARNNING:There is no free block available!!!");
+		_panic(" FBI WARNING:There is no free block available!!!");
 	}	
 }
 
 void free_block(int block){
-// 	union Super_Block_Sect *p_ri_sb = get_super();
-// 	set_super();
-// 	if(!is_specific_block_set){
-// 		_panic(" Specific Block is not set, CANNOT free a block");
-// 	}
-// /* remember to write back to disk. */	
-// 	if(specific_block.s_free > 1){
-// 		specific_block.s_free --;
-// 		set_specific_blk_nr(p_ri_sb->s_specific_blk_nr);/*write back*/
-// 		set_blk_nr_free_group(specific_block,p_ri_sb->s_specific_blk_nr);
-// 		return specific_block.s_free_blk_nr[specific_block.s_free];
-// 	}else if(specific_block.s_free == 1){
-// 		specific_block.s_free --;
-// 		int nr = specific_block.s_free_blk_nr[0];
-
-// 	}
+	union Super_Block_Sect *p_ri_sb = get_super();
+	set_super();
+	if(!is_specific_block_set){
+		_panic(" FBI WARNING:Specific Block is not set, CANNOT free a block!!!");
+	}
+/* remember to write back to disk. */	
+	if(specific_block.s_free < BLKS_PER_GROUP ){
+		specific_block.s_free_blk_nr[specific_block.s_free] = block;
+		specific_block.s_free ++;
+		set_specific_blk_nr(p_ri_sb->s_specific_blk_nr);/*write back*/
+		set_blk_nr_free_group(specific_block,p_ri_sb->s_specific_blk_nr);
+	}else if(specific_block.s_free == BLKS_PER_GROUP ){
+/* when the table is full,copy all its contents into the block that we wanted to free,
+ * flush the table,then add a new record (newly freed block), and set s_free = 1 
+ */		
+		set_blk_nr_free_group(specific_block,block);/* copy */
+		specific_block.s_free_blk_nr[0] = block;
+		specific_block.s_free = 1;
+		set_blk_nr_free_group(specific_block,p_ri_sb->s_specific_blk_nr);
+	}
+/* when the next group is 0,there are no free block */
+	if(specific_block.s_free_blk_nr[0] == 0){
+		_panic(" FBI WARNING:There is no free block available!!!");
+	}
+	return;
 
 }
 

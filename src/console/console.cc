@@ -107,12 +107,9 @@ void con_putch(u8 ch)
     		}else if(start_with(arg0,"logo")){
     				print_njau_logo();
     		}else if(start_with(arg0,"mkdir")){
-    			char _buf[80*25]={0};
-   //  			kprintf("\n%s",arg0);
-   //  			kprintf("\n%s",arg1);
-			// kprintf("\n%s",arg2);
-			// kprintf("\n%s",arg3);
     			 mkdir_service((char*)cmd_buffer,cmd_buffer_index);
+    		}else if(start_with(arg0,"rmdir")){
+    			 rmdir_service((char*)cmd_buffer,cmd_buffer_index);
     		}else if(start_with(arg0,"cd")){
     			 cd_service((char*)cmd_buffer,cmd_buffer_index);
     		}else if(start_with(arg0,"pwd")){

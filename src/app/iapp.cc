@@ -1,9 +1,4 @@
 #include <rios/app/iapp.h>
-#include <rios/app/mkdir.h>
-#include <rios/grouping.h>
-#include <rios/console.h>
-#include <rios/bitmap.h>
-#include <rios/string.h>
 #define get_path_basename(p)  get_basename(p,'/')
 #define get_cmd_basename(p)   get_basename(p,' ')
 void info_service(char * cmd_buffer)
@@ -67,13 +62,13 @@ void ls_service(char* cmd_buffer){
 }
 extern struct task_struct * current;
 extern struct m_inode * iroot;
-struct m_inode _work_inode;
-struct m_inode _s_ino;
+extern struct m_inode ipwd;
 void mkdir_service(char* cmd_buffer,int cmd_buffer_index){
     char tmp[80*25];char name[50];
     strcpy(tmp,cmd_buffer); 
     // struct m_inode * saved_pwd = current->pwd;
-    _s_ino = *current->pwd;
+
+    int before_ino = current->pwd->i_ino;
     if(equal_to(tmp,"mkdir /")){
         *(current -> pwd) = *iroot;
         kprintf("\n root directory exists.");
@@ -82,7 +77,7 @@ void mkdir_service(char* cmd_buffer,int cmd_buffer_index){
             char * thisname = (char *)NULL;thisname = tmp;
             char * basename = (char *)get_path_basename(get_cmd_basename(tmp));
             char * _s_cd = strtok((char*)tmp,(char *)" ");
-            if(strlen(basename)==0)_panic(" FBI WARNNING:PLEASE INPUT A VALID DIR NAME!!!");
+            if(strlen(basename)==0)_panic(" FBI WARNING:PLEASE INPUT A VALID DIR NAME!!!");
             if(thisname == basename){
                 kprintf("\n invalid command.");
             }else if(!basename){
@@ -94,14 +89,21 @@ void mkdir_service(char* cmd_buffer,int cmd_buffer_index){
                     kprintf("\n Creating directory %s ...",thisname);
                     mkdir(thisname,DIR_FILE);
 /*ok. let pwd temporarily point to it, and make 'mkdir -p' work smoothly. */                    
-                    iget(&_work_inode,get_dir(thisname));
-                    * current->pwd = _work_inode;
+                    // iget(&_work_inode,get_dir(thisname));
+                    // * current->pwd = _work_inode;
+                    iput(current->pwd,current->pwd->i_ino);
+                    iget(&ipwd,get_dir(thisname));
+                    //  * current->pwd = ipwd;
+                        // iget(current->pwd,current->pwd->i_ino);
+                    // iput(&ipwd,current->pwd->i_ino);
+                     kprintf("\npwd:%d\n",current->pwd->i_size);
 /*This is WRONG!!!:iget(current->pwd,get_dir(thisname));*/
                  }
                 
             }
     }
-    *current->pwd = _s_ino;
+/* a big bug fixed here */    
+    iget(current->pwd,before_ino);
     return;
 }
 
@@ -117,13 +119,13 @@ void cd_service(char* cmd_buffer,int cmd_buffer_index){
     }else if(equal_to(tmp,"cd .")){
                 ;
     }else if(equal_to(tmp,"cd ..")){
-          iget(&_work_inode,get_dir((char *)".."));
-          * current->pwd = _work_inode;
+          iget(&ipwd,get_dir((char *)".."));
+          * current->pwd = ipwd;
     }else{ 
             char * thisname = (char *)NULL;thisname = tmp;
             char * basename = (char *)get_path_basename(get_cmd_basename(tmp));
             char * _s_cd = strtok((char*)tmp,(char *)" ");
-            if(strlen(basename)==0)_panic(" FBI WARNNING:PLEASE INPUT A VALID DIR NAME!!!");
+            if(strlen(basename)==0)_panic(" FBI WARNING:PLEASE INPUT A VALID DIR NAME!!!");
             if(thisname == basename){
                 kprintf("\n invalid command.");
             }else if(!basename){
@@ -132,8 +134,8 @@ void cd_service(char* cmd_buffer,int cmd_buffer_index){
                 while(thisname!= basename){
                     thisname = strtok((char*)NULL,(char *)"/");
                     kprintf("\n cd %s",thisname);
-                    iget(&_work_inode,get_dir(thisname));
-                    * current->pwd = _work_inode;
+                    iget(&ipwd,get_dir(thisname));
+                    * current->pwd = ipwd;
 /* This is WRONG!!!:iget(current->pwd,get_dir(thisname));*/
                  }
             }
@@ -161,8 +163,40 @@ void cd_service(char* cmd_buffer,int cmd_buffer_index){
     }
     * current->pwd = tmp_node;
  }
-void msg_info_superblock()
-{
-	nextline();
-	kprintf("fuck.\n");
+
+void rmdir_service(char* cmd_buffer,int cmd_buffer_index){
+    char tmp[80*25];char name[50];
+    strcpy(tmp,cmd_buffer); 
+    // struct m_inode * saved_pwd = current->pwd;
+    int before_ino = current->pwd->i_ino;
+    if(equal_to(tmp,"rmdir /")){
+        *(current -> pwd) = *iroot;
+        kprintf("\n root directory CANNOT be removed.");
+        return;
+    }else{ 
+            char * thisname = (char *)NULL;thisname = tmp;
+            char * basename = (char *)get_path_basename(get_cmd_basename(tmp));
+            rmdir(basename,DIR_FILE);
+//             char * _s_cd = strtok((char*)tmp,(char *)" ");
+//             if(strlen(basename)==0)_panic(" FBI WARNING:PLEASE INPUT A VALID DIR NAME!!!");
+//             if(thisname == basename){
+//                 kprintf("\n invalid command.");
+//             }else if(!basename){
+//                 kprintf("\n please input a valid directory name.");
+//             }else{ 
+    
+//                 while(thisname!= basename){
+//                     thisname = strtok((char*)NULL,(char *)"/");
+//                     kprintf("\n Creating directory %s ...",thisname);
+//                     mkdir(thisname,DIR_FILE);
+// /*ok. let pwd temporarily point to it, and make 'mkdir -p' work smoothly. */                    
+//                     iget(&_work_inode,get_dir(thisname));
+//                     * current->pwd = _work_inode;
+// /*This is WRONG!!!:iget(current->pwd,get_dir(thisname));*/
+//                  }
+                
+//             }
+    }
+    iget(current->pwd,before_ino);
+    return;
 }

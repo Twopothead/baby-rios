@@ -17,12 +17,12 @@ void mkdir(const char *name,u8 mode){
 
 /* in case that two directory have the same name */
 	if(get_dir((char *)name)!=-1){
-		kprintf("\n WARNNING:a folder with that name already exists.");
+		kprintf("\n WARNING:a folder with that name already exists.");
 		return;
 	}
 	for(int i=0;i<current->pwd->i_size/sizeof(struct dir_entry);i++)de++;	/*point to correct position*/
 /*we should control the length of dir name,otherwise may run into problem*/
-	if( strlen(name) > MAX_NAME_LEN)_panic("FBI WARNNING:length of dir name must under 14 chars!\n halt...");//MAX_NAME_LEN	
+	if( strlen(name) > MAX_NAME_LEN)_panic("FBI WARNING:length of dir name must under 14 chars!\n halt...");//MAX_NAME_LEN	
 	strcpy((char *)de->name,name);de->inode = newinode.i_ino;
 	IDE_write_sector((void *)&sector, DATA_BLK_NR_TO_SECTOR_NR(current->pwd->i_zone[0]));	
 /*ok, update current directory file's filesize, because we add a record.*/	
@@ -42,11 +42,11 @@ void mkdir(const char *name,u8 mode){
 	IDE_write_sector((void *)&sector, DATA_BLK_NR_TO_SECTOR_NR(current->pwd->i_zone[0]));	
 	iput(current->pwd,current->pwd->i_ino);
 	current->pwd = saved_pino ;
-
 }
 
 /* 'get_dir' is also stupid. it gets dir by name(not full pathname) under current directory*/
 int get_dir(char * partname){
+/* before we haven't update pwd here,than pwd is not sync with contents on disk*/	
 	int dir_total = current->pwd->i_size/(sizeof(struct dir_entry));
 	struct dir_entry * de = (struct dir_entry *)NULL;u8 sector[512]={0};
 	IDE_read_sector((void *)&sector, DATA_BLK_NR_TO_SECTOR_NR(current->pwd->i_zone[0]));	

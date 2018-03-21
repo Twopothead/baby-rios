@@ -41,7 +41,7 @@ void hd1_handler_main()
 void panic(int nr_irq){
 /* You can try this by :int a=0;int b=3;b/=a;*/
 	set_text_attr(Red,Black);nextline();
-	print(" FBI WARNNING:    ");
+	print(" FBI WARNING:    ");
 	if(nr_irq==0)print(" !Division By Zero Exception!");
 	if(nr_irq==1)print(" !Debug Exception!");
 	if(nr_irq==2)print(" !Non Maskable Interrupt Exception!");

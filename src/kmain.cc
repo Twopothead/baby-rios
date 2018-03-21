@@ -55,9 +55,7 @@ void RiOS_main(void)
 	init_dpt();
 	init_fs();
 	//visit_all_free_blks();
-	nextline();
-	// for(int i=0;i<10;i++)kprintf(" %d ",new_block());
-	clear_cmd_buffer();	
+		
 	//_syscall(_SYS_TESTHD,0,0,0);
 
 		// for(int i=0;i<20;i++)iput(&iroot,i);
@@ -67,8 +65,15 @@ void RiOS_main(void)
 	// kprintf("\n%d",iroot.i_zone[0]);
 	mkdir("newdir",DIR_FILE);
 	free_blk_traverse();
+	nextline();
 	clear_cmd_buffer();
-	for(int i=0;i<200;i++)kprintf(" new:%d ",new_block());
+	// int a[200];
+	// for(int i=0;i<200;i++){
+	// 	a[i]=new_block();
+	// 	kprintf(" new:%d ",a[i]);
+	// }
+	// for(int i=0;i<200;i++)free_block(a[i]);
+
 	//for(int i=0;i<20000;i++)kprintf(" new:%d ",new_block());
 	while(1);
 }
