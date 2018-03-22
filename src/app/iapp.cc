@@ -1,6 +1,4 @@
 #include <rios/app/iapp.h>
-#define get_path_basename(p)  get_basename(p,'/')
-#define get_cmd_basename(p)   get_basename(p,' ')
 void info_service(char * cmd_buffer)
 {
 	if(start_with(cmd_buffer,"info superblock")){
@@ -61,7 +59,7 @@ void ls_service(char* cmd_buffer){
 
 }
 extern struct task_struct * current;
-extern struct m_inode * iroot;
+extern struct m_inode iroot;
 extern struct m_inode ipwd;
 int mkdir_service(char* cmd_buffer,int cmd_buffer_index)
 {
@@ -71,7 +69,8 @@ int mkdir_service(char* cmd_buffer,int cmd_buffer_index)
 
     int before_ino = current->pwd->i_ino;
     if(equal_to(tmp,"mkdir /")){
-        *(current -> pwd) = *iroot;
+           iget(&iroot,0);
+        *(current -> pwd) = iroot;
         kprintf("\n root directory exists.");
         return -1;
     }else{ 
@@ -107,7 +106,8 @@ void cd_service(char* cmd_buffer,int cmd_buffer_index)
     char tmp[80*25];char name[50];
     strcpy(tmp,cmd_buffer);
     if(equal_to(tmp,"cd /")){
-        *(current -> pwd) = *iroot;
+          iget(&iroot,0);
+        *(current -> pwd) = iroot;
 /* a little tricky here,current->pwd always points to ipwd,
  * what will be changed is its contents,not the pointer itself.
  */        
@@ -131,6 +131,10 @@ void cd_service(char* cmd_buffer,int cmd_buffer_index)
                     kprintf("\n cd %s",thisname);
                     iget(&ipwd,get_dir(thisname));
                     * current->pwd = ipwd;
+                    if(current->pwd->i_mode != DIR_FILE){
+                        kprintf("\n cd: '%s': Not a directory",basename);
+                           iget(&iroot,0);*(current -> pwd) = iroot;
+                    }
                  }
             }
     }
@@ -163,7 +167,8 @@ void rmdir_service(char* cmd_buffer,int cmd_buffer_index){
     // struct m_inode * saved_pwd = current->pwd;
     int before_ino = current->pwd->i_ino;
     if(equal_to(tmp,"rmdir /")){
-        *(current -> pwd) = *iroot;
+           iget(&iroot,0);
+        *(current -> pwd) = iroot;
         kprintf("\n root directory CANNOT be removed.");
         return;
     }else{ 
@@ -198,8 +203,8 @@ int silent_mkdir(char* cmd_buffer,int cmd_buffer_index)
     strcpy(tmp,cmd_buffer); 
     int before_ino = current->pwd->i_ino;
     if(equal_to(tmp,"mkdir /")){
-        iget(iroot,0);/*keep sync with disk*/
-        *(current -> pwd) = *iroot;
+        iget(&iroot,0);/*keep sync with disk*/
+        *(current -> pwd) = iroot;
         kprintf("\n root directory exists.");
         return -1;
     }else{ 
@@ -233,8 +238,8 @@ void silent_cd(char* cmd_buffer,int cmd_buffer_index)
     char tmp[80*25];char name[50];
     strcpy(tmp,cmd_buffer);
     if(equal_to(tmp,"cd /")){
-        iget(iroot,0);
-        *(current -> pwd) = *iroot;
+        iget(&iroot,0);
+        *(current -> pwd) = iroot;
 /* a little tricky here,current->pwd always points to ipwd,
  * what will be changed is its contents,not the pointer itself.
  */        
@@ -262,4 +267,34 @@ void silent_cd(char* cmd_buffer,int cmd_buffer_index)
             }
     }
 
+}
+
+/* 'touch' or create a new file */
+void touch_service(char* cmd_buffer,int cmd_buffer_index){
+    char tmp[80*25];char name[50];
+    strcpy(tmp,cmd_buffer); 
+    // struct m_inode * saved_pwd = current->pwd;
+    int before_ino = current->pwd->i_ino;
+    if(equal_to(tmp,"rmdir /")){
+          iget(&iroot,0);
+        *(current -> pwd) = iroot;
+        kprintf("\n root directory CANNOT be removed.");
+        return;
+    }else{ 
+            char * thisname = (char *)NULL;thisname = tmp;
+            char * basename = (char *)get_path_basename(get_cmd_basename(tmp));
+            char * _s_rm = strtok((char*)tmp,(char *)" ");
+            if(strlen(basename)==0)_panic(" FBI WARNING:PLEASE INPUT A VALID DIR NAME!!!");
+            if(thisname == basename){
+                kprintf("\n invalid command.");
+            }else if(!basename){
+                kprintf("\n please input a valid directory name.");
+            }else{ 
+/* currently, rmdir doesn't support 'rmdir -p dir1/dir2/dir3' :( */                
+                thisname = strtok((char*)NULL,(char *)"/");
+                touch(basename,NORMAL_FILE);        
+            }
+    }
+    iget(current->pwd,before_ino);
+    return;
 }

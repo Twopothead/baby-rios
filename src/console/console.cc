@@ -114,6 +114,10 @@ void con_putch(u8 ch)
     			 cd_service((char*)cmd_buffer,cmd_buffer_index);
     		}else if(start_with(arg0,"pwd")){
     			 nextline();print_pwd();/*pwd_service();*/
+    		}else if(start_with(arg0,"touch")){
+    			 touch_service((char*)cmd_buffer,cmd_buffer_index);
+    		}else if(start_with(arg0,"cat")){
+    			 cat_service((char*)cmd_buffer,cmd_buffer_index);
     		}else{
     			if(cmd_buffer_index!=0)kprintf("\n%s: command not found.",tmp);
     		}

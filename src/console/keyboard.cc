@@ -4,7 +4,7 @@ u8 keymap[128]=
 {
 	0,27,
 	'1','2','3','4','5','6','7','8','9','0','-','=',
-	'\b','\t', /*Backspace , Tap*/
+	'\b','\t', /*Backspace , Tab*/
 	'q','w','e','r','t','y','u','i','o','p','[',']','\n',/*Enter Key*/
 	0,
 	'a','s','d','f','g','h','j','k','l',';','\'','`','\r',
@@ -16,7 +16,7 @@ void do_keyboard()
 /*
  *outb(0x20,0x20); necessary! EOI signal (End of interrupt acknowlegment)
  *by writing EOI to PIC, PIC will allow further interrupt requests,otherwise not.
- *but if we enabled Auto EOI in 8086/88 mode in 8259A ,we wont bother to do this.
+ *but if we enabled Auto EOI in 8086/88 mode in 8259A ,we won't bother to do this.
  */
 	u8 kb_status;
 	u8 kbscancode;

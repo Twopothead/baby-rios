@@ -20,6 +20,7 @@
 #include <rios/fs.h>
 #include <rios/app/mkdir.h>
 #include <rios/sched.h>
+#include <rios/file.h>
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -58,6 +59,7 @@ void RiOS_main(void)
 	
 /*free_blk_traverse();*/
 	clear_cmd_buffer();
+
 	while(1);
 }
 

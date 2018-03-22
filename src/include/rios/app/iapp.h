@@ -7,7 +7,9 @@ extern "C" {
 #include <rios/app/mkdir.h>
 #include <rios/grouping.h>
 #include <rios/bitmap.h>
-#include <rios/string.h>	
+#include <rios/string.h>
+#define get_path_basename(p)  get_basename(p,'/')
+#define get_cmd_basename(p)   get_basename(p,' ')	
 void info_service(char* cmd_buffer);
 void ls_service(char* cmd_buffer);
 int mkdir_service(char* cmd_buffer,int cmd_buffer_index);
@@ -22,6 +24,10 @@ void touch(const char *name,u8 mode);
 
 int silent_mkdir(char* cmd_buffer,int cmd_buffer_index);
 void silent_cd(char* cmd_buffer,int cmd_buffer_index);
+
+void touch_service(char* cmd_buffer,int cmd_buffer_index);
+void cat_service(char* cmd_buffer,int cmd_buffer_index);
+void cat(const char *name,u8 mode);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
