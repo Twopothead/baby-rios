@@ -124,9 +124,11 @@ struct file
 
 /* RiOS can support open up to 64 files */
 void init_fs();
+void setup_fs();
 void get_file_attrib(m_inode *fd);
 #define MAX_FULL_PATH_LEN 128
-	
+int silent_mkdir(char* cmd_buffer,int cmd_buffer_index);
+void silent_cd(char* cmd_buffer,int cmd_buffer_index);	
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

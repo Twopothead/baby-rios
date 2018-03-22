@@ -63,7 +63,7 @@ void ls_service(char* cmd_buffer){
 extern struct task_struct * current;
 extern struct m_inode * iroot;
 extern struct m_inode ipwd;
-void mkdir_service(char* cmd_buffer,int cmd_buffer_index)
+int mkdir_service(char* cmd_buffer,int cmd_buffer_index)
 {
     char tmp[80*25];char name[50];
     strcpy(tmp,cmd_buffer); 
@@ -73,7 +73,7 @@ void mkdir_service(char* cmd_buffer,int cmd_buffer_index)
     if(equal_to(tmp,"mkdir /")){
         *(current -> pwd) = *iroot;
         kprintf("\n root directory exists.");
-        return;
+        return -1;
     }else{ 
             char * thisname = (char *)NULL;thisname = tmp;
             char * basename = (char *)get_path_basename(get_cmd_basename(tmp));
@@ -92,15 +92,13 @@ void mkdir_service(char* cmd_buffer,int cmd_buffer_index)
 /*ok. let pwd temporarily point to it, and make 'mkdir -p' work smoothly. */                    
                     iput(current->pwd,current->pwd->i_ino);
                     iget(&ipwd,get_dir(thisname));
-                    kprintf("\npwd:%d\n",current->pwd->i_size);
-/*This is WRONG!!!:iget(current->pwd,get_dir(thisname));*/
                  }
                 
             }
     }
 /* a big bug fixed here */    
     iget(current->pwd,before_ino);
-    return;
+    return 0;
 }
 
 
@@ -133,11 +131,9 @@ void cd_service(char* cmd_buffer,int cmd_buffer_index)
                     kprintf("\n cd %s",thisname);
                     iget(&ipwd,get_dir(thisname));
                     * current->pwd = ipwd;
-/* This is WRONG!!!:iget(current->pwd,get_dir(thisname));*/
                  }
             }
     }
-
 }
 
  void pwd_service(){
@@ -193,4 +189,77 @@ void rmdir_service(char* cmd_buffer,int cmd_buffer_index){
     }
     iget(current->pwd,before_ino);
     return;
+}
+
+/* similar to mkdir_service */
+int silent_mkdir(char* cmd_buffer,int cmd_buffer_index)
+{
+    char tmp[80*25];char name[50];
+    strcpy(tmp,cmd_buffer); 
+    int before_ino = current->pwd->i_ino;
+    if(equal_to(tmp,"mkdir /")){
+        iget(iroot,0);/*keep sync with disk*/
+        *(current -> pwd) = *iroot;
+        kprintf("\n root directory exists.");
+        return -1;
+    }else{ 
+            char * thisname = (char *)NULL;thisname = tmp;
+            char * basename = (char *)get_path_basename(get_cmd_basename(tmp));
+            char * _s_cd = strtok((char*)tmp,(char *)" ");
+            if(strlen(basename)==0)_panic(" FBI WARNING:PLEASE INPUT A VALID DIR NAME!!!");
+            if(thisname == basename){
+                // kprintf("\n invalid command.");
+            }else if(!basename){
+                // kprintf("\n please input a valid directory name.");
+            }else{ 
+    
+                while(thisname!= basename){
+                    thisname = strtok((char*)NULL,(char *)"/");
+                    // kprintf("\n Creating directory '%s' ...",thisname);
+                    mkdir(thisname,DIR_FILE);
+/*ok. let pwd temporarily point to it, and make 'mkdir -p' work smoothly. */                    
+                    iput(current->pwd,current->pwd->i_ino);
+                    iget(&ipwd,get_dir(thisname));
+                 }
+            }
+    }
+/* a big bug fixed here */    
+    iget(current->pwd,before_ino);
+    return 0;
+}
+
+void silent_cd(char* cmd_buffer,int cmd_buffer_index)
+{
+    char tmp[80*25];char name[50];
+    strcpy(tmp,cmd_buffer);
+    if(equal_to(tmp,"cd /")){
+        iget(iroot,0);
+        *(current -> pwd) = *iroot;
+/* a little tricky here,current->pwd always points to ipwd,
+ * what will be changed is its contents,not the pointer itself.
+ */        
+    }else if(equal_to(tmp,"cd .")){
+                ;
+    }else if(equal_to(tmp,"cd ..")){
+          iget(&ipwd,get_dir((char *)".."));
+          * current->pwd = ipwd;
+    }else{ 
+            char * thisname = (char *)NULL;thisname = tmp;
+            char * basename = (char *)get_path_basename(get_cmd_basename(tmp));
+            char * _s_cd = strtok((char*)tmp,(char *)" ");
+            if(strlen(basename)==0)_panic(" FBI WARNING:PLEASE INPUT A VALID DIR NAME!!!");
+            if(thisname == basename){
+                // kprintf("\n invalid command.");
+            }else if(!basename){
+                // kprintf("\n please input a valid directory name.");
+            }else{ 
+                while(thisname!= basename){
+                    thisname = strtok((char*)NULL,(char *)"/");
+                    // kprintf("\n cd %s",thisname);
+                    iget(&ipwd,get_dir(thisname));
+                    * current->pwd = ipwd;
+                 }
+            }
+    }
+
 }

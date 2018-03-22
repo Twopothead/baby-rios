@@ -9,7 +9,7 @@ void init_root_dir(union Super_Block_Sect  rios_superblock)
 _again_check_root:	
 	IDE_read_sector((void *)&sector,NR_INODE_MAP_BLK(rios_superblock));
 	if(!bitmap_test_bit(0,sector)){		
-		kprintf("\n  no root directory found! init root '\\' now...");
+		kprintf("\n  no root directory found! init root '/' now...");
 		iroot.i_ino = new_inode();/*bitmap_set_bit(0,sector);*/
 		if(iroot.i_ino!=0)_panic("FBI WANNING:iroot's inode number must be 0!!!\n halt...");
 /*we need to install root directory here */
@@ -31,12 +31,12 @@ _again_check_root:
 	}else{
 /* currently,iroot in memory is nothing,we must load iroot from disk */	
 		iget(&iroot, 0);
-		nextline(),msg_ok();kprintf("  root dir / detected.");
+		nextline(),msg_ok();kprintf("  root dir '/' detected.");
 	}
 /*ok, we'll set pwd with root directory defaultly. */	
 	iget(&iroot,0);current -> root = &iroot;
 	ipwd = iroot;current -> pwd = &ipwd;
-	kprintf(" %d\n",iroot.i_zone[0]);
+	// kprintf(" %d\n",iroot.i_zone[0]);
 	current->uid=0;/*uid = 0 => you are qiuri */
 }
 
@@ -56,12 +56,13 @@ void ls()
 {
 	u8 sector[512] = {0};
 	iget(current->pwd,current->pwd->i_ino);
-	kprintf("%d",current->pwd->i_ino);
+/*kprintf("%d",current->pwd->i_ino);*/
 	int dir_num = current->pwd->i_size/(sizeof(struct dir_entry));
 	struct dir_entry *de = (struct dir_entry*)sector;
 	IDE_read_sector((void *)&sector, DATA_BLK_NR_TO_SECTOR_NR(current->pwd->i_zone[0]));	
 	for(int i=0; i < dir_num; i++){
-		kprintf("\n %s",&de->name);
+		/* kprintf("\n %s",&de->name); */
+		if(i==0)nextline(); kprintf(" %s ",&de->name);
 		de++;
 	}
 }
@@ -74,7 +75,7 @@ void set_specific_blk_nr(int i){
 	IDE_write_sector((void *)&rios_superblock,NR_SUPER_BLK(rios_superblock));
 
 }
-
+int new_rifs = 0;
 void check_rifs()
 {
 	union Super_Block_Sect tmp_sb;
@@ -85,6 +86,7 @@ _again_check_fs:
 		format_disk();
 		init_free_space_grouping();/*　空闲块成组链接初始化,这里默认是第一组的第一块，(第０块)　*/
 		IDE_read_sector((void *)&tmp_sb,HDB_SUPER_BLOCK_SEC);
+		new_rifs = 1;
 		goto _again_check_fs;
 	}else{
 		IDE_read_sector((void *)&rios_superblock,HDB_SUPER_BLOCK_SEC);

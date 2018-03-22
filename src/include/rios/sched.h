@@ -17,6 +17,7 @@ struct task_struct{
 	struct m_inode * pwd;
 	struct m_inode * root;
 	struct file * filp[NR_OPEN];
+/* this is user-wide file table */	
 };
 	
 #ifdef __cplusplus

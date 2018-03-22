@@ -77,13 +77,13 @@ These shell commands are defined internally.  Type `help' to see this list.\n\
  - help  :: print this help manual.\n\
  - clear :: clear the screen.\n\
  - hexdump NR :: hexdump the NRth sector,eg.hedump 0.\n\
- - ls    :: list directory contents.\n\
+ - ls    :: List. eg.'ls /'.\n\
  - mkdir :: make directory. eg.mkdir /dir1/dir2/dir3.\n\
+ - rmdir :: remove directory.\n\ 
  - cd    :: change directory. eg.cd .. , cd dir1  .\n\
  - info  :: 'info superblock','info grouping','info debug',\n\
          'info disk'\n\
  - pwd   :: print current working directory.\n\        
- - ls    :: List. eg.'ls /' .\n\ 
  - logo  :: print NJAU logo.");
 }
 

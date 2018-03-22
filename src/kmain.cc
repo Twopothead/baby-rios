@@ -54,27 +54,10 @@ void RiOS_main(void)
 	init_syscall();
 	init_dpt();
 	init_fs();
-	//visit_all_free_blks();
-		
-	//_syscall(_SYS_TESTHD,0,0,0);
-
-		// for(int i=0;i<20;i++)iput(&iroot,i);
-		// struct m_inode im;
-		// iget( &im, 20);
-		// kprintf("%d",im.i_creat_time);
-	// kprintf("\n%d",iroot.i_zone[0]);
-	mkdir("newdir",DIR_FILE);
-	free_blk_traverse();
-	nextline();
+/*_syscall(_SYS_TESTHD,0,0,0);*/
+	
+/*free_blk_traverse();*/
 	clear_cmd_buffer();
-	// int a[200];
-	// for(int i=0;i<200;i++){
-	// 	a[i]=new_block();
-	// 	kprintf(" new:%d ",a[i]);
-	// }
-	// for(int i=0;i<200;i++)free_block(a[i]);
-
-	//for(int i=0;i<20000;i++)kprintf(" new:%d ",new_block());
 	while(1);
 }
 
