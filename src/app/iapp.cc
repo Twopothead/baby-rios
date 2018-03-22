@@ -63,7 +63,8 @@ void ls_service(char* cmd_buffer){
 extern struct task_struct * current;
 extern struct m_inode * iroot;
 extern struct m_inode ipwd;
-void mkdir_service(char* cmd_buffer,int cmd_buffer_index){
+void mkdir_service(char* cmd_buffer,int cmd_buffer_index)
+{
     char tmp[80*25];char name[50];
     strcpy(tmp,cmd_buffer); 
     // struct m_inode * saved_pwd = current->pwd;
@@ -86,17 +87,12 @@ void mkdir_service(char* cmd_buffer,int cmd_buffer_index){
     
                 while(thisname!= basename){
                     thisname = strtok((char*)NULL,(char *)"/");
-                    kprintf("\n Creating directory %s ...",thisname);
+                    kprintf("\n Creating directory '%s' ...",thisname);
                     mkdir(thisname,DIR_FILE);
 /*ok. let pwd temporarily point to it, and make 'mkdir -p' work smoothly. */                    
-                    // iget(&_work_inode,get_dir(thisname));
-                    // * current->pwd = _work_inode;
                     iput(current->pwd,current->pwd->i_ino);
                     iget(&ipwd,get_dir(thisname));
-                    //  * current->pwd = ipwd;
-                        // iget(current->pwd,current->pwd->i_ino);
-                    // iput(&ipwd,current->pwd->i_ino);
-                     kprintf("\npwd:%d\n",current->pwd->i_size);
+                    kprintf("\npwd:%d\n",current->pwd->i_size);
 /*This is WRONG!!!:iget(current->pwd,get_dir(thisname));*/
                  }
                 
@@ -108,7 +104,8 @@ void mkdir_service(char* cmd_buffer,int cmd_buffer_index){
 }
 
 
-void cd_service(char* cmd_buffer,int cmd_buffer_index){
+void cd_service(char* cmd_buffer,int cmd_buffer_index)
+{
     char tmp[80*25];char name[50];
     strcpy(tmp,cmd_buffer);
     if(equal_to(tmp,"cd /")){
@@ -176,26 +173,23 @@ void rmdir_service(char* cmd_buffer,int cmd_buffer_index){
     }else{ 
             char * thisname = (char *)NULL;thisname = tmp;
             char * basename = (char *)get_path_basename(get_cmd_basename(tmp));
-            rmdir(basename,DIR_FILE);
-//             char * _s_cd = strtok((char*)tmp,(char *)" ");
-//             if(strlen(basename)==0)_panic(" FBI WARNING:PLEASE INPUT A VALID DIR NAME!!!");
-//             if(thisname == basename){
-//                 kprintf("\n invalid command.");
-//             }else if(!basename){
-//                 kprintf("\n please input a valid directory name.");
-//             }else{ 
-    
-//                 while(thisname!= basename){
-//                     thisname = strtok((char*)NULL,(char *)"/");
-//                     kprintf("\n Creating directory %s ...",thisname);
-//                     mkdir(thisname,DIR_FILE);
-// /*ok. let pwd temporarily point to it, and make 'mkdir -p' work smoothly. */                    
-//                     iget(&_work_inode,get_dir(thisname));
-//                     * current->pwd = _work_inode;
-// /*This is WRONG!!!:iget(current->pwd,get_dir(thisname));*/
-//                  }
-                
-//             }
+            char * _s_rm = strtok((char*)tmp,(char *)" ");
+            if(strlen(basename)==0)_panic(" FBI WARNING:PLEASE INPUT A VALID DIR NAME!!!");
+            if(thisname == basename){
+                kprintf("\n invalid command.");
+            }else if(!basename){
+                kprintf("\n please input a valid directory name.");
+            }else{ 
+/* currently, rmdir doesn't support 'rmdir -p dir1/dir2/dir3' :( */                
+                thisname = strtok((char*)NULL,(char *)"/");
+                kprintf("\n removing directory '%s' ...",thisname);
+                struct m_inode rminode;iget(&rminode,get_dir((char*)basename));
+                if(rminode.i_size>2*sizeof(struct dir_entry)){
+                    kprintf("\n rmdir: failed to remove '%s': Directory not empty",basename);
+                }else{/* only . and .. */
+                     rmdir(basename,DIR_FILE);
+                }            
+            }
     }
     iget(current->pwd,before_ino);
     return;

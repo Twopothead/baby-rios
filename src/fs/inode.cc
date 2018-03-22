@@ -1,6 +1,7 @@
 #include <rios/inode.h>
 /*iget: disk =>memory*/
-struct m_inode * iget(struct m_inode * inode, int nr){
+struct m_inode * iget(struct m_inode * inode, int nr)
+{
 /*inode nr counts from 0*/	
 	u8 sector[512] = {0};int NR_inode_blk_start = NR_INODE_BLK(rios_superblock);
 	int m = nr*sizeof(struct d_inode)/512;

@@ -2,7 +2,8 @@
 extern struct m_inode iroot;
 extern struct task_struct * current;
 /* 'mkdir' is stupid ,it will create directory under current directory */
-void mkdir(const char *name,u8 mode){
+void mkdir(const char *name,u8 mode)
+{
 	struct m_inode newinode;
 	newinode.i_ino =  new_inode();			/* allocate inode number */
 	newinode.i_zone[0] = (u16)new_block();		/* allocate block number */
@@ -45,7 +46,8 @@ void mkdir(const char *name,u8 mode){
 }
 
 /* 'get_dir' is also stupid. it gets dir by name(not full pathname) under current directory*/
-int get_dir(char * partname){
+int get_dir(char * partname)
+{
 /* before we haven't update pwd here,than pwd is not sync with contents on disk*/	
 	int dir_total = current->pwd->i_size/(sizeof(struct dir_entry));
 	struct dir_entry * de = (struct dir_entry *)NULL;u8 sector[512]={0};
@@ -58,7 +60,8 @@ int get_dir(char * partname){
 	return -1;
 }
 
-char * get_dir_name(u32 inode){
+char * get_dir_name(u32 inode)
+{
 	int dir_total = current->pwd->i_size/(sizeof(struct dir_entry));
 	struct dir_entry * de = (struct dir_entry *)NULL;u8 sector[512]={0};
 	IDE_read_sector((void *)&sector, DATA_BLK_NR_TO_SECTOR_NR(current->pwd->i_zone[0]));	
