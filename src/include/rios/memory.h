@@ -41,7 +41,7 @@ int getmemorysize_MB();
  */
 #define kfree(My_p) Ri_free((void *)My_p,sizeof(My_p)),My_p=NULL
 #define kmalloc(sizeof_Mytype) (void *)Ri_malloc(sizeof_Mytype)
-
+#define kfree_size(My_p,size) Ri_free((void *)My_p,size),My_p=NULL
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

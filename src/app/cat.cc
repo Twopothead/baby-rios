@@ -1,4 +1,5 @@
 #include <rios/app/iapp.h>
+#include <rios/memory.h>
 extern struct m_inode iroot;
 extern struct task_struct * current;
 void cat_service(char* cmd_buffer,int cmd_buffer_index){
@@ -32,5 +33,11 @@ void cat_service(char* cmd_buffer,int cmd_buffer_index){
 /* 'cat' is stupid ,it will print contents of a new file under current directory */
 void cat(const char *name,u8 mode)
 {
-	kprintf("\nhello");
+	// int cat_fd = open(name);
+
+	// cat_contents_len = 
+	// char *cat_contents = (char *)kmalloc(cat_contents_len);
+	// read(int fd, void *buffer, int length);
+	// kfree_size(cat_contents,cat_contents_len);
+	// kprintf("\nhello");
 }

@@ -13,31 +13,6 @@ int get_active_inode_table_nr(){
 	}
 }
 
-/* 'open' returns with a valid file descriptor */
-// int open(const char *name,int flag,u8 mode)
-// {
-// /* search the file table */
-// 	int fd,i;
-// /* find a blank entry in process's file descriptor table */	
-// 	for(fd=0 ; fd <NR_OPEN ; fd++ ){
-// 		if(!current->filp[fd])
-// 			break;
-// 	}
-// 	if(fd>=NR_OPEN)
-// 		return -1;/* overflow */
-// /* find a blank entry in system file table */		
-// 	int p_ft = file_table;
-// 	for(i=0;i<NR_FILE;i++.p_ft++){
-// 		if(!p_ft->f_count) break;
-// 	}
-// 	if(i>=NR_FILE)
-// 		return -1;
-
-
-// 	return fd;
-
-// }
-
 /* 'simple_creat' is simple, it create a new file under current working directory. */
 int simple_creat(const char *name,u8 mode)
 {
@@ -149,8 +124,9 @@ int write(int fd, void *buffer, int length){
 	file * p_ft =current->filp[fd];
 	u8 sector[512]={0};
 	memcpy(sector,buffer,512);
+	int total_sectors = (length+511)/512;
 	IDE_write_sector((void *)&sector, DATA_BLK_NR_TO_SECTOR_NR(p_ft->f_inode->i_zone[0]));
-	
+
 }
 
 int close(int fd){
@@ -166,7 +142,17 @@ int close(int fd){
 	// memset(&current->filp[fd],0x00,sizeof(struct *file));
 	return 0;
 }
-
+// void get_(char * name){
+// 	file * p_ft = file_table;
+// 	int i;
+// 	for(i=0;i<NR_FILE;i++,p_ft++){
+// 		if(p_ft->f_inode) break;
+// 	}
+// 	if(i>=NR_FILE){// kprintf("\n fail");
+// 		return -1;
+// 	}
+// 	return i;
+// }
 /* in file system management,there are 3 important tables,
  * they are active inode table, system file table and process's file descriptor table
  * active inode table copy inodes from disk,system file table restore files. struct 'file'

@@ -22,17 +22,17 @@ and here is a comparision of GAS and NASM
 
 ### GDT:
 
-![](gdt.png)
+![](assets/gdt.png)
 
 https://en.wikipedia.org/wiki/Global_Descriptor_Table
 
 
 
-![](wiki_gdt.png)
+![](assets/wiki_gdt.png)
 
 
 
-![](os-dev.png)
+![](assets/os-dev.png)
 
 ##### Here are some materials about GDT from 《Writing a Simple Operating System —from Scratch》by Nick Blundell.
 
@@ -83,7 +83,7 @@ techniques, since the CPU sets the bit when it accesses the segment
 
 https://www.gitbook.com/book/chyyuu/simple_os_book/details  《simple_os_book》P92  
 
-![](interrupt_trap_gate.png)
+![](assets/interrupt_trap_gate.png)
 
 Gate Descriptors　＝> 
 

@@ -18,6 +18,7 @@ struct active_inode_table{
 int simple_creat(const char *name,u8 mode);
 int write(int fd, void *buffer, int length);
 int read(int fd, void *buffer, int length);
+int open(const char *name);
 
 #ifdef __cplusplus
 }

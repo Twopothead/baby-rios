@@ -40,7 +40,7 @@ void init_gdt();
 extern void update_idt();
 
 #pragma pack(1)
-struct GATE_DESCRPTER{
+struct GATE_DESCRPTOR{
 	u16 offset_lowerbits		:16; // offset bits 0..15
 	u16 selector			:16; // a code segment selector in GDT or LDT
 	u8  zero			:8 ; // unused,set to 0
@@ -53,10 +53,10 @@ struct GATE_DESCRPTER{
 	u16	offset_higherbits	:16; // offset bits 16..31	
 };
 #pragma pack()
-void set_interrupt_gate(struct GATE_DESCRPTER *descr, u16 index ,u32 offset, u8 dpl);
-void set_trap_gate(struct GATE_DESCRPTER *descr,u16 index,u32 offset,u8 dpl);
+void set_interrupt_gate(struct GATE_DESCRPTOR *descr, u16 index ,u32 offset, u8 dpl);
+void set_trap_gate(struct GATE_DESCRPTOR *descr,u16 index,u32 offset,u8 dpl);
 
-static inline void _lidt(struct GATE_DESCRPTER *p,u16 size){
+static inline void _lidt(struct GATE_DESCRPTOR *p,u16 size){
 	volatile u16 data_48b[3];
 	data_48b[0] = size - 1;/* 256-1=255 0xff 16bits*/
 	data_48b[1] = (u32)p;

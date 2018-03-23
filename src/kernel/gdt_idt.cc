@@ -42,7 +42,7 @@ struct IDT_pointer
 	u32 base;
 } __attribute__((packed));
 
-struct GATE_DESCRPTER idt_descr[MAX_IDT];
+struct GATE_DESCRPTOR idt_descr[MAX_IDT];
 struct IDT_pointer idt_pointer;
 
 
@@ -76,7 +76,7 @@ void init_gdt()
 
 /*IDT*/
 
-void set_interrupt_gate(struct GATE_DESCRPTER *descr, u16 index ,u32 offset, u8 dpl)
+void set_interrupt_gate(struct GATE_DESCRPTOR *descr, u16 index ,u32 offset, u8 dpl)
 {
 	descr->offset_lowerbits = offset & 0xffff;
 	descr->selector = index << 3; 	/*the lower 3 bits is TI(2) and RPI(0,1)*/
@@ -88,7 +88,7 @@ void set_interrupt_gate(struct GATE_DESCRPTER *descr, u16 index ,u32 offset, u8 
 	descr->offset_higherbits = (offset & 0xffff0000) >> 16;
 }
 
-void set_trap_gate(struct GATE_DESCRPTER *descr,u16 index,u32 offset,u8 dpl)
+void set_trap_gate(struct GATE_DESCRPTOR *descr,u16 index,u32 offset,u8 dpl)
 {
 	descr->offset_lowerbits = offset & 0xffff;
 	descr->selector = index << 3;	/*the lower 3 bits is TI(2) and RPI(0,1)*/
@@ -124,7 +124,7 @@ void init_idt()
 	set_interrupt_gate(idt_descr+0x20,INDEX_KERNEL_CODE,\
 		(u32)timer_8253_handler,RING0);/*irq0 timer*/
 /*ok,we have set 8253 interrupt gate,but have not enabled it*/	
-	idt_pointer.limit = (sizeof (struct GATE_DESCRPTER) * 256 ) - 1;
+	idt_pointer.limit = (sizeof (struct GATE_DESCRPTOR) * 256 ) - 1;
 	idt_pointer.base = (unsigned long)&idt_descr ;
 
 	disable_all_interrupts();/*mask all interrupts*/

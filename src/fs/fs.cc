@@ -38,8 +38,9 @@ void setup_fs(){
 		int contents_fd = simple_creat("contents.txt",NORMAL_FILE);
 /* 'create' will do the 'open' job, so we do not need to 'open' */
 		#include <rios/contents.txt>
+		int contents_len = strlen(file_contents);
 	        write(contents_fd, (void *)file_contents, 512);	
-	        char *contents = (char *)kmalloc(512);
+	        char *contents = (char *)kmalloc(contents_len);
 	        read(contents_fd, (void *)contents, 512);	
 	        kprintf("\n%s",contents);
 	}

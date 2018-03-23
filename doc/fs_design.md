@@ -18,13 +18,13 @@
 - 组号写代码时从０开始编号，０到１２７
 
 开始的几组
-![](grouping_1.png)
+![](assets/grouping_1.png)
 末尾的几组
-![](grouping_2.png)
+![](assets/grouping_2.png)
 
 注意，最后一组空闲块要少一个
 
-![](grouping.png)
+![](assets/grouping.png)
 
 ### 目录
 
