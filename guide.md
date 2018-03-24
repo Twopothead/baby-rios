@@ -189,3 +189,5 @@ s = chown(name, owner, group);
 oldmask  = umask(complmode);  
 ```
 
+markdown => docx
+pandoc -f markdown -t html ./test.md | pandoc -f html -t docx -o output.docx
