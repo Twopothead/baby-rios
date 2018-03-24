@@ -22,11 +22,11 @@ void init_free_space_grouping()
 
 		}else{
 			g_head.s_free = BLKS_PER_GROUP-1;//63
-			g_head.s_free_blk_nr[0] = 0;/* next group doesn't exist */
 			int tmp =BLKS_PER_GROUP*i;
 			for(int j = 0; j <= g_head.s_free; j ++){
 				g_head.s_free_blk_nr[j] = tmp--;  
 			}
+			g_head.s_free_blk_nr[0] = 0;/* next group doesn't exist */
 		}
 /*in rios, a data block contains 2 sectors,this the first*/		
 		u8 * p1 = (u8 *)&g_head ;IDE_write_sector((void *)p1,sector_num );
@@ -97,7 +97,7 @@ next_group:
 	for(i=g_head.s_free;i>1;i--){
 		int index = i-1;
 		nr_blk = g_head.s_free_blk_nr[index];
-		if(index==g_head.s_free-1||index==g_head.s_free-2||index==3||index==2||index==1){
+		if(index==g_head.s_free-1||index==g_head.s_free-2||index==3||index==2||index==1||index==0){
 			kprintf(" [%d]%d ",index,g_head.s_free_blk_nr[index]);
 			if(index==g_head.s_free-2)kprintf("...");
 		}
@@ -118,26 +118,26 @@ next_group:
  */
 void visit_all_free_blks()
 {/* free space management : grouping */
-// /* this function prints all free block group's contrl info */	
-// 	union Super_Block_Sect *sb = get_super();
-// 	union free_space_grouping_head g_head;
-// 	int nr_group = 1;int nr_blk = 1;
-// /* nr_group counts from 1 ,nr_blk counts from 1*/	
-// 	for(int i = 1; i <= 10; i++, nr_group++)
-// 	{
+/* this function prints all free block group's contrl info */	
+	union Super_Block_Sect *sb = get_super();
+	union free_space_grouping_head g_head;
+	int nr_group = 1;int nr_blk = 1;
+/* nr_group counts from 1 ,nr_blk counts from 1*/	
+	for(int i = 1; i <= 128; i++, nr_group++)
+	{
 		
-// 		int sector_num = DATA_BLK_NR_TO_SECTOR_NR(nr_blk);
-// 		nr_blk += BLKS_PER_GROUP;
-// /*in rios, a data block contains 2 sectors,this the first*/		
-// 		u8 * p1 = (u8 *)&g_head ;
-// 		IDE_read_sector((void *)p1,sector_num);
-// /*then the second.*/
-// 		u8 * p2 = (u8 *)&g_head + 512;
-// 		IDE_read_sector((void *)p2,sector_num+1);
-// /*!attention here, p and sect are pointers,we SHOULD NOT use (void*)p , but should use (void *)p */		
-// 		kprintf("\n%d:",nr_group);
-// 		kprintf(" group[ ] s_free:%d [0]%d [1]%d [2]%d ...[%d]%d ", g_head.s_free, \
-// 			g_head.s_free_blk_nr[0],g_head.s_free_blk_nr[1],g_head.s_free_blk_nr[2],\
-// 			g_head.s_free-1,g_head.s_free_blk_nr[g_head.s_free-1]);
-// 	}
+		int sector_num = DATA_BLK_NR_TO_SECTOR_NR(nr_blk);
+		nr_blk += BLKS_PER_GROUP;
+/*in rios, a data block contains 2 sectors,this the first*/		
+		u8 * p1 = (u8 *)&g_head ;
+		IDE_read_sector((void *)p1,sector_num);
+/*then the second.*/
+		u8 * p2 = (u8 *)&g_head + 512;
+		IDE_read_sector((void *)p2,sector_num+1);
+/*!attention here, p and sect are pointers,we SHOULD NOT use (void*)p , but should use (void *)p */		
+		kprintf("\n%d:",nr_group);
+		kprintf(" group[ ] s_free:%d [0]%d [1]%d [2]%d ...[%d]%d ", g_head.s_free, \
+			g_head.s_free_blk_nr[0],g_head.s_free_blk_nr[1],g_head.s_free_blk_nr[2],\
+			g_head.s_free-1,g_head.s_free_blk_nr[g_head.s_free-1]);
+	}
 }

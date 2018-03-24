@@ -57,7 +57,8 @@ void RiOS_main(void)
 	init_fs();
 /*_syscall(_SYS_TESTHD,0,0,0);*/
 	
-/*free_blk_traverse();*/
+// free_blk_traverse();
+// visit_all_free_blks();
 	clear_cmd_buffer();
 
 	while(1);
