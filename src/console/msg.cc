@@ -83,6 +83,7 @@ These shell commands are defined internally.  Type `help' to see this list.\n\
  - cd    :: change directory. eg.cd .. , cd dir1  .\n\
  - info  :: 'info superblock','info grouping','info debug',\n\
          'info disk'\n\
+ - cat   :: concatenate files and print on the standard output\n\        
  - pwd   :: print current working directory.\n\        
  - logo  :: print NJAU logo.");
 }

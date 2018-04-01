@@ -32,7 +32,7 @@ void init_free_space_grouping()
 		u8 * p1 = (u8 *)&g_head ;IDE_write_sector((void *)p1,sector_num );
 /*then the second.*/
 		u8 * p2 = (u8 *)&g_head + 512;IDE_write_sector((void *)p2,sector_num +1);
-/*!attention here, p and sect are pointers,we SHOULD NOT use (void*)p , but should use (void *)p */		
+/*!attention here, p and sect are pointers */		
 	}
 	set_specific_blk_nr(1);/*set group [1] as the specific block*/
 }

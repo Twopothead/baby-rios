@@ -3,7 +3,7 @@
 #include <rios/file.h>
 extern struct m_inode iroot;
 extern struct task_struct * current;
-void cat_service(char* cmd_buffer,int cmd_buffer_index){
+void rm_service(char* cmd_buffer,int cmd_buffer_index){
 	 char tmp[80*25];char name[50];
 	    strcpy(tmp,cmd_buffer); 
 	    // struct m_inode * saved_pwd = current->pwd;
@@ -31,8 +31,8 @@ void cat_service(char* cmd_buffer,int cmd_buffer_index){
 	    iget(current->pwd,before_ino);
 }
 
-/* 'cat' is stupid ,it will print contents of a new file under current directory */
-void cat(const char *name,u8 mode)
+/* 'rm' is stupid ,it will remove the file under current directory */
+void rm(const char *name,u8 mode)
 {
 	int fd = open(name);if(fd==-1)return;
 	int contents_len = current->filp[fd]->f_inode->i_size;

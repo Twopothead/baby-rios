@@ -39,9 +39,9 @@ int getmemorysize_MB();
  * Ri_free((void *)p,sizeof(p)),p=NULL;
  * p=(QueuePtr)Ri_malloc(sizeof(QNode));
  */
-#define kfree(My_p) Ri_free((void *)My_p,sizeof(My_p)),My_p=NULL
+#define kfree(My_p) 		Ri_free((void *)My_p,sizeof(My_p)),My_p = NULL
 #define kmalloc(sizeof_Mytype) (void *)Ri_malloc(sizeof_Mytype)
-#define kfree_size(My_p,size) Ri_free((void *)My_p,size),My_p=NULL
+#define kfree_size(My_p,size) Ri_free((void *)My_p,size)
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

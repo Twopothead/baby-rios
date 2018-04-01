@@ -25,7 +25,7 @@ spin:
 
 section .bss 
 stack_bottom:
-resb 163840 ;reserve 160KB for stack 
+resb 16384000 ;reserve 16000KB for stack 
 stack_top:
 
 ; for ascii, $ man ascii

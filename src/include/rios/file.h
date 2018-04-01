@@ -15,11 +15,13 @@ extern struct task_struct * current;	/* 'current' contains  user-wide file table
 struct active_inode_table{
 	struct m_inode inode_table[MAX_ACTIVE_INODE];
 };
+int search_file_table(char * name);
 int simple_creat(const char *name,u8 mode);
 int write(int fd, void *buffer, int length);
 int read(int fd, void *buffer, int length);
 int open(const char *name);
-
+int close(int fd);
+int get_zone_blks(int sectors);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

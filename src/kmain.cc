@@ -30,7 +30,6 @@ extern union Super_Block_Sect rios_superblock;
 extern struct m_inode iroot;
 struct task_struct _task;/* we haven't fully implement it */ 
 struct task_struct * current = &_task;
-
 void RiOS_main(void)
 {
 	__asm__ __volatile__(
@@ -60,6 +59,13 @@ void RiOS_main(void)
 // free_blk_traverse();
 // visit_all_free_blks();
 	clear_cmd_buffer();
+	// #include <rios/contents.txt>
+	// for(int i=0;i<100;i++)
+	// 	kprintf("%s,%d",file_contents,i);
+
+	// #include <rios/Jane_Eyre.txt>
+	// 	kprintf("%s",Jane_Eyre);
+
 
 	while(1);
 }

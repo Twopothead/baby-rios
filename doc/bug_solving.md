@@ -121,3 +121,16 @@ extern "C"的意思，是让C++编译器（不是C编译器，而且是编译阶
 原因：把ＧＤＴ的地方覆盖了，引发triple fault
 
 解决方案：先设置好ＧＤＴ再去设置ＩＤＴ
+
+####  bug07描述：
+
+```C++
+/*这里是修改好后的正确写法*/
+u8 two_sectors[1024]={0};
+IDE_read_sector((void *)two_sectors, DATA_BLK_NR_TO_SECTOR_NR(p_ft->f_inode->i_zone[7]));
+/*之前这里错误地写成了,IDE_read_sector((void *)&two_sectors,多了个&造成大错*/
+union free_space_grouping_head g_head;
+u8 * p1 = (u8 *)&g_head ;IDE_write_sector((void *)p1,sector_num );
+```
+
+联合体相当于是个实体,而数组int a[10]中的a就是个指针,若在指针前面再加上取地址符&就成了指针的地址,在联合体前面加取地址符就是指向联合体的指针.我之前错误地在指针前面加了取地址符,导致间接寻址都无效.

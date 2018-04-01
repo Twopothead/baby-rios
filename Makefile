@@ -24,6 +24,7 @@ iso := build/RiOS-$(arch).iso
 kernel :=build/kernel-$(arch).bin
 linker_script := src/linker.ld
 grub_cfg :=src/grub.cfg
+report :=doc/report.md
 
 # c_source :=$(wildcard src/*.c)  
 # Alternatively, c_source =$(shell find src/ -name "*.c")
@@ -51,12 +52,11 @@ objs := asm_obj cc_obj gas_obj
 Harddisk := build/hd.img
 
 
-.PHONY: clean run iso help virtualbox qemu
+.PHONY: clean run iso help virtualbox qemu docx
 
 run : $(iso) $(Harddisk)                                                           
-	@#qemu-system-x86_64 -m 666  $(iso) -monitor stdio 
 	qemu-system-x86_64 -m 666  $(iso) -hdb $(Harddisk)  -monitor stdio 
-	@#qemu-system-x86_64 -m 666  $(iso) -monitor stdio 
+
 	
 
 qemu: $(iso) $(Harddisk)
@@ -95,7 +95,12 @@ build/arch/$(arch)/kernel/gas/%.o :src/kernel/gas/%.S
 
 	
 clean :
-	rm -r build
+	@# rm -r build
+	@if [ ! -d "build" ];then \
+	echo "directory 'build' currently does NOT exist."; \
+	else \
+	rm -r build; \
+	fi
 
 help :
 	@echo "Usage: make [OPTION...]"
@@ -110,6 +115,13 @@ virtualbox: $(iso)
 	@echo "	THEN set CDROM with build/RiOS-i386.iso."
 	@echo "	DONNOT forget to allocate enough HD space in your VM!"
 	virtualbox --startvm 'RiOS'
+
+docx: $(report)
+	@cd doc ; pandoc -f markdown -t html report.md | pandoc -f html -t docx -o report.docx ; cd -
+	@echo "generating doc/report.docx from doc/report.md."
+# 'make doc': confirm that you have correctly installed pandoc,if not 
+# please  '$ sudo apt-get install pandoc ' first. 
+
 
 
 # 1.wildcard :扩展通配符

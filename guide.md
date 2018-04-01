@@ -78,7 +78,9 @@ $ make run
 $ make clean 
 ## remove build files
 ```
-
+- make clean & make run
+- make run
+  
 ------------------------------
 
 ### about Programmable Interrupt Timer(8253/8254)
@@ -191,3 +193,4 @@ oldmask  = umask(complmode);
 
 markdown => docx
 pandoc -f markdown -t html ./test.md | pandoc -f html -t docx -o output.docx
+

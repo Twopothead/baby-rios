@@ -1,7 +1,7 @@
 #include <rios/fs.h>
 #include <rios/app/iapp.h>
 #include <rios/file.h>
-#include <rios/memory.h>
+
 extern struct m_inode iroot;
 extern struct task_struct * current;
 void get_file_attrib(m_inode *fd)
@@ -38,20 +38,28 @@ void setup_fs(){
 		int contents_fd = simple_creat("contents.txt",NORMAL_FILE);
 /* 'create' will do the 'open' job, so we do not need to 'open' */
 		#include <rios/contents.txt>
-		int contents_len = strlen(file_contents);
-	        write(contents_fd, (void *)file_contents, 512);	
-	        char *contents = (char *)kmalloc(contents_len);
-	        read(contents_fd, (void *)contents, 512);	
+		// kprintf("fd%d",contents_fd);
+		// int contents_len = strlen(file_contents);
+	 //        write(contents_fd, (void *)file_contents, contents_len);	
+	 //        char *contents = (char *)kmalloc(contents_len+512);
+	 //        read(contents_fd, (void *)contents, contents_len);
+	 //        kprintf("\n%s",contents);
+	 //        Ri_free(contents,contents_len+512),contents=(char*)NULL;
+	 //        close(contents_fd);
+
+		#include <rios/Jane_Eyre.txt>
+		kprintf("fd%d",contents_fd);
+		int contents_len = strlen(Jane_Eyre);
+		//contents_len = 511400;
+		contents_len =1020*512;
+		kprintf("\n%d",contents_len);
+	        write(contents_fd, (void *)Jane_Eyre, contents_len);	
+	        char *contents = (char *)kmalloc(contents_len+512);
+	        read(contents_fd, (void *)contents, contents_len);
 	        kprintf("\n%s",contents);
+	        Ri_free(contents,contents_len+512),contents=(char*)NULL;
+	        close(contents_fd);
 	}
 }
 
 
-int open(char * filenamep,u8 mode){
-
-}
-int close(unsigned int fd){
-	struct file *filp;
-
-
-}
