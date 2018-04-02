@@ -12,6 +12,8 @@ void get_file_attrib(m_inode *fd)
 		print(" dir file.");
 }
 
+extern struct file file_table[NR_FILE];
+// extern struct active_inode_table_nr active_inode_table;
 void init_fs()
 {
 	current -> root = & iroot;
@@ -35,30 +37,35 @@ void setup_fs(){
 		_silent_mkdir("mkdir /etc"),_silent_cd("cd /etc");_silent_mkdir("mkdir /getty"),_silent_mkdir("mkdir /passwd");
 		_silent_cd("cd ..");
 /* Then create file write to file*/	
-		int contents_fd = simple_creat("contents.txt",NORMAL_FILE);
+		int contents_fd = simple_creat("jane.txt",NORMAL_FILE);
+		int hamlet_fd = simple_creat("hamlet.txt",NORMAL_FILE);
 /* 'create' will do the 'open' job, so we do not need to 'open' */
-		#include <rios/contents.txt>
-		// kprintf("fd%d",contents_fd);
-		// int contents_len = strlen(file_contents);
-	 //        write(contents_fd, (void *)file_contents, contents_len);	
-	 //        char *contents = (char *)kmalloc(contents_len+512);
-	 //        read(contents_fd, (void *)contents, contents_len);
-	 //        kprintf("\n%s",contents);
-	 //        Ri_free(contents,contents_len+512),contents=(char*)NULL;
-	 //        close(contents_fd);
+		#include <rios/hamlet.txt>
+		
+		// // kprintf("fd%d",contents_fd);
+		int hamlet_len = strlen(hamlet);
+	        write(hamlet_fd, (void *)hamlet, hamlet_len);	
+	        char *hamlet_buf = (char *)kmalloc(hamlet_len+512);
+	        read(hamlet_fd, (void *)hamlet_buf,hamlet_len);
+	        // kprintf("\n%s",hamlet_buf);
+	        Ri_free(hamlet_buf,hamlet_len+512),hamlet_buf=(char*)NULL;
+	        // close(hamlet_fd);
 
 		#include <rios/Jane_Eyre.txt>
 		kprintf("fd%d",contents_fd);
 		int contents_len = strlen(Jane_Eyre);
 		//contents_len = 511400;
-		contents_len =1020*512;
+		//contents_len =1020*512;
+		contents_len =20*512;
 		kprintf("\n%d",contents_len);
+
 	        write(contents_fd, (void *)Jane_Eyre, contents_len);	
 	        char *contents = (char *)kmalloc(contents_len+512);
 	        read(contents_fd, (void *)contents, contents_len);
-	        kprintf("\n%s",contents);
+	  // kprintf("\n%s",contents);
+	        // kprintf("ino  %d",current->filp[contents_fd]->f_inode->i_ino); _panic("fuck");
 	        Ri_free(contents,contents_len+512),contents=(char*)NULL;
-	        close(contents_fd);
+	        // close(contents_fd);
 	}
 }
 

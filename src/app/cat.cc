@@ -37,12 +37,17 @@ void cat(const char *name,u8 mode)
 	int fd = open(name);if(fd==-1)return;
 	int contents_len = current->filp[fd]->f_inode->i_size;
 	if( current->filp[fd]->f_inode->i_size==0){
+		kprintf("fd:%d,%d",fd,current->filp[fd]->f_inode->i_zone[0]);
 		kprintf("\n cat: '%s': not a valid file.",name);
 		return;
 	}
+	int tmp =current->filp[fd]->f_inode->i_ino;
+	kprintf("i_ino:%d",tmp);
 	char * cat_contents = (char *)kmalloc(contents_len+512);
 	read(fd, (void *)cat_contents, contents_len);
 	kprintf("\n%s",cat_contents);
 	Ri_free(cat_contents,contents_len+512),cat_contents=(char*)NULL;
+
+	kprintf("fd:%d,%d",fd,current->filp[fd]->f_inode->i_zone[0]);
 	return;
 }

@@ -7,10 +7,9 @@ int get_active_inode_table_nr(){
 		if(active_inode_table.inode_table[i].i_size == 0){
 /* ok, we can insert our record here. */			
 			return i;
-		}else {
-			return -1;
 		}
 	}
+	return -1;
 }
 
 /* 'simple_creat' is simple, it create a new file under current working directory. */
@@ -66,33 +65,46 @@ int simple_creat(const char *name,u8 mode)
 /*ok, update current directory file's filesize, because we add a record.*/	
 	current->pwd->i_size += 1 * sizeof(struct dir_entry);	/* add a new file, a new dir entry*/
 	iput(current->pwd,current->pwd->i_ino);
+current->filp[fd]->f_inode->i_size = 100;
+	iput(current->filp[fd]->f_inode, current->filp[fd]->f_inode->i_ino);
 	return fd;
 }
 
 /* open is stupid, it will open a file under current directory,
  * and return with a valid file descriptor.
  */
+/* when the file table hasn't been initialized, it's filled with zero,
+ * to avoid ambiguity, I decided that our fd counts from 1.																																																																			
+ */
 int open(const char *name){
 	int fd,i;
 	int ino = get_dir((char *)name);
+	if(ino==0){
+		kprintf(" open:failed, ino cannot be zero.");
+		return -1;
+	}
 	if(ino==-1){
 		kprintf("\n open: '%s':no such file or directory.",name);
 		return -1;
 	}
 /* search the active inode table, if it's not in this table,just copy.*/	
 	for(i=0;i<MAX_ACTIVE_INODE;i++){
-		if(active_inode_table.inode_table[i].i_ino != ino)
+		if(active_inode_table.inode_table[i].i_ino == ino)
 			break;
 	}
 	int active_inode_table_nr=get_active_inode_table_nr();
 	if(i>=MAX_ACTIVE_INODE){/*no record found,need to copy. */
+		if(active_inode_table_nr>MAX_ACTIVE_INODE)_panic("FBI_WARNING:CAN NOT open more than 64 files at the same time!");
 		iget(&active_inode_table.inode_table[active_inode_table_nr],ino);
+
 	}else{/* it has been opened before, no nead to copy */
 	      /* here,we get i */
+		kprintf("lajiiiiiiiiiiiiiiiiiiii,%d",current->filp[fd]->f_inode->i_size);
 		return i;
 	}
 /* find a blank entry in process's file descriptor table */	
 	for(fd=0 ; fd <NR_OPEN ; fd++ ){
+
 		if(!current->filp[fd])
 			break;
 	}
@@ -111,6 +123,8 @@ int open(const char *name){
 	int valid_file_table_nr = j;
 /* ok, let filp[fd] points to a entry in file table,and let f_count+=1 */
 (current->filp[fd]=p_ft)->f_count++;
+/* NOTICE! here we should let filp[fd]->f_inode point to an entry in active_inode_table*/
+current->filp[fd]->f_inode = &active_inode_table.inode_table[active_inode_table_nr];
 	return fd;
 }
 
@@ -263,6 +277,7 @@ int write(int fd, void *buffer, int length){
 			}
 		}
 	}
+/* last but not least ,we should update  active_inode_table in memory */	
 
 
 
