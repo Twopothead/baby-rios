@@ -41,8 +41,6 @@ void setup_fs(){
 		int hamlet_fd = simple_creat("hamlet.txt",NORMAL_FILE);
 /* 'create' will do the 'open' job, so we do not need to 'open' */
 		#include <rios/hamlet.txt>
-		
-		// // kprintf("fd%d",contents_fd);
 		int hamlet_len = strlen(hamlet);
 	        write(hamlet_fd, (void *)hamlet, hamlet_len);	
 	        char *hamlet_buf = (char *)kmalloc(hamlet_len+512);
@@ -55,15 +53,12 @@ void setup_fs(){
 		kprintf("fd%d",contents_fd);
 		int contents_len = strlen(Jane_Eyre);
 		//contents_len = 511400;
-		//contents_len =1020*512;
-		contents_len =20*512;
-		kprintf("\n%d",contents_len);
-
+		contents_len =1020*512;
+// contents_len =20*512;/*目前尚不能支持超大文件*/
+kprintf("\n%d",contents_len);/*目前尚不能支持超大文件*/
 	        write(contents_fd, (void *)Jane_Eyre, contents_len);	
 	        char *contents = (char *)kmalloc(contents_len+512);
 	        read(contents_fd, (void *)contents, contents_len);
-	  // kprintf("\n%s",contents);
-	        // kprintf("ino  %d",current->filp[contents_fd]->f_inode->i_ino); _panic("fuck");
 	        Ri_free(contents,contents_len+512),contents=(char*)NULL;
 	        close(contents_fd);
 	}

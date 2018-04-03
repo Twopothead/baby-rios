@@ -28,6 +28,8 @@ void silent_cd(char* cmd_buffer,int cmd_buffer_index);
 void touch_service(char* cmd_buffer,int cmd_buffer_index);
 void cat_service(char* cmd_buffer,int cmd_buffer_index);
 void cat(const char *name,u8 mode);
+void slow_cat(const char *name,u8 mode);
+void slow_cat_service(char* cmd_buffer,int cmd_buffer_index);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

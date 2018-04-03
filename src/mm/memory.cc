@@ -135,7 +135,7 @@ void* mem_record_alloc(Mem_table *Mtable,unsigned int psize)
                                 return getp;
                         }
                 }
-                print("run out of memory!!!");/*以后要注释掉*/
+                _panic(" FBI WARNING:run out of memory!!!");
                 return 0;/*run out of memory*/
 }
 

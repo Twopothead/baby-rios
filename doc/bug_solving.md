@@ -135,6 +135,30 @@ u8 * p1 = (u8 *)&g_head ;IDE_write_sector((void *)p1,sector_num );
 
 联合体相当于是个实体,而数组int a[10]中的a就是个指针,若在指针前面再加上取地址符&就成了指针的地址,在联合体前面加取地址符就是指向联合体的指针.我之前错误地在指针前面加了取地址符,导致间接寻址都无效.
 
+![](assets/bug07.png)
+
+特地写了一个简单的程序来验证一下加深印象
+
+```C++
+#include <stdio.h>
+int main()
+{
+	int a[100]={0};
+	for(int i=0;i<100;i++)a[i]=i;
+	int *p=(int *)&a;
+	int *q=(int *)&a;
+	printf("X  &p:%d,&q:%d\n",(int)&p,(int)&q);
+	printf("OK p:%d,q:%d\n",(int)p,(int)q);
+	printf("p[13]%d,q[13]:%d\n",p[13],q[13]);
+
+	int *pointer =(int *)&a;/*指针指向数组的方法*/
+	printf("pointer[13]:%d\n",pointer[13]);
+	return 0;
+}
+```
+
+
+
 #### bug08描述
 write函数里面不光要更新硬盘上的数据,还要把内存中活动inode表也同步更新,之前由于这个导致文件虽然已经写入磁盘,但通过文件描述符来读取的时候文件大小始终为0
 
@@ -158,3 +182,16 @@ for(j=0;j<MAX_ACTIVE_INODE;j++)
 	memset(&active_inode_table.inode_table[j],0x00,sizeof(m_inode));
 ```
 这样在close时也把活动inode清理,这就不会出差错了
+
+#### bug11描述
+i_size当时设的值太小了,当时没有考虑到后来文件变得很大的时候
+
+![](assets/bug11.png)
+
+当时开始设的文件大小i_size类型是u8,也就是8位二进制数,但可以看到我的jane.txt内容相当多,是简爱一本书的内容,大小有1089343,用十六进制表示是0x109f3f,明显8位二进制数早已不能表示它,发生溢出.当我的文件大小没有超过8位时,cat jane.txt和cat hamlet.txt都能正常工作,但是此时文件大小比较大,i_size这一项错误了,导致显示jane.txt时错误地显示了hamlet.txt的内容.故需要修改i_size类型,使其为32位,同时,我的inode大小是固定好的,还要调整其他项,使inode大小不发生改变
+
+这只是其中原因之一,之二是我还没有支持二级间地址访问,所以一个文件最大容量受限,容纳几kB还行,但尚不能容纳几MB大小的单个文件.
+
+#### bug12描述
+这是个非常简单的错误,但找起来却不轻松我本要一个数除以(80*25),结果错误地写成int times = len/80 * 25;
+这样实际上变成了(len/80)*25,导致错误.应该写成int times = len/(80*25);

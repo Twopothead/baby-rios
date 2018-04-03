@@ -65,7 +65,7 @@ int simple_creat(const char *name,u8 mode)
 /*ok, update current directory file's filesize, because we add a record.*/	
 	current->pwd->i_size += 1 * sizeof(struct dir_entry);	/* add a new file, a new dir entry*/
 	iput(current->pwd,current->pwd->i_ino);
-current->filp[fd]->f_inode->i_size = 100;
+// current->filp[fd]->f_inode->i_size = 100;
 	iput(current->filp[fd]->f_inode, current->filp[fd]->f_inode->i_ino);
 	return fd;
 }
@@ -99,9 +99,7 @@ int open(const char *name){
 
 	}else{/* it has been opened before, no nead to copy */
 	      /* here,we get i */
-		kprintf("lajiiiiiiiiiiiiiiiii%diii,%d",i,current->filp[fd]->f_inode->i_size);
 		if(current->filp[i]->f_inode->i_ino == ino)return i;
-		kprintf("BBBBBBBBBBBBBBBBBBBBBBBBBB");
 		goto comeon;
 	}
 comeon:	
@@ -140,6 +138,7 @@ int read(int fd, void *buffer, int length){
 	int total_sectors = (length+511)/512;
 	
 	if(total_sectors<=7*SECTOR_PER_BLOCK){
+/* @#0.1 zone[0~6]: direct block 直接寻址,大概7kB*/
 		for(int i=0; i<total_sectors; i++){
 			int blk_i = get_zone_blks(i+1)-1;
 			if(i%2==0){
@@ -150,7 +149,7 @@ int read(int fd, void *buffer, int length){
 			memcpy(buffer+buffer_offset,sector,512);buffer_offset+=512;
 		}
 	}else if(total_sectors<=7*SECTOR_PER_BLOCK+512*SECTOR_PER_BLOCK){
-/* zone[0~6]: direct block 直接寻址,大概7kB*/		
+/* @#1.1 zone[0~6]: direct block 直接寻址,大概7kB*/		
 		for(int i=0; i<7*SECTOR_PER_BLOCK; i++){
 			int blk_i = get_zone_blks(i+1)-1;
 			if(i%2==0){
@@ -160,34 +159,22 @@ int read(int fd, void *buffer, int length){
 			}
 			memcpy(buffer+buffer_offset,sector,512);buffer_offset+=512;
 		}
-/* zone[7]:   single indirect block 一次间址,大概五百kB*/
+/*  #1.2 zone[7]:   single indirect block 一次间址,大概五百kB*/
 		u8 two_sectors[1024]={0};/*load indexs in zone[7] to memory 'two_sectors'*/
 		IDE_read_sector((void *)two_sectors, DATA_BLK_NR_TO_SECTOR_NR(p_ft->f_inode->i_zone[7]));
 		IDE_read_sector((void *)(two_sectors + 512), DATA_BLK_NR_TO_SECTOR_NR(p_ft->f_inode->i_zone[7])+1);
-		u16 * pzone =(u16 *)&two_sectors;
+		u16 * pzone =(u16 *)&two_sectors;/* that's right */
 
-//for(int j=0;j<263;j++){kprintf("%d ",pzone[j]);;}kprintf("dddddd%d",pzone[262]);_panic("kaj");
 		for(int i = 7*SECTOR_PER_BLOCK;i<total_sectors;i++){//[7*2+1,7*2+512*2]
 			memcpy(sector,buffer+512*i,512);
 			int blk_i = get_zone_blks(i+1)-1;
 			u16 zone_index = pzone[blk_i-7];/*zone[0~6]*/
 /* MAKE SURE that zone_index!=0. assert(zone_index!=0)*/			
 			if(zone_index==0) {
-				// zone_index = new_inode();
-				kprintf("\n%d\n%d\n",p_ft->f_inode->i_zone[7],blk_i);
-				kprintf("%d\n%d",blk_i,i);
-				// kprintf("\ntovisit%d\n",p_ft->f_inode->i_zone[7]);
-				// u8 two_sectors[1024]={0};
+				/*kprintf("\n%d\n%d\n",p_ft->f_inode->i_zone[7],blk_i);kprintf("%d\n%d",blk_i,i);*/
 				IDE_read_sector((void *)two_sectors, DATA_BLK_NR_TO_SECTOR_NR(p_ft->f_inode->i_zone[7]));
-				IDE_read_sector((void *)two_sectors, DATA_BLK_NR_TO_SECTOR_NR(p_ft->f_inode->i_zone[7])+1);
-				u16 *ppp=(u16*)&two_sectors;
-				kprintf("");kprintf("%d",ppp[0]);
-				kprintf("\npzone%d,ppp:%d\n",pzone[0],ppp[0]);
-				for(int j=0;j<512;j++)kprintf("%d ",pzone[j]);
-					kprintf("\n");
-				// for(int j=7;j<blk_i-7;j++)kprintf("%d ",pzone[blk_i-7]);
-			_panic("FBI WARNNING:zone_index should not be zero!!!");/* will destory root directory!*/
-			
+				IDE_read_sector((void *)(two_sectors+512), DATA_BLK_NR_TO_SECTOR_NR(p_ft->f_inode->i_zone[7])+1);
+				_panic("FBI WARNNING:zone_index should not be zero!!!");/* will destory root directory!*/			
 			}
 			if(i%2==0){
 					IDE_read_sector((void *)&sector, DATA_BLK_NR_TO_SECTOR_NR(zone_index));
@@ -195,8 +182,66 @@ int read(int fd, void *buffer, int length){
 					IDE_read_sector((void *)&sector, DATA_BLK_NR_TO_SECTOR_NR(zone_index)+1);
 			}
 			memcpy(buffer+buffer_offset,sector,512);buffer_offset+=512;
-
 		}
+	}
+	else if(total_sectors<=7*SECTOR_PER_BLOCK+512*SECTOR_PER_BLOCK+512*512*SECTOR_PER_BLOCK){
+/* @#2.1 zone[0~6]:  direct block 直接寻址,大概7kB*/	
+		for(int i=0; i<7*SECTOR_PER_BLOCK; i++){
+				int blk_i = get_zone_blks(i+1)-1;
+				if(i%2==0){
+					IDE_read_sector((void *)&sector, DATA_BLK_NR_TO_SECTOR_NR(p_ft->f_inode->i_zone[blk_i]));
+				}else{
+					IDE_read_sector((void *)&sector, DATA_BLK_NR_TO_SECTOR_NR(p_ft->f_inode->i_zone[blk_i])+1);	
+				}
+				memcpy(buffer+buffer_offset,sector,512);buffer_offset+=512;
+		}
+/*  #2.2 zone[7]  :  single indirect block 一次间址,大概五百kB*/
+		u8 two_sectors[1024]={0};/*load indexs in zone[7] to memory 'two_sectors'*/
+		IDE_read_sector((void *)two_sectors, DATA_BLK_NR_TO_SECTOR_NR(p_ft->f_inode->i_zone[7]));
+		IDE_read_sector((void *)(two_sectors + 512), DATA_BLK_NR_TO_SECTOR_NR(p_ft->f_inode->i_zone[7])+1);
+		u16 * pzone =(u16 *)&two_sectors;/* that's right */
+
+		for(int i = 7*SECTOR_PER_BLOCK;i<7*SECTOR_PER_BLOCK+512*SECTOR_PER_BLOCK;i++){//[7*2+1,7*2+512*2]
+			memcpy(sector,buffer+512*i,512);
+			int blk_i = get_zone_blks(i+1)-1;
+			u16 zone_index = pzone[blk_i-7];/*zone[0~6]*/
+/* MAKE SURE that zone_index!=0. assert(zone_index!=0)*/			
+			if(zone_index==0) {
+				IDE_read_sector((void *)two_sectors, DATA_BLK_NR_TO_SECTOR_NR(p_ft->f_inode->i_zone[7]));
+				IDE_read_sector((void *)(two_sectors+512), DATA_BLK_NR_TO_SECTOR_NR(p_ft->f_inode->i_zone[7])+1);
+				_panic("FBI WARNNING:zone_index should not be zero!!!");/* will destory root directory!*/			
+			}
+			if(i%2==0){
+					IDE_read_sector((void *)&sector, DATA_BLK_NR_TO_SECTOR_NR(zone_index));
+			}else{
+					IDE_read_sector((void *)&sector, DATA_BLK_NR_TO_SECTOR_NR(zone_index)+1);
+			}
+			memcpy(buffer+buffer_offset,sector,512);buffer_offset+=512;
+		}
+
+/*  #2.3 zone[8]  :  double indirect block 两次间址,支持大概256MB*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+_panic(" FBI_WARNING:read:your file is TOO LARGE!!!");
+	}
+	else{
+		kprintf("\n file size: %d Bytes.",length);
+		_panic(" FBI_WARNING:read:your file is TOO LARGE!!!");
 	}
 
 
@@ -217,6 +262,7 @@ int write(int fd, void *buffer, int length){
 	iput(p_ft->f_inode,p_ft->f_inode->i_ino); 
 
 	if(total_sectors<=7*SECTOR_PER_BLOCK){ 
+/* @#0.1 zone[0~6]: direct block 直接寻址,大概7kB*/		
 		for(int i=0;i<total_sectors;i++){//[1,7*2]
 				memcpy(sector,buffer+512*i,512);
 				int blk_i = get_zone_blks(i+1)-1;
@@ -232,7 +278,7 @@ int write(int fd, void *buffer, int length){
 				}
 		}
 	}else if(total_sectors<=7*SECTOR_PER_BLOCK+512*SECTOR_PER_BLOCK){/*u16 i_zone[10];*/
-/* zone[0~6]: direct block */		
+/* @#1.1 zone[0~6]: direct block */		
 		for(int i=0;i<7*SECTOR_PER_BLOCK;i++){//[1,7*2]
 				memcpy(sector,buffer+512*i,512);
 				int blk_i = get_zone_blks(i+1)-1;
@@ -247,8 +293,7 @@ int write(int fd, void *buffer, int length){
 					IDE_write_sector((void *)&sector, DATA_BLK_NR_TO_SECTOR_NR(p_ft->f_inode->i_zone[blk_i])+1);
 				}
 		}
-/* zone[7]:   single indirect block*/
-
+/* #1.2 zone[7]:   single indirect block*/
 		if(p_ft->f_inode->i_zone[7]==0){/* allocate newblock for  zone[7] */
 			p_ft->f_inode->i_zone[7] = new_block();
 			iput(p_ft->f_inode,p_ft->f_inode->i_ino); 
@@ -268,12 +313,7 @@ int write(int fd, void *buffer, int length){
 				/* something similar to  'iput'*/
 				IDE_write_sector((void *)two_sectors, DATA_BLK_NR_TO_SECTOR_NR(p_ft->f_inode->i_zone[7]));
 				IDE_write_sector((void *)(two_sectors+512), DATA_BLK_NR_TO_SECTOR_NR(p_ft->f_inode->i_zone[7])+1);
-				// IDE_write_sector((void *)&two_sectors, DATA_BLK_NR_TO_SECTOR_NR(zone_index));
-				// IDE_write_sector((void *)(&two_sectors+512), DATA_BLK_NR_TO_SECTOR_NR(zone_index)+1);
-				//for(int j=0;j<512;j++)kprintf("%d",pzone[j]);
-				// kprintf("sss%d",pzone[0]);
-				kprintf("\nnewbl:%d\nindex%d\n",zone_index,blk_i-7);
-				// _panic("ddd");
+				/*kprintf("\nnewblock:%d,index%d\n",zone_index,blk_i-7);*/
 			}
 			if(i%2==0){
 					IDE_write_sector((void *)&sector, DATA_BLK_NR_TO_SECTOR_NR(zone_index));
@@ -281,6 +321,112 @@ int write(int fd, void *buffer, int length){
 					IDE_write_sector((void *)&sector, DATA_BLK_NR_TO_SECTOR_NR(zone_index)+1);
 			}
 		}
+
+		
+	}else if(total_sectors<=7*SECTOR_PER_BLOCK+512*SECTOR_PER_BLOCK+512*512*SECTOR_PER_BLOCK){
+/* @#2.1 zone[0~6]:  direct block 直接寻址,大概7kB*/
+		for(int i=0;i<7*SECTOR_PER_BLOCK;i++){//[1,7*2]
+				memcpy(sector,buffer+512*i,512);
+				int blk_i = get_zone_blks(i+1)-1;
+				if(p_ft->f_inode->i_zone[blk_i]==0){
+		/* allocate new data block when writing */		
+					p_ft->f_inode->i_zone[blk_i] = new_block();
+					iput(p_ft->f_inode,p_ft->f_inode->i_ino); 	
+				}
+				if(i%2==0){
+					IDE_write_sector((void *)&sector, DATA_BLK_NR_TO_SECTOR_NR(p_ft->f_inode->i_zone[blk_i]));
+				}else{
+					IDE_write_sector((void *)&sector, DATA_BLK_NR_TO_SECTOR_NR(p_ft->f_inode->i_zone[blk_i])+1);
+				}
+		}	
+/*  #2.2 zone[7]  :  single indirect block 一次间址,大概五百kB*/
+		if(p_ft->f_inode->i_zone[7]==0){/* allocate newblock for  zone[7] */
+			p_ft->f_inode->i_zone[7] = new_block();
+			iput(p_ft->f_inode,p_ft->f_inode->i_ino); 
+		}
+
+		u8 two_sectors[1024]={0};/*load indexs in zone[7] to memory 'two_sectors'*/
+		IDE_read_sector((void *)two_sectors, DATA_BLK_NR_TO_SECTOR_NR(p_ft->f_inode->i_zone[7]));
+		IDE_read_sector((void *)(two_sectors+512), DATA_BLK_NR_TO_SECTOR_NR(p_ft->f_inode->i_zone[7])+1);
+		u16 * pzone =(u16 *)&two_sectors;
+
+		for(int i = 7*SECTOR_PER_BLOCK;i<7*SECTOR_PER_BLOCK+512*SECTOR_PER_BLOCK;i++){//[7*2+1,7*2+512*2]
+			memcpy(sector,buffer+512*i,512);
+			int blk_i = get_zone_blks(i+1)-1;
+			u16 zone_index = pzone[blk_i-7];/*zone[0~6]*/
+			if(zone_index==0){
+				zone_index =(u16) new_block();pzone[blk_i-7]=zone_index;
+				/* something similar to  'iput'*/
+				IDE_write_sector((void *)two_sectors, DATA_BLK_NR_TO_SECTOR_NR(p_ft->f_inode->i_zone[7]));
+				IDE_write_sector((void *)(two_sectors+512), DATA_BLK_NR_TO_SECTOR_NR(p_ft->f_inode->i_zone[7])+1);
+				/*kprintf("\nnewblock:%d,index%d\n",zone_index,blk_i-7);*/
+			}
+			if(i%2==0){
+					IDE_write_sector((void *)&sector, DATA_BLK_NR_TO_SECTOR_NR(zone_index));
+			}else{
+					IDE_write_sector((void *)&sector, DATA_BLK_NR_TO_SECTOR_NR(zone_index)+1);
+			}
+		}
+/*  #2.3 zone[8]  :  double indirect block 两次间址,支持大概256MB*/
+		memset(two_sectors,0x00,sizeof(two_sectors));/*reuse that buffer*/
+		memset(sector,0x00,sizeof(sector));
+		if(p_ft->f_inode->i_zone[8]==0){/* allocate newblock for  zone[8] */
+			p_ft->f_inode->i_zone[8] = new_block();
+			iput(p_ft->f_inode,p_ft->f_inode->i_ino); 
+		}
+		/*load indexes in zone[8] to memory 'two_sectors'*/
+		IDE_read_sector((void *)two_sectors, DATA_BLK_NR_TO_SECTOR_NR(p_ft->f_inode->i_zone[8]));
+		IDE_read_sector((void *)(two_sectors+512), DATA_BLK_NR_TO_SECTOR_NR(p_ft->f_inode->i_zone[8])+1);
+		u16 * p_zone = (u16 *)&two_sectors; 
+		for(int i = 7*SECTOR_PER_BLOCK+512*SECTOR_PER_BLOCK;i<total_sectors;i++){//[7*2+512*2+1,7*2+512*2+512*512*2]
+			memcpy(sector,buffer+512*i,512);
+/* load zone[8] to memory, two_sectors <= zone[8]  */			
+			IDE_read_sector((void *)two_sectors, DATA_BLK_NR_TO_SECTOR_NR(p_ft->f_inode->i_zone[8]));
+			IDE_read_sector((void *)(two_sectors+512), DATA_BLK_NR_TO_SECTOR_NR(p_ft->f_inode->i_zone[8])+1);
+			int blk_i = get_zone_blks(i+1)-1;
+			u16 zone_index = p_zone[blk_i-7-512];/*zone[0~6]:7 zone[7]:512*/
+
+
+
+
+
+
+
+
+
+
+
+		}
+
+
+
+// for(int i = 7*SECTOR_PER_BLOCK+512*SECTOR_PER_BLOCK;i<total_sectors;i++){//[7*2+512*2+1,7*2+512*2+512*512*2]
+// 			memcpy(sector,buffer+512*i,512);
+// 			int blk_i = get_zone_blks(i+1)-1;
+// 			u16 zone_index = pzone[blk_i-7];/*zone[0~6]*/
+// 			if(zone_index==0){
+// 				zone_index =(u16) new_block();pzone[blk_i-7]=zone_index;
+// 				/* something similar to  'iput'*/
+// 				IDE_write_sector((void *)two_sectors, DATA_BLK_NR_TO_SECTOR_NR(p_ft->f_inode->i_zone[7]));
+// 				IDE_write_sector((void *)(two_sectors+512), DATA_BLK_NR_TO_SECTOR_NR(p_ft->f_inode->i_zone[7])+1);
+// 				/*kprintf("\nnewblock:%d,index%d\n",zone_index,blk_i-7);*/
+// 			}
+// 			if(i%2==0){
+// 					IDE_write_sector((void *)&sector, DATA_BLK_NR_TO_SECTOR_NR(zone_index));
+// 			}else{
+// 					IDE_write_sector((void *)&sector, DATA_BLK_NR_TO_SECTOR_NR(zone_index)+1);
+// 			}
+// 		}
+
+
+_panic(" FBI_WARNING:read:your file is TOO LARGE!!!");
+
+
+
+	}else{
+		kprintf("\n file size: %d Bytes.",length);
+		_panic(" FBI_WARNING:write:your file is TOO LARGE!!!");
+
 	}
 /* last but not least ,we should update  active_inode_table in memory */	
 
