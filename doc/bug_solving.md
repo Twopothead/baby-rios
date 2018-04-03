@@ -147,3 +147,14 @@ current->filp[fd]->f_inode = &active_inode_table.inode_table[active_inode_table_
 不然这个链就断了,之前没有current->filp[fd]->f_inode 指向活动inode表,导致虽然已经正确写入磁盘,
 活动inode表里也有,但是 甲=>乙=>丙 两个指针中有一个没有指向正确的地方,这就导致最终指不到正确的inode,
 造成错误.
+
+#### bug10描述
+close 函数也存在和bug09中open函数类似的问题,那就是没有保持那三个表的同步性
+```
+/*更正时,在close新添加的语句*/
+for(j=0;j<MAX_ACTIVE_INODE;j++)
+		if(active_inode_table.inode_table[j].i_ino==filp->f_inode->i_ino)
+			break;
+	memset(&active_inode_table.inode_table[j],0x00,sizeof(m_inode));
+```
+这样在close时也把活动inode清理,这就不会出差错了

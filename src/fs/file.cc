@@ -99,9 +99,12 @@ int open(const char *name){
 
 	}else{/* it has been opened before, no nead to copy */
 	      /* here,we get i */
-		kprintf("lajiiiiiiiiiiiiiiiiiiii,%d",current->filp[fd]->f_inode->i_size);
-		return i;
+		kprintf("lajiiiiiiiiiiiiiiiii%diii,%d",i,current->filp[fd]->f_inode->i_size);
+		if(current->filp[i]->f_inode->i_ino == ino)return i;
+		kprintf("BBBBBBBBBBBBBBBBBBBBBBBBBB");
+		goto comeon;
 	}
+comeon:	
 /* find a blank entry in process's file descriptor table */	
 	for(fd=0 ; fd <NR_OPEN ; fd++ ){
 
@@ -125,6 +128,8 @@ int open(const char *name){
 (current->filp[fd]=p_ft)->f_count++;
 /* NOTICE! here we should let filp[fd]->f_inode point to an entry in active_inode_table*/
 current->filp[fd]->f_inode = &active_inode_table.inode_table[active_inode_table_nr];
+
+/* keep there tables in sync with each other */
 	return fd;
 }
 
@@ -296,6 +301,13 @@ int close(int fd){
 	if (--filp->f_count)
 		return (0);
 	iput(filp->f_inode,filp->f_inode->i_ino);
+	int j;
+/* here,we will clear the active inode in memory*/
+	for(j=0;j<MAX_ACTIVE_INODE;j++)
+		if(active_inode_table.inode_table[j].i_ino==filp->f_inode->i_ino)
+			break;
+	memset(&active_inode_table.inode_table[j],0x00,sizeof(m_inode));
+
 	return (0);
 }
 

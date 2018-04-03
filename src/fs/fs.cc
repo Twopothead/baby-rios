@@ -49,7 +49,7 @@ void setup_fs(){
 	        read(hamlet_fd, (void *)hamlet_buf,hamlet_len);
 	        // kprintf("\n%s",hamlet_buf);
 	        Ri_free(hamlet_buf,hamlet_len+512),hamlet_buf=(char*)NULL;
-	        // close(hamlet_fd);
+	        close(hamlet_fd);
 
 		#include <rios/Jane_Eyre.txt>
 		kprintf("fd%d",contents_fd);
@@ -65,7 +65,7 @@ void setup_fs(){
 	  // kprintf("\n%s",contents);
 	        // kprintf("ino  %d",current->filp[contents_fd]->f_inode->i_ino); _panic("fuck");
 	        Ri_free(contents,contents_len+512),contents=(char*)NULL;
-	        // close(contents_fd);
+	        close(contents_fd);
 	}
 }
 
