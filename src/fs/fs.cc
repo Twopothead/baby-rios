@@ -53,8 +53,8 @@ void setup_fs(){
 		kprintf("fd%d",contents_fd);
 		int contents_len = strlen(Jane_Eyre);
 		//contents_len = 511400;
-		contents_len =1020*512;
-// contents_len =20*512;/*目前尚不能支持超大文件*/
+		// contents_len =1020*512;
+//contents_len =20*512;/*目前尚不能支持超大文件,这只用于调试,以后要注释掉*/
 kprintf("\n%d",contents_len);/*目前尚不能支持超大文件*/
 	        write(contents_fd, (void *)Jane_Eyre, contents_len);	
 	        char *contents = (char *)kmalloc(contents_len+512);

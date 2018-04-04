@@ -62,7 +62,6 @@ void cat(const char *name,u8 mode)
 	if(times*80*25==len){;}else times = times+1;
 	kprintf("\n");
 	if(times==1||times==0){
-
 			memset(cat_buf,0x00,sizeof(cat_buf));
 			memcpy(cat_buf,cat_contents,sizeof(cat_buf));
 			cat_buf[80*25]='\0';

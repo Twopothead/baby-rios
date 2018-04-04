@@ -112,7 +112,8 @@ void msg_danger_hdb()
 	print("  Switching from hda(Udisk) to hdb(PC hard disk)!LOOK OUT!!!");
 }
 
-/* total_used_ctrl_blks = 350
+/* now the following comments is out of date.
+ total_used_ctrl_blks = 350
  		(the first 2 sectors are boot sector and superblock blk 
    		350 = 2 + 5 + 1 + 342
  	kprintf(" total used contrl blks are :%d. = 2+ %d * %d * %d",total_used_ctrl_blks, \

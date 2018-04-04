@@ -78,3 +78,8 @@ zone[9] 三次间址: 512 * 512 * 512 * (512 * 2) = 128 GB
 然后把文件内容复制到内存空间,然后kprintf("%s",str);但是发现显示速度极其慢,也不知道为什么,
 我在反复调试中发现原因在于这个str过长,虽然功能正确,但速度太慢了,若是把它分割为几段依次输出,
 速度就会提高很多.
+
+- 使用stat（显示inode信息） stat hello.txt
+- https://www.cnblogs.com/biyeymyhjob/archive/2012/07/26/2609649.html
+- testcase: "Jane Eyre 491"
+- 示例文件中,简爱靠近末尾的一句话 "words are a pledge of this"

@@ -174,7 +174,7 @@ int read(int fd, void *buffer, int length){
 				/*kprintf("\n%d\n%d\n",p_ft->f_inode->i_zone[7],blk_i);kprintf("%d\n%d",blk_i,i);*/
 				IDE_read_sector((void *)two_sectors, DATA_BLK_NR_TO_SECTOR_NR(p_ft->f_inode->i_zone[7]));
 				IDE_read_sector((void *)(two_sectors+512), DATA_BLK_NR_TO_SECTOR_NR(p_ft->f_inode->i_zone[7])+1);
-				_panic("FBI WARNNING:zone_index should not be zero!!!");/* will destory root directory!*/			
+				_panic("FBI WARNNING:read:zone_index should not be zero!!!");/* will destory root directory!*/			
 			}
 			if(i%2==0){
 					IDE_read_sector((void *)&sector, DATA_BLK_NR_TO_SECTOR_NR(zone_index));
@@ -209,7 +209,7 @@ int read(int fd, void *buffer, int length){
 			if(zone_index==0) {
 				IDE_read_sector((void *)two_sectors, DATA_BLK_NR_TO_SECTOR_NR(p_ft->f_inode->i_zone[7]));
 				IDE_read_sector((void *)(two_sectors+512), DATA_BLK_NR_TO_SECTOR_NR(p_ft->f_inode->i_zone[7])+1);
-				_panic("FBI WARNNING:zone_index should not be zero!!!");/* will destory root directory!*/			
+				_panic("FBI WARNING:read:zone_index should not be zero!!!");/* will destory root directory!*/			
 			}
 			if(i%2==0){
 					IDE_read_sector((void *)&sector, DATA_BLK_NR_TO_SECTOR_NR(zone_index));
@@ -377,52 +377,50 @@ int write(int fd, void *buffer, int length){
 		/*load indexes in zone[8] to memory 'two_sectors'*/
 		IDE_read_sector((void *)two_sectors, DATA_BLK_NR_TO_SECTOR_NR(p_ft->f_inode->i_zone[8]));
 		IDE_read_sector((void *)(two_sectors+512), DATA_BLK_NR_TO_SECTOR_NR(p_ft->f_inode->i_zone[8])+1);
-		u16 * p_zone = (u16 *)&two_sectors; 
+		u16 * p_zone = (u16 *)&two_sectors;
+
+		u8 double_sectors[1024]={0};/* double indirect block buffer*/
+		u16 * pd = (u16 *)&double_sectors;
+
 		for(int i = 7*SECTOR_PER_BLOCK+512*SECTOR_PER_BLOCK;i<total_sectors;i++){//[7*2+512*2+1,7*2+512*2+512*512*2]
 			memcpy(sector,buffer+512*i,512);
-/* load zone[8] to memory, two_sectors <= zone[8]  */			
+			/* load single indirect block (zone[8]) to memory, two_sectolrs <= zone[8]  */			
 			IDE_read_sector((void *)two_sectors, DATA_BLK_NR_TO_SECTOR_NR(p_ft->f_inode->i_zone[8]));
 			IDE_read_sector((void *)(two_sectors+512), DATA_BLK_NR_TO_SECTOR_NR(p_ft->f_inode->i_zone[8])+1);
 			int blk_i = get_zone_blks(i+1)-1;
-			u16 zone_index = p_zone[blk_i-7-512];/*zone[0~6]:7 zone[7]:512*/
 
+			u16 single_indirect_i =(blk_i-7-512)/512;/*zone[0~6]:7 zone[7]:512*/
+			u16 double_indirect_i = (blk_i-7-512) -512*single_indirect_i;
 
-
-
-
-
-
-
-
-
+			u16 si_zone_index = p_zone[single_indirect_i];
+			if(si_zone_index ==0){
+				si_zone_index =(u16) new_block();p_zone[single_indirect_i]=si_zone_index;
+				/* something similar to  'iput' , memory => zone[8] on disk */
+				IDE_write_sector((void *)two_sectors, DATA_BLK_NR_TO_SECTOR_NR(p_ft->f_inode->i_zone[8]));
+				IDE_write_sector((void *)(two_sectors+512), DATA_BLK_NR_TO_SECTOR_NR(p_ft->f_inode->i_zone[8])+1);
+			}
+			
+			/* get double indirect block from disk */
+			IDE_read_sector((void *)double_sectors, DATA_BLK_NR_TO_SECTOR_NR(si_zone_index));
+			IDE_read_sector((void *)(double_sectors+512), DATA_BLK_NR_TO_SECTOR_NR(si_zone_index)+1);
+			/* ok, double indirect block is now loaded to double_sectors in memory */	
+			u16 db_zone_index = pd[double_indirect_i];
+			if(db_zone_index==0){
+				db_zone_index = (u16) new_block();pd[double_indirect_i]= db_zone_index;
+				/*sth similar to double-indirect method's iput' */
+				IDE_write_sector((void *)double_sectors, DATA_BLK_NR_TO_SECTOR_NR(si_zone_index));
+				IDE_write_sector((void *)(double_sectors+512), DATA_BLK_NR_TO_SECTOR_NR(si_zone_index)+1);
+			}
+			/*file contents been wrote to disk*/
+			if(i%2==0){
+				 IDE_write_sector((void *)&sector , DATA_BLK_NR_TO_SECTOR_NR(db_zone_index));
+			}else{
+				 IDE_write_sector((void *)&sector , DATA_BLK_NR_TO_SECTOR_NR(db_zone_index)+1);
+			}
 
 		}
 
-
-
-// for(int i = 7*SECTOR_PER_BLOCK+512*SECTOR_PER_BLOCK;i<total_sectors;i++){//[7*2+512*2+1,7*2+512*2+512*512*2]
-// 			memcpy(sector,buffer+512*i,512);
-// 			int blk_i = get_zone_blks(i+1)-1;
-// 			u16 zone_index = pzone[blk_i-7];/*zone[0~6]*/
-// 			if(zone_index==0){
-// 				zone_index =(u16) new_block();pzone[blk_i-7]=zone_index;
-// 				/* something similar to  'iput'*/
-// 				IDE_write_sector((void *)two_sectors, DATA_BLK_NR_TO_SECTOR_NR(p_ft->f_inode->i_zone[7]));
-// 				IDE_write_sector((void *)(two_sectors+512), DATA_BLK_NR_TO_SECTOR_NR(p_ft->f_inode->i_zone[7])+1);
-// 				/*kprintf("\nnewblock:%d,index%d\n",zone_index,blk_i-7);*/
-// 			}
-// 			if(i%2==0){
-// 					IDE_write_sector((void *)&sector, DATA_BLK_NR_TO_SECTOR_NR(zone_index));
-// 			}else{
-// 					IDE_write_sector((void *)&sector, DATA_BLK_NR_TO_SECTOR_NR(zone_index)+1);
-// 			}
-// 		}
-
-
-_panic(" FBI_WARNING:read:your file is TOO LARGE!!!");
-
-
-
+// _panic(" FBI_WARNING:write:your file is TOO LARGE!!!");
 	}else{
 		kprintf("\n file size: %d Bytes.",length);
 		_panic(" FBI_WARNING:write:your file is TOO LARGE!!!");

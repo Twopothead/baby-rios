@@ -52,6 +52,8 @@ struct d_super_block
 #define NORMAL_FILE	0
 #define DIR_FILE  	1
 
+/* struct m_inode & struct d_inode are hardcoded, do NOT touch them */
+
 struct m_inode
 {
 	u8 i_mode;			/*file type(dir/normal) and attribute(rwx)*/

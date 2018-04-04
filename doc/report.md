@@ -567,6 +567,7 @@ Preprocessor Lines 603
 - [9]《ORANGE’S：一个操作系统的实现》书后源码https://github.com/wlmnzf/oranges
 - [10]Makefile编写手册 GNU make manual https://www.gnu.org/software/make/manual/make.html
 - [11]键盘扫描码相关:https://github.com/willdurand/willOS
+- [12]文件和目录操作的系统函数简介:https://www.cnblogs.com/biyeymyhjob/archive/2012/07/26/2609649.html
 
 
 
