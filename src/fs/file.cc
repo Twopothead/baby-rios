@@ -166,7 +166,6 @@ int read(int fd, void *buffer, int length){
 		u16 * pzone =(u16 *)&two_sectors;/* that's right */
 
 		for(int i = 7*SECTOR_PER_BLOCK;i<total_sectors;i++){//[7*2+1,7*2+512*2]
-			memcpy(sector,buffer+512*i,512);
 			int blk_i = get_zone_blks(i+1)-1;
 			u16 zone_index = pzone[blk_i-7];/*zone[0~6]*/
 /* MAKE SURE that zone_index!=0. assert(zone_index!=0)*/			
@@ -202,7 +201,6 @@ int read(int fd, void *buffer, int length){
 		u16 * pzone =(u16 *)&two_sectors;/* that's right */
 
 		for(int i = 7*SECTOR_PER_BLOCK;i<7*SECTOR_PER_BLOCK+512*SECTOR_PER_BLOCK;i++){//[7*2+1,7*2+512*2]
-			memcpy(sector,buffer+512*i,512);
 			int blk_i = get_zone_blks(i+1)-1;
 			u16 zone_index = pzone[blk_i-7];/*zone[0~6]*/
 /* MAKE SURE that zone_index!=0. assert(zone_index!=0)*/			
@@ -220,24 +218,45 @@ int read(int fd, void *buffer, int length){
 		}
 
 /*  #2.3 zone[8]  :  double indirect block 两次间址,支持大概256MB*/
+		memset(two_sectors,0x00,sizeof(two_sectors));/*reuse that buffer*/
+		memset(sector,0x00,sizeof(sector));
+		if(p_ft->f_inode->i_zone[8]==0){/* allocate newblock for  zone[8] */
+			_panic("FBI WARNING:read:file's i_zone[8] is NOT allocated!!!"); 
+		}
+		/*load indexes in zone[8] to memory 'two_sectors'*/
+		IDE_read_sector((void *)two_sectors, DATA_BLK_NR_TO_SECTOR_NR(p_ft->f_inode->i_zone[8]));
+		IDE_read_sector((void *)(two_sectors+512), DATA_BLK_NR_TO_SECTOR_NR(p_ft->f_inode->i_zone[8])+1);
+		u16 * p_zone = (u16 *)&two_sectors;
 
+		u8 double_sectors[1024]={0};/* double indirect block buffer*/
+		u16 * pd = (u16 *)&double_sectors;
+		for(int i=7*SECTOR_PER_BLOCK+512*SECTOR_PER_BLOCK;i<total_sectors;i++){
+			///////////memcpy(sector,buffer+512*i,512);
+			/* load single indirect block (zone[8]) to memory, two_sectolrs <= zone[8]  */			
+			IDE_read_sector((void *)two_sectors, DATA_BLK_NR_TO_SECTOR_NR(p_ft->f_inode->i_zone[8]));
+			IDE_read_sector((void *)(two_sectors+512), DATA_BLK_NR_TO_SECTOR_NR(p_ft->f_inode->i_zone[8])+1);
+			int blk_i = get_zone_blks(i+1)-1;
+			u16 single_indirect_i =(blk_i-7-512)/512;/*zone[0~6]:7 zone[7]:512*/
+			u16 double_indirect_i = (blk_i-7-512) -512*single_indirect_i;
 
+			u16 si_zone_index = p_zone[single_indirect_i];
+			if(si_zone_index ==0) _panic("FBI WARNING:read:file's si_zone_index has not been allocated!!!");
+			/* get double indirect block from disk */
+			IDE_read_sector((void *)double_sectors, DATA_BLK_NR_TO_SECTOR_NR(si_zone_index));
+			IDE_read_sector((void *)(double_sectors+512), DATA_BLK_NR_TO_SECTOR_NR(si_zone_index)+1);
+			/* ok, double indirect block is now loaded to double_sectors in memory */	
+			u16 db_zone_index = pd[double_indirect_i];
+  			if(db_zone_index==0) _panic("FBI WARNING:read:file's db_zone_index has not been allocated!!!");
+			/*load file contents been from disk*/
+			if(i%2==0){
+				 IDE_read_sector((void *)&sector , DATA_BLK_NR_TO_SECTOR_NR(db_zone_index));
+			}else{
+				 IDE_read_sector((void *)&sector , DATA_BLK_NR_TO_SECTOR_NR(db_zone_index)+1);
+			}
+			memcpy(buffer+buffer_offset,sector,512);buffer_offset+=512;
+		}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-_panic(" FBI_WARNING:read:your file is TOO LARGE!!!");
+//_panic(" FBI_WARNING:read:your file is TOO LARGE!!!");
 	}
 	else{
 		kprintf("\n file size: %d Bytes.",length);
@@ -417,10 +436,8 @@ int write(int fd, void *buffer, int length){
 			}else{
 				 IDE_write_sector((void *)&sector , DATA_BLK_NR_TO_SECTOR_NR(db_zone_index)+1);
 			}
-
 		}
 
-// _panic(" FBI_WARNING:write:your file is TOO LARGE!!!");
 	}else{
 		kprintf("\n file size: %d Bytes.",length);
 		_panic(" FBI_WARNING:write:your file is TOO LARGE!!!");
