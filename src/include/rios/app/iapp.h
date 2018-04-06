@@ -30,6 +30,9 @@ void cat_service(char* cmd_buffer,int cmd_buffer_index);
 void cat(const char *name,u8 mode);
 void slow_cat(const char *name,u8 mode);
 void slow_cat_service(char* cmd_buffer,int cmd_buffer_index);
+
+void rm_service(char* cmd_buffer,int cmd_buffer_index);
+void rm(const char *name,u8 mode);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

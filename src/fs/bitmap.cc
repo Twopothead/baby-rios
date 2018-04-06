@@ -174,8 +174,11 @@ void free_block(int block){
 	if(specific_block.s_free_blk_nr[0] == 0){
 		_panic(" FBI WARNING:There is no free block available!!!");
 	}
+/* we will never free the block which contains root directory.*/	
+	if(block==0){
+		_panic(" FBI WARNING:free_block: root directory should NOT be freed!!!");
+	}
 	return;
-
 }
 
 

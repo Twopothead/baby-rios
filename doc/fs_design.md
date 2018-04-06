@@ -83,3 +83,10 @@ zone[9] 三次间址: 512 * 512 * 512 * (512 * 2) = 128 GB
 - https://www.cnblogs.com/biyeymyhjob/archive/2012/07/26/2609649.html
 - testcase: "Jane Eyre 491"
 - 示例文件中,简爱靠近末尾的一句话 "words are a pledge of this"
+- echo "This is an original file" > old.file 
+
+### 软硬链接
+硬链接是有着相同 inode 号仅文件名不同的文件
+- 文件有相同的 inode 及 data block；
+- 只能对已存在的文件进行创建；
+

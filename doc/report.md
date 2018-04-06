@@ -568,6 +568,7 @@ Preprocessor Lines 603
 - [10]Makefile编写手册 GNU make manual https://www.gnu.org/software/make/manual/make.html
 - [11]键盘扫描码相关:https://github.com/willdurand/willOS
 - [12]文件和目录操作的系统函数简介:https://www.cnblogs.com/biyeymyhjob/archive/2012/07/26/2609649.html
+- [13]软硬链接的介绍:https://www.ibm.com/developerworks/cn/linux/l-cn-hardandsymb-links/index.html
 
 
 

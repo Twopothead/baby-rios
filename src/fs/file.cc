@@ -65,7 +65,6 @@ int simple_creat(const char *name,u8 mode)
 /*ok, update current directory file's filesize, because we add a record.*/	
 	current->pwd->i_size += 1 * sizeof(struct dir_entry);	/* add a new file, a new dir entry*/
 	iput(current->pwd,current->pwd->i_ino);
-// current->filp[fd]->f_inode->i_size = 100;
 	iput(current->filp[fd]->f_inode, current->filp[fd]->f_inode->i_ino);
 	return fd;
 }
@@ -74,7 +73,7 @@ int simple_creat(const char *name,u8 mode)
  * and return with a valid file descriptor.
  */
 /* when the file table hasn't been initialized, it's filled with zero,
- * to avoid ambiguity, I decided that our fd counts from 1.																																																																			
+ * fd counts from zero.																																																																			
  */
 int open(const char *name){
 	int fd,i;
@@ -231,7 +230,6 @@ int read(int fd, void *buffer, int length){
 		u8 double_sectors[1024]={0};/* double indirect block buffer*/
 		u16 * pd = (u16 *)&double_sectors;
 		for(int i=7*SECTOR_PER_BLOCK+512*SECTOR_PER_BLOCK;i<total_sectors;i++){
-			///////////memcpy(sector,buffer+512*i,512);
 			/* load single indirect block (zone[8]) to memory, two_sectolrs <= zone[8]  */			
 			IDE_read_sector((void *)two_sectors, DATA_BLK_NR_TO_SECTOR_NR(p_ft->f_inode->i_zone[8]));
 			IDE_read_sector((void *)(two_sectors+512), DATA_BLK_NR_TO_SECTOR_NR(p_ft->f_inode->i_zone[8])+1);

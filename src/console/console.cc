@@ -120,6 +120,8 @@ void con_putch(u8 ch)
     			 cat_service((char*)cmd_buffer,cmd_buffer_index);
     		}else if(start_with(arg0,"slowcat")){
     			 slow_cat_service((char*)cmd_buffer,cmd_buffer_index);
+    		}else if(start_with(arg0,"rm")){
+    			 rm_service((char*)cmd_buffer,cmd_buffer_index);
     		}else{
     			if(cmd_buffer_index!=0)kprintf("\n%s: command not found.",tmp);
     		}

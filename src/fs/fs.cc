@@ -27,6 +27,7 @@ void setup_fs(){
 	extern int new_rifs;
 	if(new_rifs){/* the first time */
 /* first.make some directories */	
+		kprintf("\n  setting up file system, waiting...");
 		silent_mkdir((char*)"mkdir /usr",strlen("mkdir /usr"));
 		silent_cd((char*)"cd /usr",strlen("cd /usr"));	
 		#define _silent_mkdir(cmd) 	silent_mkdir((char*) cmd, strlen(cmd))
@@ -48,19 +49,19 @@ void setup_fs(){
 	        // kprintf("\n%s",hamlet_buf);
 	        Ri_free(hamlet_buf,hamlet_len+512),hamlet_buf=(char*)NULL;
 	        close(hamlet_fd);
-
 		#include <rios/Jane_Eyre.txt>
-		kprintf("fd%d",contents_fd);
+		/*kprintf("fd%d",contents_fd);*/
 		int contents_len = strlen(Jane_Eyre);
 		//contents_len = 511400;
-		//contents_len =1020*512;/*目前尚不能支持超大文件,这只用于调试,以后要注释掉*/
+		//contents_len =1020*512;/*以前不能支持超大文件,这只用于调试,以后要注释掉*/
 		//contents_len =20*512;
-kprintf("\n%d",contents_len);/*目前尚不能支持超大文件*/
+		//kprintf("\n%d",contents_len);/*以前不能支持超大文件*/
 	        write(contents_fd, (void *)Jane_Eyre, contents_len);	
 	        char *contents = (char *)kmalloc(contents_len+512);
 	        read(contents_fd, (void *)contents, contents_len);
 	        Ri_free(contents,contents_len+512),contents=(char*)NULL;
 	        close(contents_fd);
+	        msg_setup_fs();
 	}
 }
 

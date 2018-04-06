@@ -56,6 +56,8 @@ void iput(struct m_inode * inode, int nr)
 void free_inode(int inode)
 {
 	u8 sector[512]={0};
+/* we will never free root directory's inode */
+	if(inode==0)_panic(" FBI WARNING:free_inode:you should NOT free root directroy's inode!!!");
 	IDE_read_sector((void *)&sector,NR_INODE_MAP_BLK(rios_superblock));
 	bitmap_clear_bit(inode,sector);
 	IDE_write_sector((void *)&sector,NR_INODE_MAP_BLK(rios_superblock));

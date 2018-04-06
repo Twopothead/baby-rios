@@ -84,7 +84,8 @@ These shell commands are defined internally.  Type `help' to see this list.\n\
  - info  :: 'info superblock','info grouping','info debug',\n\
          'info disk'\n\
  - cat   :: concatenate files and print on the standard output\n\      
-         - slowcat :: just like 'cat', but will print much more slowly :( \n\   
+         - slowcat :: just like 'cat', but will print much more slowly :( \n\
+ - rm    :: delete a file. eg. 'rm hello.txt'\n\            
  - pwd   :: print current working directory.\n\        
  - logo  :: print NJAU logo.");
 }
@@ -110,6 +111,13 @@ void msg_danger_hdb()
 	nextline();
 	msg_ok();
 	print("  Switching from hda(Udisk) to hdb(PC hard disk)!LOOK OUT!!!");
+}
+
+void msg_setup_fs()
+{
+	nextline();
+	msg_ok();
+	print("  file system has been successfully initialized.");
 }
 
 /* now the following comments is out of date.
