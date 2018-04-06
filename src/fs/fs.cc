@@ -22,7 +22,8 @@ void init_fs()
 	setup_fs();
 
 }
-
+extern int is_specific_block_set;
+extern union free_space_grouping_head specific_block;/*内存专用块*/
 void setup_fs(){
 	extern int new_rifs;
 	if(new_rifs){/* the first time */
@@ -62,6 +63,13 @@ void setup_fs(){
 	        Ri_free(contents,contents_len+512),contents=(char*)NULL;
 	        close(contents_fd);
 	        msg_setup_fs();
+	}else{
+/* filesystem has been initialized*/
+		union Super_Block_Sect *sb = get_super();
+		specific_block = get_blk_nr_free_group(sb->s_specific_blk_nr);
+		is_specific_block_set =1;
+		/*kprintf("\n  specific_block:%d",sb->s_specific_blk_nr);*/
+
 	}
 }
 
