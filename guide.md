@@ -80,7 +80,7 @@ $ make clean
 ```
 - make clean & make run
 - make run
-  
+
 ------------------------------
 
 ### about Programmable Interrupt Timer(8253/8254)
@@ -122,6 +122,8 @@ Bits         Usage
 ```
 
 https://wiki.osdev.org/Programmable_Interval_Timer
+
+https://web.stanford.edu/class/cs140e/assignments/2-fs/
 
 bin(0x34)='0b110100'= 00   11    0 10   0
 

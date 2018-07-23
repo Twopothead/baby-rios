@@ -41,7 +41,7 @@ void rm(const char *name,u8 mode)
 		return;
 	}
 	if(current->filp[fd]->f_inode->i_nlinks!=0)
-		kprintf("\nrm: nlinks:%d",current->filp[fd]->f_inode->i_nlinks);
+		kprintf("\n rm: nlinks:%d",current->filp[fd]->f_inode->i_nlinks);
 	u16 ino = current->filp[fd]->f_inode->i_ino;
 	int length = current->filp[fd]->f_inode->i_size;
 	close(fd);

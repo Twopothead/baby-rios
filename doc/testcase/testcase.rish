@@ -1,0 +1,38 @@
+---------------------
+make clean
+make run
+---------------------
+help
+info superblock
+info disk
+hexdump 523
+info grouping
+mkdir dir1/dir2/dir3
+rmdir dir1
+cd dir1/dir2
+cd dir3
+cd ..
+rmdir dir3
+cd ..
+rmdir dir2
+cd /
+ls
+rmdir dir1
+cat hamlet.txt
+cat jane.txt
+mkdir hello/world
+---------------------
+make run
+---------------------
+ls
+pwd
+cat hamlet.txt
+cat jane.txt
+rm hamlet.txt
+rm jane.txt
+---------------------
+make run
+---------------------
+ls
+
+

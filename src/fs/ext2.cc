@@ -8,7 +8,7 @@
 #include <rios/ext2.h>
 /*ok, ext2 may be a joke, but I'm working on it */
 
-
+/*弃用*/
 /*@mode :privilege level*/
 int sys_mkdir(struct indoe *dir ,struct dentry *dentry, int mode){
 

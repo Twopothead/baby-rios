@@ -175,8 +175,8 @@ void init_8253()
 /*bin(0x34)='0b110100'= 00   11    010   0
  *Channel 0 ,Access mode: lobyte/hibyte , Mode 2 (rate generator),16-bit binary 
  */	
-	outb(PIT_CHANNEL0_DATA_PORT,0x9c);/*loyte*/
-	outb(PIT_CHANNEL0_DATA_PORT,0x2e);/*hibyte*/
+	outb(PIT_CHANNEL0_DATA_PORT,0x9c);/*low byte*/
+	outb(PIT_CHANNEL0_DATA_PORT,0x2e);/*high byte*/
 /* 1193180/100 = 11930 ,100HZ => a irq every 10ms
  * 11930 = 0b 0010 1110 1001 1010,first write lower bits,then the higher
  * see my guide.md and https://wiki.osdev.org/Programmable_Interval_Timer

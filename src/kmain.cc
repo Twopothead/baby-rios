@@ -28,7 +28,7 @@ u8 _global_buf[512]={0};
 extern unsigned char *buffer_addr;
 extern union Super_Block_Sect rios_superblock;
 extern struct m_inode iroot;
-struct task_struct _task;/* we haven't fully implement it */ 
+struct task_struct _task;/* we haven't fully implemented it */ 
 struct task_struct * current = &_task;
 void RiOS_main(void)
 {
